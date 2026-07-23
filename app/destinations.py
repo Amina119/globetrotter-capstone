@@ -5,7 +5,7 @@ Destination search endpoint.
 
 Routes
 ------
-GET /destinations?q=paris&tag=food&continent=Europe
+GET /destinations?q=paris&tag=food&quarter=Nkolmong
     Returns destinations that match any of the provided query parameters.
     All parameters are optional; omitting them returns the full catalogue.
 """
@@ -18,19 +18,19 @@ destinations_bp = Blueprint("destinations", __name__)
 
 @destinations_bp.route("/destinations", methods=["GET"])
 def search_destinations():
-    """Search destinations by name keyword, tag, and/or continent.
+    """Search destinations by name keyword, tag, and/or quarter.
 
     Query parameters (all optional):
-        q          – free-text search against name, country, and description
+        q          – free-text search against name, Town, and sector
         tag        – filter by a single interest tag (e.g. "beach")
-        continent  – filter by continent name (e.g. "Europe")
+        quarter    – filter by quarter name (e.g. "Nkolmong")
         max_cost   – filter by maximum average daily cost (integer)
 
     Returns a JSON list of matching destination objects.
     """
     q = request.args.get("q", "").strip().lower()
     tag = request.args.get("tag", "").strip().lower()
-    continent = request.args.get("continent", "").strip().lower()
+    quarter = request.args.get("quarter", "").strip().lower()
     max_cost_str = request.args.get("max_cost", "").strip()
 
     max_cost = None
@@ -48,8 +48,8 @@ def search_destinations():
         if q:
             searchable = " ".join([
                 dest.get("name", ""),
-                dest.get("country", ""),
-                dest.get("description", ""),
+                dest.get("Town", ""),
+                dest.get("sector", ""),
             ]).lower()
             if q not in searchable:
                 continue
@@ -58,8 +58,8 @@ def search_destinations():
         if tag and tag not in [t.lower() for t in dest.get("tags", [])]:
             continue
 
-        # Continent filter
-        if continent and continent != dest.get("continent", "").lower():
+        # Quarter filter
+        if quarter and quarter != dest.get("quarter", "").lower():
             continue
 
         # Cost filter – skip destinations that have no cost information or exceed the limit

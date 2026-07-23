@@ -12,7 +12,7 @@ GET /recommendations
 from flask import Blueprint, request, jsonify
 
 from app.auth import get_current_user
-from app.models import get_all_destinations, get_user_by_username
+from app.models import get_all_destinations, get_user_by_email
 
 recommendations_bp = Blueprint("recommendations", __name__)
 
@@ -28,11 +28,11 @@ def get_recommendations():
 
     Requires: Authorization: ******
     """
-    username = get_current_user(request)
-    if not username:
+    email = get_current_user(request)
+    if not email:
         return jsonify({"error": "authentication required"}), 401
 
-    user = get_user_by_username(username)
+    user = get_user_by_email(email)
     if not user:
         return jsonify({"error": "user not found"}), 404
 
