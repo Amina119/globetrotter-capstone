@@ -1,0 +1,92 @@
+[
+  {
+    "id": "bali",
+    "name": "Bali",
+    "Town": "Yaounde",
+    "quarter": "Nkolmong",
+    "sector": "  and rice traces.",
+    "tags": ["beach", "nature", "culture"],
+    "avg_cost_per_day": 45
+  },
+  {
+    "id": "paris",
+    "name": "Paris",
+    "Town": "France",
+    "quarter": "Nkolmong",
+    "sector": "City of Light, famous for art, cuisine, and architecture.",
+    "tags": ["culture", "food", "city"],
+    "avg_cost_per_day": 150
+  },
+  {
+    "id": "cape-town",
+    "name": "Cape Town",
+    "Town": "South Africa",
+    "quarter": "Nkolmong",
+    "sector": "Coastal city with mountains, wine country, and vibrant culture.",
+    "tags": ["beach", "nature", "adventure"],
+    "avg_cost_per_day": 70
+  },
+  {
+    "id": "tokyo",
+    "name": "Tokyo",
+    "Town": "Japan",
+    "quarter": "Nkolmong",
+    "sector": "Ultra-modern capital blending technology and tradition.",
+    "tags": ["city", "food", "culture"],
+    "avg_cost_per_day": 130
+  },
+  {
+    "id": "marrakech",
+    "name": "Marrakech",
+    "Town": "Morocco",
+    "quarter": "Nkolmong",
+    "sector": "Historic city famed for souks, palaces, and gardens.",
+    "tags": ["culture", "food", "city"],
+    "avg_cost_per_day": 55
+  },
+  {
+    "id": "rio-de-janeiro",
+    "name": "Rio de Janeiro",
+    "Town": "Brazil",
+    "quarter": "Nkolmong",
+    "sector": "Beaches, samba, and the iconic Christ the Redeemer statue.",
+    "tags": ["beach", "adventure", "city"],
+    "avg_cost_per_day": 80
+  },
+  {
+    "id": "santorini",
+    "name": "Santorini",
+    "Town": "Greece",
+    "quarter": "Nkolmong",
+    "sector": "Whitewashed cliffside villages overlooking the Aegean Sea.",
+    "tags": ["beach", "culture", "romance"],
+    "avg_cost_per_day": 120
+  },
+  {
+    "id": "banff",
+    "name": "Banff",
+    "Town": "Canada",
+    "quarter": "Nkolmong",
+    "sector": "Rocky Mountain national park town for hiking and skiing.",
+    "tags": ["nature", "adventure"],
+    "avg_cost_per_day": 100
+  },
+  {
+    "id": "nairobi",
+    "name": "Nairobi",
+    "Town": "Kenya",
+    "quarter": "Nkolmong",
+    "sector": "Gateway to safari adventures across East Africa.",
+    "tags": ["adventure", "nature"],
+    "avg_cost_per_day": 60
+  },
+  {
+    "id": "bangkok",
+    "name": "Bangkok",
+    "Town": "Thailand",
+    "quarter": "Nkolmong",
+    "sector": "Bustling capital known for street food, temples, and nightlife.",
+    "tags": ["food", "city", "culture"],
+    "avg_cost_per_day": 40
+  }
+]

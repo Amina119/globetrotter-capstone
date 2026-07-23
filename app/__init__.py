@@ -5,11 +5,15 @@ Flask application factory.
 """
 import os
 from flask import Flask
+from flask_cors import CORS
 
 
 def create_app():
     """Create and configure the Flask application."""
     app = Flask(__name__)
+
+    # Allow the Flutter frontend (served from a different origin) to call the API.
+    CORS(app)
 
     # Secret key used for JWT signing.  Set the SECRET_KEY environment variable
     # in production.  The fallback is intentionally weak and must never be used
