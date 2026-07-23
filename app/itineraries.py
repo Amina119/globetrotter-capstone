@@ -37,8 +37,8 @@ def create_itinerary():
     Returns 201 with the created itinerary on success.
     Requires: Authorization: ******
     """
-    username = get_current_user(request)
-    if not username:
+    email = get_current_user(request)
+    if not email:
         return jsonify({"error": "authentication required"}), 401
 
     data = request.get_json(silent=True) or {}
@@ -53,7 +53,7 @@ def create_itinerary():
 
     itinerary = {
         "id": str(uuid.uuid4()),
-        "username": username,
+        "email": email,
         "title": title,
         "destinations": destinations,
         "start_date": data.get("start_date", ""),
@@ -72,9 +72,9 @@ def list_itineraries():
     Returns 200 with a JSON array of itinerary objects.
     Requires: Authorization: ******
     """
-    username = get_current_user(request)
-    if not username:
+    email = get_current_user(request)
+    if not email:
         return jsonify({"error": "authentication required"}), 401
 
-    itineraries = get_itineraries_for_user(username)
+    itineraries = get_itineraries_for_user(email)
     return jsonify(itineraries), 200

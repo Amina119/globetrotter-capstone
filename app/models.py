@@ -55,11 +55,11 @@ def get_all_users() -> list:
     return _read_json(USERS_FILE)
 
 
-def get_user_by_username(username: str) -> dict | None:
-    """Return the user dict for *username*, or None if not found."""
+def get_user_by_email(email: str) -> dict | None:
+    """Return the user dict for *email*, or None if not found."""
     users = get_all_users()
     for user in users:
-        if user.get("username") == username:
+        if user.get("email") == email:
             return user
     return None
 
@@ -89,9 +89,9 @@ def get_all_itineraries() -> list:
     return _read_json(ITINERARIES_FILE)
 
 
-def get_itineraries_for_user(username: str) -> list:
-    """Return itineraries that belong to *username*."""
-    return [it for it in get_all_itineraries() if it.get("username") == username]
+def get_itineraries_for_user(email: str) -> list:
+    """Return itineraries that belong to the user with *email*."""
+    return [it for it in get_all_itineraries() if it.get("email") == email]
 
 
 def save_itinerary(itinerary: dict) -> None:
