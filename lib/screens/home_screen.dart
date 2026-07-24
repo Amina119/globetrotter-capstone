@@ -17,15 +17,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _index = 0;
+  String _destinationsQuery = '';
 
   static const _titles = ['Home', 'Destinations', 'Recommendations', 'My Itineraries'];
 
-  late final _pages = [
-    DashboardScreen(onSeeAll: (i) => setState(() => _index = i)),
-    const DestinationsScreen(),
-    const RecommendationsScreen(),
-    const ItinerariesScreen(),
-  ];
+  void _search(String query) {
+    setState(() {
+      _destinationsQuery = query;
+      _index = 1;
+    });
+  }
 
   Future<void> _logout() async {
     await context.read<Session>().logout();
@@ -47,12 +48,20 @@ class _HomeScreenState extends State<HomeScreen> {
           if (displayName != null && _index != 0)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Center(child: Text(displayName)),
+              child: Center(child: Text(displayName, style: const TextStyle(color: Colors.white))),
             ),
           IconButton(icon: const Icon(Icons.logout), tooltip: 'Log out', onPressed: _logout),
         ],
       ),
-      body: IndexedStack(index: _index, children: _pages),
+      body: IndexedStack(
+        index: _index,
+        children: [
+          DashboardScreen(onSeeAll: (i) => setState(() => _index = i), onSearch: _search),
+          DestinationsScreen(key: ValueKey(_destinationsQuery), initialQuery: _destinationsQuery),
+          const RecommendationsScreen(),
+          const ItinerariesScreen(),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),

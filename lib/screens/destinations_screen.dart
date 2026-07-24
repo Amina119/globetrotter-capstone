@@ -7,14 +7,16 @@ import '../services/session.dart';
 import '../widgets/destination_card.dart';
 
 class DestinationsScreen extends StatefulWidget {
-  const DestinationsScreen({super.key});
+  final String initialQuery;
+
+  const DestinationsScreen({super.key, this.initialQuery = ''});
 
   @override
   State<DestinationsScreen> createState() => _DestinationsScreenState();
 }
 
 class _DestinationsScreenState extends State<DestinationsScreen> {
-  final _searchController = TextEditingController();
+  late final _searchController = TextEditingController(text: widget.initialQuery);
   List<Destination> _results = [];
   bool _loading = true;
   String? _error;
@@ -52,7 +54,6 @@ class _DestinationsScreenState extends State<DestinationsScreen> {
             controller: _searchController,
             decoration: InputDecoration(
               hintText: 'Search destinations (name, country, description)',
-              border: const OutlineInputBorder(),
               prefixIcon: const Icon(Icons.search),
               suffixIcon: IconButton(icon: const Icon(Icons.arrow_forward), onPressed: _search),
             ),
