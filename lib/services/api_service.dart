@@ -124,6 +124,12 @@ class ApiService {
     return _decode(res) as List<dynamic>;
   }
 
+  /// Itineraries other users have shared with the current user.
+  Future<List<dynamic>> getSharedItineraries() async {
+    final res = await http.get(_uri('/itineraries/shared'), headers: _headers);
+    return _decode(res) as List<dynamic>;
+  }
+
   Future<Map<String, dynamic>> createItinerary({
     required String title,
     required List<String> destinations,
@@ -143,5 +149,52 @@ class ApiService {
       }),
     );
     return _decode(res) as Map<String, dynamic>;
+  }
+
+  Future<Map<String, dynamic>> updateItinerary(
+    String id, {
+    required String title,
+    required List<String> destinations,
+    required String startDate,
+    required String endDate,
+    String notes = '',
+  }) async {
+    final res = await http.put(
+      _uri('/itineraries/$id'),
+      headers: _headers,
+      body: jsonEncode({
+        'title': title,
+        'destinations': destinations,
+        'start_date': startDate,
+        'end_date': endDate,
+        'notes': notes,
+      }),
+    );
+    return _decode(res) as Map<String, dynamic>;
+  }
+
+  Future<void> deleteItinerary(String id) async {
+    final res = await http.delete(_uri('/itineraries/$id'), headers: _headers);
+    _decode(res);
+  }
+
+  /// Grants [email] view access to the itinerary with [id].
+  Future<void> shareItinerary(String id, String email) async {
+    final res = await http.post(
+      _uri('/itineraries/$id/share'),
+      headers: _headers,
+      body: jsonEncode({'email': email}),
+    );
+    _decode(res);
+  }
+
+  /// Revokes [email]'s view access to the itinerary with [id].
+  Future<void> unshareItinerary(String id, String email) async {
+    final res = await http.delete(
+      _uri('/itineraries/$id/share'),
+      headers: _headers,
+      body: jsonEncode({'email': email}),
+    );
+    _decode(res);
   }
 }
