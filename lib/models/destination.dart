@@ -6,7 +6,7 @@ class Destination {
   final String sector;
   final List<String> tags;
   final int? avgCostPerDay;
-  final int? matchScore;
+  final num? matchScore;
 
   Destination({
     required this.id,
@@ -28,7 +28,7 @@ class Destination {
       sector: json['sector'] ?? '',
       tags: (json['tags'] as List<dynamic>? ?? []).map((e) => e.toString()).toList(),
       avgCostPerDay: json['avg_cost_per_day'] is int ? json['avg_cost_per_day'] : null,
-      matchScore: json['match_score'] is int ? json['match_score'] : null,
+      matchScore: json['match_score'] is num ? json['match_score'] as num : null,
     );
   }
 }

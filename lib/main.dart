@@ -4,9 +4,31 @@ import 'package:provider/provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/session.dart';
+import 'theme/cameroon_colors.dart';
 
 void main() {
   runApp(const GlobeTrotterApp());
+}
+
+ThemeData _buildTheme() {
+  final colorScheme = ColorScheme.fromSeed(seedColor: CameroonColors.green);
+  return ThemeData(
+    colorScheme: colorScheme,
+    useMaterial3: true,
+    inputDecorationTheme: InputDecorationTheme(
+      filled: true,
+      fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    ),
+    filledButtonTheme: FilledButtonThemeData(
+      style: FilledButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+      ),
+    ),
+  );
 }
 
 class GlobeTrotterApp extends StatelessWidget {
@@ -19,7 +41,7 @@ class GlobeTrotterApp extends StatelessWidget {
       child: MaterialApp(
         title: 'GlobeTrotter',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal), useMaterial3: true),
+        theme: _buildTheme(),
         home: const _StartupGate(),
       ),
     );

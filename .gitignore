@@ -3,6 +3,7 @@
 *.log
 *.pyc
 *.swp
+*.swo
 .DS_Store
 .atom/
 .build/
@@ -43,3 +44,32 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+*.egg
+*.egg-info/
+dist/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+*.pyo
+
+# Environment variables
+.env
+.env.*
+
+# Docker
+.dockerignore
+
+# Data files (populated at runtime; seed catalogue is tracked)
+data/*.json
+!data/destinations.json
