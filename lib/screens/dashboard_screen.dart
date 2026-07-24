@@ -17,8 +17,9 @@ import '../widgets/section_header.dart';
 /// instead of dropping the user straight into a single list.
 class DashboardScreen extends StatefulWidget {
   final void Function(int tabIndex) onSeeAll;
+  final void Function(String query) onSearch;
 
-  const DashboardScreen({super.key, required this.onSeeAll});
+  const DashboardScreen({super.key, required this.onSeeAll, required this.onSearch});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -83,6 +84,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         padding: const EdgeInsets.only(bottom: 24),
         children: [
           _GreetingBanner(name: displayName),
+          const SizedBox(height: 16),
+          _DashboardSearchField(onSearch: widget.onSearch),
           const SizedBox(height: 20),
           SectionHeader(
             title: 'Top destinations',
@@ -167,6 +170,44 @@ class _GreetingBanner extends StatelessWidget {
             child: Icon(Icons.travel_explore, color: CameroonColors.greenDark, size: 28),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _DashboardSearchField extends StatefulWidget {
+  final void Function(String query) onSearch;
+
+  const _DashboardSearchField({required this.onSearch});
+
+  @override
+  State<_DashboardSearchField> createState() => _DashboardSearchFieldState();
+}
+
+class _DashboardSearchFieldState extends State<_DashboardSearchField> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() => widget.onSearch(_controller.text.trim());
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: TextField(
+        controller: _controller,
+        textInputAction: TextInputAction.search,
+        decoration: InputDecoration(
+          hintText: 'Search destinations, e.g. "beach" or "Bali"',
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: IconButton(icon: const Icon(Icons.arrow_forward), onPressed: _submit),
+        ),
+        onSubmitted: (_) => _submit(),
       ),
     );
   }

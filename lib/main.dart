@@ -15,6 +15,7 @@ ThemeData _buildTheme() {
   return ThemeData(
     colorScheme: colorScheme,
     useMaterial3: true,
+    scaffoldBackgroundColor: const Color(0xFFF7F8FA),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
@@ -27,6 +28,41 @@ ThemeData _buildTheme() {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
       ),
+    ),
+    cardTheme: CardThemeData(
+      elevation: 1.5,
+      shadowColor: Colors.black26,
+      surfaceTintColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: EdgeInsets.zero,
+    ),
+    chipTheme: ChipThemeData(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      side: BorderSide.none,
+      backgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: CameroonColors.green,
+      foregroundColor: Colors.white,
+      elevation: 0,
+      centerTitle: false,
+      titleTextStyle: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+      iconTheme: IconThemeData(color: Colors.white),
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      indicatorColor: CameroonColors.green.withValues(alpha: 0.15),
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return TextStyle(
+          fontSize: 12,
+          fontWeight: selected ? FontWeight.bold : FontWeight.normal,
+          color: selected ? CameroonColors.greenDark : Colors.black54,
+        );
+      }),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return IconThemeData(color: selected ? CameroonColors.greenDark : Colors.black54);
+      }),
     ),
   );
 }
