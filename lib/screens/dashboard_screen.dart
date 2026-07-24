@@ -11,6 +11,8 @@ import '../theme/cameroon_colors.dart';
 import '../widgets/compact_destination_card.dart';
 import '../widgets/place_card.dart';
 import '../widgets/section_header.dart';
+import 'nkolmong_sectors_screen.dart';
+import 'sector_detail_screen.dart';
 
 /// The app's landing tab: a dashboard organized into browsable sections
 /// (destinations, recommendations, restaurants, hotels, itineraries)
@@ -104,7 +106,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SectionHeader(title: 'Restaurants near Nkolmong', icon: Icons.restaurant),
           _PlaceRail(items: sampleRestaurants, icon: Icons.restaurant, accent: CameroonColors.red),
           const SizedBox(height: 20),
-          const SectionHeader(title: 'Hotels in Yaoundé', icon: Icons.hotel),
+          SectionHeader(
+            title: 'Hotels in Nkolmong',
+            icon: Icons.hotel,
+            onSeeAll: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const NkolmongSectorsScreen()),
+            ),
+          ),
           _PlaceRail(items: sampleHotels, icon: Icons.hotel, accent: CameroonColors.green),
           const SizedBox(height: 20),
           SectionHeader(
@@ -251,7 +259,19 @@ class _PlaceRail extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: items.length,
-        itemBuilder: (context, i) => PlaceCard(place: items[i], icon: icon, accent: accent),
+        itemBuilder: (context, i) {
+          final place = items[i];
+          return PlaceCard(
+            place: place,
+            icon: icon,
+            accent: accent,
+            onTap: place.sector == null
+                ? null
+                : () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => SectorDetailScreen(sector: place.sector!)),
+                    ),
+          );
+        },
       ),
     );
   }
