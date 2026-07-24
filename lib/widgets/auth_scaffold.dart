@@ -112,7 +112,7 @@ class _BrandPanel extends StatelessWidget {
           ),
           const Spacer(),
           Text(
-            'Your journey starts in\nNkolmong, Yaoundé.',
+            'Your journey starts in\nNkolmbong, Yaoundé.',
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.bold, height: 1.25),
           ),
           const SizedBox(height: 28),
@@ -124,7 +124,7 @@ class _BrandPanel extends StatelessWidget {
           const _FlagStripe(),
           const SizedBox(height: 10),
           Text(
-            'Nkolmong, Yaoundé · Cameroon',
+            'Nkolmbong, Yaoundé · Cameroon',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
           ),
         ],

@@ -67,7 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Text('Create your account', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Text(
-              'Join travelers from Nkolmong, Yaoundé and beyond',
+              'Join travelers from Nkolmbong, Yaoundé and beyond',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54),
             ),
             const SizedBox(height: 22),

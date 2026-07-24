@@ -1,15 +1,15 @@
 /// A restaurant or hotel listing shown on the home dashboard.
 ///
 /// There is no backend model for these yet, so listings are curated sample
-/// data representing establishments around Nkolmong, Yaoundé.
+/// data representing establishments around Nkolmbong, Yaoundé.
 class LocalPlace {
   final String name;
   final String category;
   final double rating;
   final String priceTier;
 
-  /// The Nkolmong sector this place is in (hotels only, see
-  /// [nkolmongSectors]). Null for places not tied to a sector.
+  /// The Nkolmbong sector this place is in (hotels only, see
+  /// [nkolmbongSectors]). Null for places not tied to a sector.
   final String? sector;
 
   const LocalPlace({
