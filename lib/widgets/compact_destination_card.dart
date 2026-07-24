@@ -60,7 +60,7 @@ class CompactDestinationCard extends StatelessWidget {
               const Spacer(),
               if (destination.avgCostPerDay != null)
                 Text(
-                  '~\$${destination.avgCostPerDay}/day',
+                  '~${destination.avgCostPerDay} FCFA/day',
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
                 ),
             ],

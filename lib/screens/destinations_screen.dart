@@ -84,7 +84,7 @@ class _DestinationsScreenState extends State<DestinationsScreen> {
   }
 }
 
-/// Nkolmong's sectors, shown right on the Destinations page. Tapping one
+/// Nkolmbong's sectors, shown right on the Destinations page. Tapping one
 /// shows the hotels and points of interest in that sector.
 class _SectorSection extends StatelessWidget {
   const _SectorSection();
@@ -97,7 +97,7 @@ class _SectorSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            'Explore Nkolmong by sector',
+            'Explore Nkolmbong by sector',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
@@ -107,9 +107,9 @@ class _SectorSection extends StatelessWidget {
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: nkolmongSectors.length,
+            itemCount: nkolmbongSectors.length,
             itemBuilder: (context, i) {
-              final sector = nkolmongSectors[i];
+              final sector = nkolmbongSectors[i];
               return _SectorCard(
                 sector: sector,
                 onTap: () => Navigator.of(context).push(

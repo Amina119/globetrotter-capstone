@@ -4,7 +4,7 @@ import '../data/sample_places.dart';
 import '../models/local_place.dart';
 import '../theme/cameroon_colors.dart';
 
-/// A single Nkolmong sector: its hotels and its points of interest
+/// A single Nkolmbong sector: its hotels and its points of interest
 /// ("areas to visit").
 class SectorDetailScreen extends StatelessWidget {
   final String sector;

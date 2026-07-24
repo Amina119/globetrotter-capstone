@@ -45,7 +45,7 @@ class DestinationCard extends StatelessWidget {
                 for (final tag in destination.tags) Chip(label: Text(tag), visualDensity: VisualDensity.compact),
                 if (destination.avgCostPerDay != null)
                   Chip(
-                    label: Text('~\$${destination.avgCostPerDay}/day'),
+                    label: Text('~${destination.avgCostPerDay} FCFA/day'),
                     visualDensity: VisualDensity.compact,
                   ),
               ],

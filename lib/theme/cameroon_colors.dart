@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Brand colors drawn from the Cameroonian flag, used to give the app a
-/// distinct local identity (GlobeTrotter is based in Nkolmong, Yaoundé).
+/// distinct local identity (GlobeTrotter is based in Nkolmbong, Yaoundé).
 class CameroonColors {
   CameroonColors._();
 

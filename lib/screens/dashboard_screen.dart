@@ -11,7 +11,7 @@ import '../theme/cameroon_colors.dart';
 import '../widgets/compact_destination_card.dart';
 import '../widgets/place_card.dart';
 import '../widgets/section_header.dart';
-import 'nkolmong_sectors_screen.dart';
+import 'nkolmbong_sectors_screen.dart';
 import 'sector_detail_screen.dart';
 
 /// The app's landing tab: a dashboard organized into browsable sections
@@ -103,14 +103,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           _DestinationRail(items: _recommendations, error: _recommendationsError, emptyText: 'Set preferences at registration to get recommendations.'),
           const SizedBox(height: 20),
-          const SectionHeader(title: 'Restaurants near Nkolmong', icon: Icons.restaurant),
+          const SectionHeader(title: 'Restaurants near Nkolmbong', icon: Icons.restaurant),
           _PlaceRail(items: sampleRestaurants, icon: Icons.restaurant, accent: CameroonColors.red),
           const SizedBox(height: 20),
           SectionHeader(
-            title: 'Hotels in Nkolmong',
+            title: 'Hotels in Nkolmbong',
             icon: Icons.hotel,
             onSeeAll: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const NkolmongSectorsScreen()),
+              MaterialPageRoute(builder: (_) => const NkolmbongSectorsScreen()),
             ),
           ),
           _PlaceRail(items: sampleHotels, icon: Icons.hotel, accent: CameroonColors.green),
@@ -163,7 +163,7 @@ class _GreetingBanner extends StatelessWidget {
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        'Discover Nkolmong, Yaoundé and the world beyond',
+                        'Discover Nkolmbong, Yaoundé and the world beyond',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70),
                       ),
                     ),
