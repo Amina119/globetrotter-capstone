@@ -8,10 +8,15 @@ class LocalPlace {
   final double rating;
   final String priceTier;
 
+  /// The Nkolmong sector this place is in (hotels only, see
+  /// [nkolmongSectors]). Null for places not tied to a sector.
+  final String? sector;
+
   const LocalPlace({
     required this.name,
     required this.category,
     required this.rating,
     required this.priceTier,
+    this.sector,
   });
 }
