@@ -19,6 +19,7 @@ DATA_DIR = os.path.join(_BASE_DIR, "data")
 USERS_FILE = os.path.join(DATA_DIR, "users.json")
 ITINERARIES_FILE = os.path.join(DATA_DIR, "itineraries.json")
 DESTINATIONS_FILE = os.path.join(DATA_DIR, "destinations.json")
+USER_RECOMMENDATIONS_FILE = os.path.join(DATA_DIR, "user_recommendations.json")
 
 
 # ---------------------------------------------------------------------------
@@ -55,11 +56,21 @@ def get_all_users() -> list:
     return _read_json(USERS_FILE)
 
 
-def get_user_by_email(email: str) -> dict | None:
-    """Return the user dict for *email*, or None if not found."""
+def get_user_by_username(username: str) -> dict | None:
+    """Return the user dict for *username*, or None if not found."""
     users = get_all_users()
     for user in users:
-        if user.get("email") == email:
+        if user.get("username") == username:
+            return user
+    return None
+
+
+def get_user_by_email(email: str) -> dict | None:
+    """Return the user dict whose email matches *email* (case-insensitive)."""
+    email = email.strip().lower()
+    users = get_all_users()
+    for user in users:
+        if user.get("email", "").strip().lower() == email:
             return user
     return None
 
@@ -89,9 +100,14 @@ def get_all_itineraries() -> list:
     return _read_json(ITINERARIES_FILE)
 
 
-def get_itineraries_for_user(email: str) -> list:
-    """Return itineraries that belong to the user with *email*."""
-    return [it for it in get_all_itineraries() if it.get("email") == email]
+def get_itineraries_for_user(username: str) -> list:
+    """Return itineraries owned by the user with *username*."""
+    return [it for it in get_all_itineraries() if it.get("username") == username]
+
+
+def get_itineraries_shared_with(username: str) -> list:
+    """Return itineraries another user has shared with *username*."""
+    return [it for it in get_all_itineraries() if username in it.get("shared_with", [])]
 
 
 def save_itinerary(itinerary: dict) -> None:
@@ -99,3 +115,98 @@ def save_itinerary(itinerary: dict) -> None:
     itineraries = get_all_itineraries()
     itineraries.append(itinerary)
     _write_json(ITINERARIES_FILE, itineraries)
+
+
+def update_itinerary(itinerary_id: str, owner_username: str, updates: dict) -> dict | None:
+    """Apply *updates* to the itinerary with *itinerary_id*.
+
+    Only the owner (*owner_username*) may update it. Returns the updated
+    itinerary, or None if it doesn't exist or isn't owned by *owner_username*.
+    """
+    itineraries = get_all_itineraries()
+    for it in itineraries:
+        if it.get("id") == itinerary_id and it.get("username") == owner_username:
+            it.update(updates)
+            _write_json(ITINERARIES_FILE, itineraries)
+            return it
+    return None
+
+
+def delete_itinerary(itinerary_id: str, owner_username: str) -> bool:
+    """Delete the itinerary with *itinerary_id* if owned by *owner_username*.
+
+    Returns True if an itinerary was deleted, False otherwise.
+    """
+    itineraries = get_all_itineraries()
+    remaining = [it for it in itineraries if not (it.get("id") == itinerary_id and it.get("username") == owner_username)]
+    if len(remaining) == len(itineraries):
+        return False
+    _write_json(ITINERARIES_FILE, remaining)
+    return True
+
+
+def share_itinerary(itinerary_id: str, owner_username: str, target_username: str) -> dict | None:
+    """Grant *target_username* view access to the owner's itinerary.
+
+    Returns the updated itinerary, or None if it doesn't exist or isn't
+    owned by *owner_username*.
+    """
+    itineraries = get_all_itineraries()
+    for it in itineraries:
+        if it.get("id") == itinerary_id and it.get("username") == owner_username:
+            shared_with = it.setdefault("shared_with", [])
+            if target_username not in shared_with:
+                shared_with.append(target_username)
+            _write_json(ITINERARIES_FILE, itineraries)
+            return it
+    return None
+
+
+def unshare_itinerary(itinerary_id: str, owner_username: str, target_username: str) -> dict | None:
+    """Revoke *target_username*'s view access to the owner's itinerary.
+
+    Returns the updated itinerary, or None if it doesn't exist or isn't
+    owned by *owner_username*.
+    """
+    itineraries = get_all_itineraries()
+    for it in itineraries:
+        if it.get("id") == itinerary_id and it.get("username") == owner_username:
+            shared_with = it.setdefault("shared_with", [])
+            if target_username in shared_with:
+                shared_with.remove(target_username)
+            _write_json(ITINERARIES_FILE, itineraries)
+            return it
+    return None
+
+
+def get_all_user_recommendations() -> list:
+    """Return all user-submitted recommendations, across all users."""
+    return _read_json(USER_RECOMMENDATIONS_FILE)
+
+
+def get_user_recommendations_for_user(username: str) -> list:
+    """Return recommendations submitted by the user with *username*."""
+    return [r for r in get_all_user_recommendations() if r.get("username") == username]
+
+
+def save_user_recommendation(recommendation: dict) -> None:
+    """Append *recommendation* to the user-recommendations store."""
+    recommendations = get_all_user_recommendations()
+    recommendations.append(recommendation)
+    _write_json(USER_RECOMMENDATIONS_FILE, recommendations)
+
+
+def get_destination_popularity() -> dict:
+    """Return a map of destination name (lowercased) -> number of itineraries
+    that include it, across all users. Used to boost popular destinations
+    in recommendations.
+    """
+    counts: dict = {}
+    for it in get_all_itineraries():
+        seen_in_this_itinerary = set()
+        for name in it.get("destinations", []):
+            key = str(name).strip().lower()
+            if key and key not in seen_in_this_itinerary:
+                counts[key] = counts.get(key, 0) + 1
+                seen_in_this_itinerary.add(key)
+    return counts
