@@ -79,11 +79,10 @@ def client(app):
 def auth(client):
     """Registers (if needed) and logs in a user, returning auth headers."""
 
-    def _auth(username="alice", password="secret123", preferences=None, email=None):
-        email = email or f"{username}@example.com"
+    def _auth(email="alice@example.com", password="secret123", name="Alice", preferences=None):
         client.post(
             "/register",
-            json={"username": username, "email": email, "password": password, "preferences": preferences or []},
+            json={"name": name, "email": email, "password": password, "preferences": preferences or []},
         )
         res = client.post("/login", json={"email": email, "password": password})
         token = res.get_json()["token"]

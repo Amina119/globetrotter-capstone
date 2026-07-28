@@ -56,21 +56,11 @@ def get_all_users() -> list:
     return _read_json(USERS_FILE)
 
 
-def get_user_by_username(username: str) -> dict | None:
-    """Return the user dict for *username*, or None if not found."""
-    users = get_all_users()
-    for user in users:
-        if user.get("username") == username:
-            return user
-    return None
-
-
 def get_user_by_email(email: str) -> dict | None:
-    """Return the user dict whose email matches *email* (case-insensitive)."""
-    email = email.strip().lower()
+    """Return the user dict for *email*, or None if not found."""
     users = get_all_users()
     for user in users:
-        if user.get("email", "").strip().lower() == email:
+        if user.get("email") == email:
             return user
     return None
 
@@ -100,14 +90,14 @@ def get_all_itineraries() -> list:
     return _read_json(ITINERARIES_FILE)
 
 
-def get_itineraries_for_user(username: str) -> list:
-    """Return itineraries owned by the user with *username*."""
-    return [it for it in get_all_itineraries() if it.get("username") == username]
+def get_itineraries_for_user(email: str) -> list:
+    """Return itineraries owned by the user with *email*."""
+    return [it for it in get_all_itineraries() if it.get("email") == email]
 
 
-def get_itineraries_shared_with(username: str) -> list:
-    """Return itineraries another user has shared with *username*."""
-    return [it for it in get_all_itineraries() if username in it.get("shared_with", [])]
+def get_itineraries_shared_with(email: str) -> list:
+    """Return itineraries another user has shared with *email*."""
+    return [it for it in get_all_itineraries() if email in it.get("shared_with", [])]
 
 
 def save_itinerary(itinerary: dict) -> None:
@@ -117,76 +107,80 @@ def save_itinerary(itinerary: dict) -> None:
     _write_json(ITINERARIES_FILE, itineraries)
 
 
-def update_itinerary(itinerary_id: str, owner_username: str, updates: dict) -> dict | None:
+def update_itinerary(itinerary_id: str, owner_email: str, updates: dict) -> dict | None:
     """Apply *updates* to the itinerary with *itinerary_id*.
 
-    Only the owner (*owner_username*) may update it. Returns the updated
-    itinerary, or None if it doesn't exist or isn't owned by *owner_username*.
+    Only the owner (*owner_email*) may update it. Returns the updated
+    itinerary, or None if it doesn't exist or isn't owned by *owner_email*.
     """
     itineraries = get_all_itineraries()
     for it in itineraries:
-        if it.get("id") == itinerary_id and it.get("username") == owner_username:
+        if it.get("id") == itinerary_id and it.get("email") == owner_email:
             it.update(updates)
             _write_json(ITINERARIES_FILE, itineraries)
             return it
     return None
 
 
-def delete_itinerary(itinerary_id: str, owner_username: str) -> bool:
-    """Delete the itinerary with *itinerary_id* if owned by *owner_username*.
+def delete_itinerary(itinerary_id: str, owner_email: str) -> bool:
+    """Delete the itinerary with *itinerary_id* if owned by *owner_email*.
 
     Returns True if an itinerary was deleted, False otherwise.
     """
     itineraries = get_all_itineraries()
-    remaining = [it for it in itineraries if not (it.get("id") == itinerary_id and it.get("username") == owner_username)]
+    remaining = [it for it in itineraries if not (it.get("id") == itinerary_id and it.get("email") == owner_email)]
     if len(remaining) == len(itineraries):
         return False
     _write_json(ITINERARIES_FILE, remaining)
     return True
 
 
-def share_itinerary(itinerary_id: str, owner_username: str, target_username: str) -> dict | None:
-    """Grant *target_username* view access to the owner's itinerary.
+def share_itinerary(itinerary_id: str, owner_email: str, target_email: str) -> dict | None:
+    """Grant *target_email* view access to the owner's itinerary.
 
     Returns the updated itinerary, or None if it doesn't exist or isn't
-    owned by *owner_username*.
+    owned by *owner_email*.
     """
     itineraries = get_all_itineraries()
     for it in itineraries:
-        if it.get("id") == itinerary_id and it.get("username") == owner_username:
+        if it.get("id") == itinerary_id and it.get("email") == owner_email:
             shared_with = it.setdefault("shared_with", [])
-            if target_username not in shared_with:
-                shared_with.append(target_username)
+            if target_email not in shared_with:
+                shared_with.append(target_email)
             _write_json(ITINERARIES_FILE, itineraries)
             return it
     return None
 
 
-def unshare_itinerary(itinerary_id: str, owner_username: str, target_username: str) -> dict | None:
-    """Revoke *target_username*'s view access to the owner's itinerary.
+def unshare_itinerary(itinerary_id: str, owner_email: str, target_email: str) -> dict | None:
+    """Revoke *target_email*'s view access to the owner's itinerary.
 
     Returns the updated itinerary, or None if it doesn't exist or isn't
-    owned by *owner_username*.
+    owned by *owner_email*.
     """
     itineraries = get_all_itineraries()
     for it in itineraries:
-        if it.get("id") == itinerary_id and it.get("username") == owner_username:
+        if it.get("id") == itinerary_id and it.get("email") == owner_email:
             shared_with = it.setdefault("shared_with", [])
-            if target_username in shared_with:
-                shared_with.remove(target_username)
+            if target_email in shared_with:
+                shared_with.remove(target_email)
             _write_json(ITINERARIES_FILE, itineraries)
             return it
     return None
 
+
+# ---------------------------------------------------------------------------
+# User-submitted recommendation helpers
+# ---------------------------------------------------------------------------
 
 def get_all_user_recommendations() -> list:
     """Return all user-submitted recommendations, across all users."""
     return _read_json(USER_RECOMMENDATIONS_FILE)
 
 
-def get_user_recommendations_for_user(username: str) -> list:
-    """Return recommendations submitted by the user with *username*."""
-    return [r for r in get_all_user_recommendations() if r.get("username") == username]
+def get_user_recommendations_for_user(email: str) -> list:
+    """Return recommendations submitted by the user with *email*."""
+    return [r for r in get_all_user_recommendations() if r.get("email") == email]
 
 
 def save_user_recommendation(recommendation: dict) -> None:

@@ -47,8 +47,8 @@ def test_create_success(client, auth):
 
 
 def test_list_only_returns_own_itineraries(client, auth):
-    alice = auth(username="alice")
-    bob = auth(username="bob")
+    alice = auth(email="alice@example.com")
+    bob = auth(email="bob@example.com")
     _create(client, alice, title="Alice's trip")
     _create(client, bob, title="Bob's trip")
 
@@ -58,11 +58,11 @@ def test_list_only_returns_own_itineraries(client, auth):
 
 
 def test_shared_endpoint_lists_itineraries_shared_with_me(client, auth):
-    alice = auth(username="alice")
-    bob = auth(username="bob")
+    alice = auth(email="alice@example.com")
+    bob = auth(email="bob@example.com")
     created = _create(client, alice, title="Alice's trip").get_json()
 
-    client.post(f"/itineraries/{created['id']}/share", json={"username": "bob"}, headers=alice)
+    client.post(f"/itineraries/{created['id']}/share", json={"email": "bob@example.com"}, headers=alice)
 
     res = client.get("/itineraries/shared", headers=bob)
     titles = [it["title"] for it in res.get_json()]
@@ -86,8 +86,8 @@ def test_update_by_owner_succeeds(client, auth):
 
 
 def test_update_by_non_owner_fails(client, auth):
-    alice = auth(username="alice")
-    bob = auth(username="bob")
+    alice = auth(email="alice@example.com")
+    bob = auth(email="bob@example.com")
     created = _create(client, alice).get_json()
 
     res = client.put(f"/itineraries/{created['id']}", json={"notes": "Hijacked"}, headers=bob)
@@ -117,9 +117,9 @@ def test_update_rejects_non_list_destinations(client, auth):
 def test_update_ignores_unknown_fields(client, auth):
     headers = auth()
     created = _create(client, headers).get_json()
-    res = client.put(f"/itineraries/{created['id']}", json={"username": "hacker"}, headers=headers)
+    res = client.put(f"/itineraries/{created['id']}", json={"email": "hacker@example.com"}, headers=headers)
     assert res.status_code == 200
-    assert res.get_json()["username"] != "hacker"
+    assert res.get_json()["email"] != "hacker@example.com"
 
 
 # --- delete -------------------------------------------------------------------
@@ -137,8 +137,8 @@ def test_delete_by_owner_succeeds(client, auth):
 
 
 def test_delete_by_non_owner_fails(client, auth):
-    alice = auth(username="alice")
-    bob = auth(username="bob")
+    alice = auth(email="alice@example.com")
+    bob = auth(email="bob@example.com")
     created = _create(client, alice).get_json()
 
     res = client.delete(f"/itineraries/{created['id']}", headers=bob)
@@ -154,7 +154,7 @@ def test_delete_nonexistent_itinerary(client, auth):
 # --- share / unshare ------------------------------------------------------------
 
 
-def test_share_requires_username(client, auth):
+def test_share_requires_email(client, auth):
     headers = auth()
     created = _create(client, headers).get_json()
     res = client.post(f"/itineraries/{created['id']}/share", json={}, headers=headers)
@@ -162,50 +162,50 @@ def test_share_requires_username(client, auth):
 
 
 def test_share_with_self_is_rejected(client, auth):
-    headers = auth(username="alice")
+    headers = auth(email="alice@example.com")
     created = _create(client, headers).get_json()
-    res = client.post(f"/itineraries/{created['id']}/share", json={"username": "alice"}, headers=headers)
+    res = client.post(f"/itineraries/{created['id']}/share", json={"email": "alice@example.com"}, headers=headers)
     assert res.status_code == 400
 
 
 def test_share_with_unknown_account_fails(client, auth):
     headers = auth()
     created = _create(client, headers).get_json()
-    res = client.post(f"/itineraries/{created['id']}/share", json={"username": "ghost"}, headers=headers)
+    res = client.post(f"/itineraries/{created['id']}/share", json={"email": "ghost@example.com"}, headers=headers)
     assert res.status_code == 404
 
 
 def test_share_success_and_is_idempotent(client, auth):
-    alice = auth(username="alice")
-    auth(username="bob")
+    alice = auth(email="alice@example.com")
+    auth(email="bob@example.com")
     created = _create(client, alice).get_json()
 
-    first = client.post(f"/itineraries/{created['id']}/share", json={"username": "bob"}, headers=alice)
-    second = client.post(f"/itineraries/{created['id']}/share", json={"username": "bob"}, headers=alice)
+    first = client.post(f"/itineraries/{created['id']}/share", json={"email": "bob@example.com"}, headers=alice)
+    second = client.post(f"/itineraries/{created['id']}/share", json={"email": "bob@example.com"}, headers=alice)
 
     assert first.status_code == 200
     assert second.status_code == 200
-    assert first.get_json()["shared_with"] == ["bob"]
-    assert second.get_json()["shared_with"] == ["bob"]  # not duplicated
+    assert first.get_json()["shared_with"] == ["bob@example.com"]
+    assert second.get_json()["shared_with"] == ["bob@example.com"]  # not duplicated
 
 
 def test_share_by_non_owner_fails(client, auth):
-    alice = auth(username="alice")
-    bob = auth(username="bob")
-    auth(username="carol")
+    alice = auth(email="alice@example.com")
+    bob = auth(email="bob@example.com")
+    auth(email="carol@example.com")
     created = _create(client, alice).get_json()
 
-    res = client.post(f"/itineraries/{created['id']}/share", json={"username": "carol"}, headers=bob)
+    res = client.post(f"/itineraries/{created['id']}/share", json={"email": "carol@example.com"}, headers=bob)
     assert res.status_code == 404
 
 
 def test_unshare_removes_access(client, auth):
-    alice = auth(username="alice")
-    bob = auth(username="bob")
+    alice = auth(email="alice@example.com")
+    bob = auth(email="bob@example.com")
     created = _create(client, alice).get_json()
-    client.post(f"/itineraries/{created['id']}/share", json={"username": "bob"}, headers=alice)
+    client.post(f"/itineraries/{created['id']}/share", json={"email": "bob@example.com"}, headers=alice)
 
-    res = client.delete(f"/itineraries/{created['id']}/share", json={"username": "bob"}, headers=alice)
+    res = client.delete(f"/itineraries/{created['id']}/share", json={"email": "bob@example.com"}, headers=alice)
     assert res.status_code == 200
     assert res.get_json()["shared_with"] == []
 

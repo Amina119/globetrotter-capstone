@@ -25,7 +25,7 @@ from app.models import (
     delete_itinerary,
     get_itineraries_for_user,
     get_itineraries_shared_with,
-    get_user_by_username,
+    get_user_by_email,
     save_itinerary,
     share_itinerary,
     unshare_itinerary,
@@ -51,8 +51,8 @@ def create_itinerary():
     Returns 201 with the created itinerary on success.
     Requires: Authorization: ******
     """
-    username = get_current_user(request)
-    if not username:
+    email = get_current_user(request)
+    if not email:
         return jsonify({"error": "authentication required"}), 401
 
     data = request.get_json(silent=True) or {}
@@ -67,7 +67,7 @@ def create_itinerary():
 
     itinerary = {
         "id": str(uuid.uuid4()),
-        "username": username,
+        "email": email,
         "title": title,
         "destinations": destinations,
         "start_date": data.get("start_date", ""),
@@ -87,11 +87,11 @@ def list_itineraries():
     Returns 200 with a JSON array of itinerary objects.
     Requires: Authorization: ******
     """
-    username = get_current_user(request)
-    if not username:
+    email = get_current_user(request)
+    if not email:
         return jsonify({"error": "authentication required"}), 401
 
-    itineraries = get_itineraries_for_user(username)
+    itineraries = get_itineraries_for_user(email)
     return jsonify(itineraries), 200
 
 
@@ -102,11 +102,11 @@ def list_shared_itineraries():
     Returns 200 with a JSON array of itinerary objects.
     Requires: Authorization: ******
     """
-    username = get_current_user(request)
-    if not username:
+    email = get_current_user(request)
+    if not email:
         return jsonify({"error": "authentication required"}), 401
 
-    itineraries = get_itineraries_shared_with(username)
+    itineraries = get_itineraries_shared_with(email)
     return jsonify(itineraries), 200
 
 
@@ -121,8 +121,8 @@ def edit_itinerary(itinerary_id):
     don't own it.
     Requires: Authorization: ******
     """
-    username = get_current_user(request)
-    if not username:
+    email = get_current_user(request)
+    if not email:
         return jsonify({"error": "authentication required"}), 401
 
     data = request.get_json(silent=True) or {}
@@ -134,7 +134,7 @@ def edit_itinerary(itinerary_id):
     if "destinations" in updates and not isinstance(updates["destinations"], list):
         return jsonify({"error": "destinations must be a list"}), 400
 
-    updated = update_itinerary(itinerary_id, username, updates)
+    updated = update_itinerary(itinerary_id, email, updates)
     if not updated:
         return jsonify({"error": "itinerary not found"}), 404
     return jsonify(updated), 200
@@ -147,11 +147,11 @@ def remove_itinerary(itinerary_id):
     Returns 200 on success, 404 if it doesn't exist or you don't own it.
     Requires: Authorization: ******
     """
-    username = get_current_user(request)
-    if not username:
+    email = get_current_user(request)
+    if not email:
         return jsonify({"error": "authentication required"}), 401
 
-    if not delete_itinerary(itinerary_id, username):
+    if not delete_itinerary(itinerary_id, email):
         return jsonify({"error": "itinerary not found"}), 404
     return jsonify({"message": "itinerary deleted"}), 200
 
@@ -160,27 +160,27 @@ def remove_itinerary(itinerary_id):
 def add_share(itinerary_id):
     """Share an itinerary you own with another registered user.
 
-    Expected JSON body: { "username": "friend" }
+    Expected JSON body: { "email": "friend@example.com" }
 
     Returns 200 with the updated itinerary. 404 if the itinerary doesn't
-    exist / isn't yours, or if the target username has no account. 400 if
+    exist / isn't yours, or if the target email has no account. 400 if
     trying to share with yourself.
     Requires: Authorization: ******
     """
-    username = get_current_user(request)
-    if not username:
+    email = get_current_user(request)
+    if not email:
         return jsonify({"error": "authentication required"}), 401
 
     data = request.get_json(silent=True) or {}
-    target_username = data.get("username", "").strip()
-    if not target_username:
-        return jsonify({"error": "username is required"}), 400
-    if target_username == username:
+    target_email = data.get("email", "").strip().lower()
+    if not target_email:
+        return jsonify({"error": "email is required"}), 400
+    if target_email == email:
         return jsonify({"error": "you already have access to your own itinerary"}), 400
-    if not get_user_by_username(target_username):
-        return jsonify({"error": "no account found with this username"}), 404
+    if not get_user_by_email(target_email):
+        return jsonify({"error": "no account found with this email"}), 404
 
-    updated = share_itinerary(itinerary_id, username, target_username)
+    updated = share_itinerary(itinerary_id, email, target_email)
     if not updated:
         return jsonify({"error": "itinerary not found"}), 404
     return jsonify(updated), 200
@@ -190,22 +190,22 @@ def add_share(itinerary_id):
 def remove_share(itinerary_id):
     """Revoke another user's access to an itinerary you own.
 
-    Expected JSON body: { "username": "friend" }
+    Expected JSON body: { "email": "friend@example.com" }
 
     Returns 200 with the updated itinerary, 404 if the itinerary doesn't
     exist or isn't yours.
     Requires: Authorization: ******
     """
-    username = get_current_user(request)
-    if not username:
+    email = get_current_user(request)
+    if not email:
         return jsonify({"error": "authentication required"}), 401
 
     data = request.get_json(silent=True) or {}
-    target_username = data.get("username", "").strip()
-    if not target_username:
-        return jsonify({"error": "username is required"}), 400
+    target_email = data.get("email", "").strip().lower()
+    if not target_email:
+        return jsonify({"error": "email is required"}), 400
 
-    updated = unshare_itinerary(itinerary_id, username, target_username)
+    updated = unshare_itinerary(itinerary_id, email, target_email)
     if not updated:
         return jsonify({"error": "itinerary not found"}), 404
     return jsonify(updated), 200

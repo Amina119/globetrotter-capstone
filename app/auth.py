@@ -16,22 +16,22 @@ import jwt
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from app.models import get_all_users, get_user_by_username, get_user_by_email, save_user
-
-_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+from app.models import get_all_users, get_user_by_email, save_user
 
 auth_bp = Blueprint("auth", __name__)
+
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 # ---------------------------------------------------------------------------
 # Helper – JWT utilities
 # ---------------------------------------------------------------------------
 
-def create_token(username: str, secret: str) -> str:
-    """Return a signed JWT for *username* valid for 24 hours."""
+def create_token(email: str, secret: str) -> str:
+    """Return a signed JWT for *email* valid for 24 hours."""
     now = datetime.datetime.now(datetime.timezone.utc)
     payload = {
-        "sub": username,
+        "sub": email,
         "iat": now,
         "exp": now + datetime.timedelta(hours=24),
     }
@@ -46,8 +46,8 @@ def decode_token(token: str, secret: str) -> dict:
 def get_current_user(request_obj) -> str | None:
     """Extract and validate the JWT from the Authorization header.
 
-    Returns the username (subject claim) or None if the token is missing
-    or invalid.
+    Returns the user's email (subject claim) or None if the token is
+    missing / invalid.
     """
     auth_header = request_obj.headers.get("Authorization", "")
     if not auth_header.startswith("Bearer "):
@@ -66,31 +66,28 @@ def get_current_user(request_obj) -> str | None:
 
 @auth_bp.route("/register", methods=["POST"])
 def register():
-    """Register a new user with a username, email, and password.
+    """Register a new user.
 
     Expected JSON body:
-        { "username": "alice", "email": "alice@example.com", "password": "s3cr3t", "preferences": ["beach", "food"] }
+        { "name": "Alice", "email": "alice@example.com", "password": "s3cr3t", "preferences": ["beach", "food"] }
 
-    Returns 201 on success, 400 on validation errors, 409 if the username or
-    email is already taken.
+    Returns 201 on success, 400 on validation errors, 409 if the email is
+    already registered.
     """
     data = request.get_json(silent=True) or {}
-    username = data.get("username", "").strip()
-    email = data.get("email", "").strip()
+    name = data.get("name", "").strip()
+    email = data.get("email", "").strip().lower()
     password = data.get("password", "")
     preferences = data.get("preferences", [])  # optional list of interest tags
 
-    if not username or not email or not password:
-        return jsonify({"error": "username, email and password are required"}), 400
+    if not name or not email or not password:
+        return jsonify({"error": "name, email and password are required"}), 400
 
     if not _EMAIL_RE.match(email):
-        return jsonify({"error": "enter a valid email address"}), 400
-
-    if get_user_by_username(username):
-        return jsonify({"error": "this username is already taken"}), 409
+        return jsonify({"error": "a valid email address is required"}), 400
 
     if get_user_by_email(email):
-        return jsonify({"error": "this email is already registered"}), 409
+        return jsonify({"error": "an account with this email already exists"}), 409
 
     # The very first account ever registered becomes the admin, so there's
     # always exactly one owner/admin without needing separate setup.
@@ -98,7 +95,7 @@ def register():
 
     user = {
         "id": str(uuid.uuid4()),
-        "username": username,
+        "name": name,
         "email": email,
         # Store a Werkzeug password hash – never store plain-text passwords.
         "password_hash": generate_password_hash(password),
@@ -106,12 +103,12 @@ def register():
         "is_admin": is_admin,
     }
     save_user(user)
-    return jsonify({"message": "user registered successfully", "username": username, "email": email, "is_admin": is_admin}), 201
+    return jsonify({"message": "user registered successfully", "email": email, "name": name, "is_admin": is_admin}), 201
 
 
 @auth_bp.route("/login", methods=["POST"])
 def login():
-    """Authenticate a user by email and return a JWT.
+    """Authenticate a user and return a JWT.
 
     Expected JSON body:
         { "email": "alice@example.com", "password": "s3cr3t" }
@@ -119,7 +116,7 @@ def login():
     Returns 200 with a token on success, 400/401 on failure.
     """
     data = request.get_json(silent=True) or {}
-    email = data.get("email", "").strip()
+    email = data.get("email", "").strip().lower()
     password = data.get("password", "")
 
     if not email or not password:
@@ -129,6 +126,10 @@ def login():
     if not user or not check_password_hash(user["password_hash"], password):
         return jsonify({"error": "invalid credentials"}), 401
 
-    username = user["username"]
-    token = create_token(username, current_app.config["SECRET_KEY"])
-    return jsonify({"token": token, "username": username, "email": user["email"], "is_admin": bool(user.get("is_admin"))}), 200
+    token = create_token(email, current_app.config["SECRET_KEY"])
+    return jsonify({
+        "token": token,
+        "email": email,
+        "name": user.get("name", ""),
+        "is_admin": bool(user.get("is_admin")),
+    }), 200
