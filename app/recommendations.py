@@ -18,7 +18,7 @@ from app.models import (
     get_all_destinations,
     get_destination_popularity,
     get_itineraries_for_user,
-    get_user_by_username,
+    get_user_by_email,
 )
 
 recommendations_bp = Blueprint("recommendations", __name__)
@@ -29,13 +29,13 @@ _PAST_TRIP_WEIGHT = 0.5
 _POPULARITY_WEIGHT = 0.2
 
 
-def _past_trip_tags(username: str, destinations: list) -> list:
+def _past_trip_tags(email: str, destinations: list) -> list:
     """Return the tags of destinations the user has included in their own
     past itineraries, used as a signal that they enjoy similar places.
     """
     by_name = {d.get("name", "").strip().lower(): d for d in destinations}
     visited_tags = []
-    for itinerary in get_itineraries_for_user(username):
+    for itinerary in get_itineraries_for_user(email):
         for name in itinerary.get("destinations", []):
             dest = by_name.get(str(name).strip().lower())
             if dest:
@@ -58,11 +58,11 @@ def get_recommendations():
 
     Requires: Authorization: ******
     """
-    username = get_current_user(request)
-    if not username:
+    email = get_current_user(request)
+    if not email:
         return jsonify({"error": "authentication required"}), 401
 
-    user = get_user_by_username(username)
+    user = get_user_by_email(email)
     if not user:
         return jsonify({"error": "user not found"}), 404
 
@@ -75,7 +75,7 @@ def get_recommendations():
         return jsonify({"error": "limit must be an integer"}), 400
 
     destinations = get_all_destinations()
-    past_tags = _past_trip_tags(username, destinations)
+    past_tags = _past_trip_tags(email, destinations)
     popularity = get_destination_popularity()
     max_popularity = max(popularity.values(), default=0)
 

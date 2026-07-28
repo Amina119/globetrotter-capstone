@@ -8,7 +8,7 @@ def test_requires_auth(client):
 
 
 def test_preference_scoring_orders_matching_tags_first(client, auth):
-    headers = auth(username="alice", preferences=["culture"])
+    headers = auth(email="alice@example.com", preferences=["culture"])
     res = client.get("/recommendations", headers=headers)
     assert res.status_code == 200
     body = res.get_json()
@@ -35,7 +35,7 @@ def test_invalid_limit_param(client, auth):
 
 
 def test_past_trip_affinity_boosts_similar_destinations(client, auth):
-    headers = auth(username="alice", preferences=[])
+    headers = auth(email="alice@example.com", preferences=[])
     client.post(
         "/itineraries",
         json={"title": "Trip", "destinations": ["Alpha Market"], "start_date": "2026-01-01", "end_date": "2026-01-05"},
@@ -56,8 +56,8 @@ def test_past_trip_affinity_boosts_similar_destinations(client, auth):
 
 def test_popularity_boosts_destination_for_a_user_who_never_visited_it(client, auth):
     # Two other users each add an itinerary that includes Beta Park.
-    headers_bob = auth(username="bob")
-    headers_carol = auth(username="carol")
+    headers_bob = auth(email="bob@example.com")
+    headers_carol = auth(email="carol@example.com")
     for headers in (headers_bob, headers_carol):
         client.post(
             "/itineraries",
@@ -67,7 +67,7 @@ def test_popularity_boosts_destination_for_a_user_who_never_visited_it(client, a
 
     # A third user, with no preferences and no past trips of their own, still
     # sees Beta Park boosted purely by its popularity across other users.
-    headers_dave = auth(username="dave")
+    headers_dave = auth(email="dave@example.com")
     res = client.get("/recommendations", headers=headers_dave)
     scores = {d["name"]: d["match_score"] for d in res.get_json()}
 

@@ -1,21 +1,21 @@
 [
   {
-    "id": "mosque-premiere-maion",
-    "name": "Mosquée Premiere_Maison",
+    "id": "marche-premiere-maison",
+    "name": "Marché Premiere Maison",
     "Town": "Yaoundé",
     "quarter": "Premiere Maison",
-    "sector": "Mosque for moslems ",
-    "tags": ["prayer", "religion"],
-    "avg_cost_per_day": 0
+    "sector": "Bustling local market for fresh produce, groceries and daily goods.",
+    "tags": ["food", "culture"],
+    "avg_cost_per_day": 2000
   },
   {
-    "id": "Chez-Mama",
-    "name": "Boutique_chez_mama,",
+    "id": "place-independance",
+    "name": "Place de l'Indépendance",
     "Town": "Yaoundé",
-    "quarter": "San Francisco",
-    "sector": "Small shop for  all your basic needs",
-    "tags": ["basic_needs", "shop"],
-    "avg_cost_per_day":["As from 25frs"]
+    "quarter": "Premiere Maison",
+    "sector": "Public square popular for gatherings, relaxation and evening strolls.",
+    "tags": ["culture", "nature"],
+    "avg_cost_per_day": 0
   },
   {
     "id": "chefferie-nkolmbong",
@@ -27,12 +27,12 @@
     "avg_cost_per_day": 0
   },
   {
-    "id": "Boulangerie-peuple",
-    "name": "Boulangerie du peuple",
+    "id": "terrain-derriere-chefferie",
+    "name": "Terrain Derriere Chefferie",
     "Town": "Yaoundé",
-    "quarter": "San Francisco",
-    "sector": "pastry shop",
-    "tags": ["pastry", "food"],
+    "quarter": "Derriere Chefferie",
+    "sector": "Neighbourhood football field and popular hangout spot.",
+    "tags": ["adventure", "city"],
     "avg_cost_per_day": 0
   },
   {
@@ -42,44 +42,52 @@
     "quarter": "San Francisco",
     "sector": "Lively junction known for nightlife and street food.",
     "tags": ["city", "food"],
+    "avg_cost_per_day": 5000
+  },
+  {
+    "id": "bar-terrasse-san-francisco",
+    "name": "Bar Terrasse San Francisco",
+    "Town": "Yaoundé",
+    "quarter": "San Francisco",
+    "sector": "Rooftop bar with live music and a view over the quarter.",
+    "tags": ["city", "food"],
+    "avg_cost_per_day": 6000
+  },
+  {
+    "id": "dubai-city-shopping-center",
+    "name": "Dubai City Shopping Center",
+    "Town": "Yaoundé",
+    "quarter": "Dubai City",
+    "sector": "Shopping center with boutiques and local designers.",
+    "tags": ["city"],
+    "avg_cost_per_day": 8000
+  },
+  {
+    "id": "espace-vert-dubai-city",
+    "name": "Espace Vert Dubai City",
+    "Town": "Yaoundé",
+    "quarter": "Dubai City",
+    "sector": "Green park space for walks and picnics.",
+    "tags": ["nature"],
     "avg_cost_per_day": 0
   },
   {
-    "id": "Call_box Zakaryaou",
-    "name": "Chez Zakaryaou",
-    "Town": "Yaoundé",
-    "quarter": "San Francisco",
-    "sector": "Orange_Money_transactions",
-    "tags": ["Money", "Transctions"],
-    "avg_cost_per_day": ["as from 100frs"]
-  },
-  {
-    "id": "Hair_Salon San Francisco",
-    "name": "San Francisco Hair_Salon",
-    "Town": "Yaoundé",
-    "quarter": "San Francisco",
-    "sector": "Hair_salon,Hammam,skincare,manicure,pedicure",
-    "tags": ["city"],
-    "avg_cost_per_day": 1000
-  },
-  
-  {
-    "id": "Paulina_Hotel",
-    "name": "Paulina_Hotel",
-    "Town": "Yaoundé",
-    "quarter": "Premiere Maison",
-    "sector": " Hotel where you can pass your nights",
-    "tags": ["city"],
-    "avg_cost_per_day": 1000
-  },
-  {
-    "id": "Mosquee-terminus",
-    "name": "Mosquée Terminus",
+    "id": "gare-routiere-terminus",
+    "name": "Gare Routière Terminus",
     "Town": "Yaoundé",
     "quarter": "Terminus",
-    "sector": "Prayer_Place",
-    "tags": ["Religion", "Prayer"],
-    "avg_cost_per_day": 0
+    "sector": "Transit hub connecting Nkolmbong to the rest of Yaoundé.",
+    "tags": ["city"],
+    "avg_cost_per_day": 1000
+  },
+  {
+    "id": "marche-terminus",
+    "name": "Marché Terminus",
+    "Town": "Yaoundé",
+    "quarter": "Terminus",
+    "sector": "Food and produce market next to the bus station.",
+    "tags": ["food", "culture"],
+    "avg_cost_per_day": 2000
   },
   {
     "id": "mosquee-chefferie-haussa",
@@ -91,12 +99,12 @@
     "avg_cost_per_day": 0
   },
   {
-    "id": "Chez_Mamai_eru",
-    "name": "Chez_Mami_Eru",
+    "id": "marche-haussa",
+    "name": "Marché Haussa",
     "Town": "Yaoundé",
-    "quarter": "Terminus",
-    "sector": "Small restaurant where you can enjoy your eru",
+    "quarter": "Chefferie Haussa",
+    "sector": "Vibrant market for textiles, spices and crafts.",
     "tags": ["food", "culture"],
-    "avg_cost_per_day": 500
+    "avg_cost_per_day": 2000
   }
 ]

@@ -20,7 +20,7 @@ from flask import Blueprint, request, jsonify
 
 from app.auth import get_current_user
 from app.models import (
-    get_user_by_username,
+    get_user_by_email,
     get_user_recommendations_for_user,
     get_all_user_recommendations,
     save_user_recommendation,
@@ -39,10 +39,11 @@ def submit_recommendation():
     Returns 201 with the created recommendation.
     Requires: Authorization: ******
     """
-    username = get_current_user(request)
-    if not username:
+    email = get_current_user(request)
+    if not email:
         return jsonify({"error": "authentication required"}), 401
 
+    user = get_user_by_email(email)
     data = request.get_json(silent=True) or {}
     destination = data.get("destination", "").strip()
     message = data.get("message", "").strip()
@@ -52,7 +53,8 @@ def submit_recommendation():
 
     recommendation = {
         "id": str(uuid.uuid4()),
-        "username": username,
+        "email": email,
+        "name": user.get("name", "") if user else "",
         "destination": destination,
         "message": message,
         "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -68,11 +70,11 @@ def list_my_recommendations():
     Returns 200 with a JSON array of recommendation objects.
     Requires: Authorization: ******
     """
-    username = get_current_user(request)
-    if not username:
+    email = get_current_user(request)
+    if not email:
         return jsonify({"error": "authentication required"}), 401
 
-    return jsonify(get_user_recommendations_for_user(username)), 200
+    return jsonify(get_user_recommendations_for_user(email)), 200
 
 
 @user_recommendations_bp.route("/admin/recommendations", methods=["GET"])
@@ -83,11 +85,11 @@ def list_all_recommendations():
     authenticated user isn't an admin.
     Requires: Authorization: ******
     """
-    username = get_current_user(request)
-    if not username:
+    email = get_current_user(request)
+    if not email:
         return jsonify({"error": "authentication required"}), 401
 
-    user = get_user_by_username(username)
+    user = get_user_by_email(email)
     if not user or not user.get("is_admin"):
         return jsonify({"error": "admin access required"}), 403
 

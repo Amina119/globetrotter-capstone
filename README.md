@@ -1,6 +1,6 @@
 # GlobeTrotter – Travel Assistant
 
-GlobeTrotter is a **monolithic Flask application** that serves as the starting point for a semester-long capstone project.  
+GlobeTrotter is a **monolithic Flask application with a Flutter frontend** that serves as the starting point for a semester-long capstone project.  
 Students build the monolith first, then refactor it into microservices, and finally deploy it to the cloud with resilience patterns using Docker, Kubernetes, and cloud-native tooling.
 
 ---
@@ -9,22 +9,31 @@ Students build the monolith first, then refactor it into microservices, and fina
 
 ```
 .
-├── app/
-│   ├── __init__.py         # Flask app factory
-│   ├── models.py           # Data models and JSON file I/O
-│   ├── auth.py             # Registration, login, JWT handling
-│   ├── destinations.py     # Destination search endpoint
-│   ├── recommendations.py  # Personalised recommendations endpoint
-│   ├── itineraries.py      # Create / list itineraries
-│   └── main.py             # App entry point
+├── app/                     # Flask backend
+│   ├── __init__.py          # Flask app factory
+│   ├── models.py            # Data models and JSON file I/O
+│   ├── auth.py               # Registration, login, JWT handling
+│   ├── destinations.py       # Destination search endpoint
+│   ├── recommendations.py    # Personalised recommendations endpoint
+│   ├── itineraries.py        # Create / view / edit / delete / share itineraries
+│   └── main.py                # App entry point
 ├── data/
-│   ├── destinations.json   # Static destination catalogue (seed data)
-│   ├── users.json          # Created at runtime
-│   └── itineraries.json    # Created at runtime
-├── tests/                  # Placeholder for future tests
+│   ├── destinations.json     # Static destination catalogue (seed data)
+│   ├── users.json            # Created at runtime
+│   └── itineraries.json      # Created at runtime
+├── tests/                    # Placeholder for future backend tests
+├── lib/                      # Flutter frontend
+│   ├── main.dart
+│   ├── screens/               # App screens (auth, home dashboard, destinations, itineraries, ...)
+│   ├── widgets/                # Reusable UI components
+│   ├── services/                # API client and session management
+│   ├── models/                  # Frontend data models
+│   └── theme/                    # App color scheme
+├── android/ ios/ web/         # Flutter platform targets
 ├── Dockerfile
 ├── docker-compose.yml
-├── requirements.txt
+├── requirements.txt           # Backend (Python) dependencies
+├── pubspec.yaml                # Frontend (Flutter) dependencies
 └── README.md
 ```
 
@@ -32,14 +41,20 @@ Students build the monolith first, then refactor it into microservices, and fina
 
 ## REST API
 
-| Method | Endpoint            | Auth required | Description                              |
-|--------|---------------------|---------------|------------------------------------------|
-| POST   | `/register`         | No            | Register a new user                      |
-| POST   | `/login`            | No            | Authenticate and receive a JWT token     |
-| GET    | `/destinations`     | No            | Search the destination catalogue         |
-| GET    | `/recommendations`  | Yes (JWT)     | Get personalised recommendations        |
-| POST   | `/itineraries`      | Yes (JWT)     | Create a new itinerary                   |
-| GET    | `/itineraries`      | Yes (JWT)     | List all itineraries for the logged-in user |
+| Method | Endpoint                    | Auth required | Description                                    |
+|--------|------------------------------|---------------|-------------------------------------------------|
+| GET    | `/health`                    | No            | Liveness/readiness probe                        |
+| POST   | `/register`                  | No            | Register a new user                              |
+| POST   | `/login`                     | No            | Authenticate and receive a JWT token             |
+| GET    | `/destinations`              | No            | Search the destination catalogue                 |
+| GET    | `/recommendations`           | Yes (JWT)     | Get personalised recommendations                 |
+| POST   | `/itineraries`               | Yes (JWT)     | Create a new itinerary                           |
+| GET    | `/itineraries`               | Yes (JWT)     | List itineraries owned by the logged-in user     |
+| GET    | `/itineraries/shared`        | Yes (JWT)     | List itineraries shared with the logged-in user  |
+| PUT    | `/itineraries/<id>`          | Yes (JWT)     | Update an itinerary you own                      |
+| DELETE | `/itineraries/<id>`          | Yes (JWT)     | Delete an itinerary you own                      |
+| POST   | `/itineraries/<id>/share`    | Yes (JWT)     | Share an itinerary you own with another user     |
+| DELETE | `/itineraries/<id>/share`    | Yes (JWT)     | Revoke another user's access to your itinerary   |
 
 Protected routes expect the header:  
 `Authorization: Bearer <your-token>`
@@ -50,12 +65,12 @@ Protected routes expect the header:
 # Register
 curl -X POST http://localhost:5000/register \
   -H "Content-Type: application/json" \
-  -d '{"username": "alice", "password": "s3cr3t", "preferences": ["beach", "food"]}'
+  -d '{"name": "Alice", "email": "alice@example.com", "password": "s3cr3t", "preferences": ["beach", "food"]}'
 
 # Login
 curl -X POST http://localhost:5000/login \
   -H "Content-Type: application/json" \
-  -d '{"username": "alice", "password": "s3cr3t"}'
+  -d '{"email": "alice@example.com", "password": "s3cr3t"}'
 # Save the returned token: TOKEN=<value from .token field>
 
 # Search destinations
@@ -74,11 +89,17 @@ curl -X POST http://localhost:5000/itineraries \
 # List itineraries
 curl http://localhost:5000/itineraries \
   -H "Authorization: Bearer $TOKEN"
+
+# Share an itinerary with a friend
+curl -X POST http://localhost:5000/itineraries/<id>/share \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"email": "friend@example.com"}'
 ```
 
 ---
 
-## Running Locally
+## Running the Backend Locally
 
 ### Prerequisites
 - Python 3.9+
@@ -93,6 +114,27 @@ python app/main.py
 ```
 
 The API will be available at `http://localhost:5000`.
+
+---
+
+## Running the Frontend Locally
+
+### Prerequisites
+- Flutter SDK (stable channel)
+
+```bash
+# 1. Install dependencies
+flutter pub get
+
+# 2. Run against a local backend (defaults to http://localhost:5000)
+flutter run -d chrome
+```
+
+To point the app at a different backend, pass `--dart-define`:
+
+```bash
+flutter run -d chrome --dart-define=API_BASE_URL=http://your-vps-ip:5000
+```
 
 ---
 
@@ -131,5 +173,3 @@ All data is persisted in plain JSON files inside the `data/` directory:
 | `SECRET_KEY`         | `globetrotter-secret-change-in-prod` | JWT signing key – **must be overridden in production** |
 | `FLASK_DEBUG`        | `0`                                  | Set to `1` to enable Flask debug mode (development only) |
 | `PORT`               | `5000`                               | Port the app listens on |
-
-> **Important:** Always set `SECRET_KEY` to a long, random value in production (e.g. `python -c "import secrets; print(secrets.token_hex(32))"`).
