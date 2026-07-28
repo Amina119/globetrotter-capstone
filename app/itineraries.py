@@ -1,14 +1,19 @@
 """
 app/itineraries.py
 
-Create and list itineraries for the authenticated user.
+Create, view, manage and share itineraries for the authenticated user.
 
 Routes
 ------
-POST /itineraries – create a new itinerary
-GET  /itineraries – list all itineraries for the logged-in user
+POST   /itineraries                – create a new itinerary
+GET    /itineraries                – list itineraries owned by the logged-in user
+GET    /itineraries/shared         – list itineraries shared with the logged-in user
+PUT    /itineraries/<id>           – update an itinerary you own
+DELETE /itineraries/<id>           – delete an itinerary you own
+POST   /itineraries/<id>/share     – share an itinerary you own with another user
+DELETE /itineraries/<id>/share     – revoke another user's access to an itinerary you own
 
-Both routes require a valid JWT in the Authorization header.
+All routes require a valid JWT in the Authorization header.
 """
 import uuid
 import datetime
@@ -16,7 +21,16 @@ import datetime
 from flask import Blueprint, request, jsonify
 
 from app.auth import get_current_user
-from app.models import get_itineraries_for_user, save_itinerary
+from app.models import (
+    delete_itinerary,
+    get_itineraries_for_user,
+    get_itineraries_shared_with,
+    get_user_by_username,
+    save_itinerary,
+    share_itinerary,
+    unshare_itinerary,
+    update_itinerary,
+)
 
 itineraries_bp = Blueprint("itineraries", __name__)
 
@@ -37,8 +51,8 @@ def create_itinerary():
     Returns 201 with the created itinerary on success.
     Requires: Authorization: ******
     """
-    email = get_current_user(request)
-    if not email:
+    username = get_current_user(request)
+    if not username:
         return jsonify({"error": "authentication required"}), 401
 
     data = request.get_json(silent=True) or {}
@@ -53,12 +67,13 @@ def create_itinerary():
 
     itinerary = {
         "id": str(uuid.uuid4()),
-        "email": email,
+        "username": username,
         "title": title,
         "destinations": destinations,
         "start_date": data.get("start_date", ""),
         "end_date": data.get("end_date", ""),
         "notes": data.get("notes", ""),
+        "shared_with": [],
         "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
     }
     save_itinerary(itinerary)
@@ -67,14 +82,130 @@ def create_itinerary():
 
 @itineraries_bp.route("/itineraries", methods=["GET"])
 def list_itineraries():
-    """List all itineraries for the authenticated user.
+    """List all itineraries owned by the authenticated user.
 
     Returns 200 with a JSON array of itinerary objects.
     Requires: Authorization: ******
     """
-    email = get_current_user(request)
-    if not email:
+    username = get_current_user(request)
+    if not username:
         return jsonify({"error": "authentication required"}), 401
 
-    itineraries = get_itineraries_for_user(email)
+    itineraries = get_itineraries_for_user(username)
     return jsonify(itineraries), 200
+
+
+@itineraries_bp.route("/itineraries/shared", methods=["GET"])
+def list_shared_itineraries():
+    """List itineraries that other users have shared with the authenticated user.
+
+    Returns 200 with a JSON array of itinerary objects.
+    Requires: Authorization: ******
+    """
+    username = get_current_user(request)
+    if not username:
+        return jsonify({"error": "authentication required"}), 401
+
+    itineraries = get_itineraries_shared_with(username)
+    return jsonify(itineraries), 200
+
+
+@itineraries_bp.route("/itineraries/<itinerary_id>", methods=["PUT"])
+def edit_itinerary(itinerary_id):
+    """Update an itinerary you own.
+
+    Expected JSON body: any subset of title / destinations / start_date /
+    end_date / notes.
+
+    Returns 200 with the updated itinerary, 404 if it doesn't exist or you
+    don't own it.
+    Requires: Authorization: ******
+    """
+    username = get_current_user(request)
+    if not username:
+        return jsonify({"error": "authentication required"}), 401
+
+    data = request.get_json(silent=True) or {}
+    allowed_fields = {"title", "destinations", "start_date", "end_date", "notes"}
+    updates = {k: v for k, v in data.items() if k in allowed_fields}
+
+    if "title" in updates and not str(updates["title"]).strip():
+        return jsonify({"error": "title cannot be empty"}), 400
+    if "destinations" in updates and not isinstance(updates["destinations"], list):
+        return jsonify({"error": "destinations must be a list"}), 400
+
+    updated = update_itinerary(itinerary_id, username, updates)
+    if not updated:
+        return jsonify({"error": "itinerary not found"}), 404
+    return jsonify(updated), 200
+
+
+@itineraries_bp.route("/itineraries/<itinerary_id>", methods=["DELETE"])
+def remove_itinerary(itinerary_id):
+    """Delete an itinerary you own.
+
+    Returns 200 on success, 404 if it doesn't exist or you don't own it.
+    Requires: Authorization: ******
+    """
+    username = get_current_user(request)
+    if not username:
+        return jsonify({"error": "authentication required"}), 401
+
+    if not delete_itinerary(itinerary_id, username):
+        return jsonify({"error": "itinerary not found"}), 404
+    return jsonify({"message": "itinerary deleted"}), 200
+
+
+@itineraries_bp.route("/itineraries/<itinerary_id>/share", methods=["POST"])
+def add_share(itinerary_id):
+    """Share an itinerary you own with another registered user.
+
+    Expected JSON body: { "username": "friend" }
+
+    Returns 200 with the updated itinerary. 404 if the itinerary doesn't
+    exist / isn't yours, or if the target username has no account. 400 if
+    trying to share with yourself.
+    Requires: Authorization: ******
+    """
+    username = get_current_user(request)
+    if not username:
+        return jsonify({"error": "authentication required"}), 401
+
+    data = request.get_json(silent=True) or {}
+    target_username = data.get("username", "").strip()
+    if not target_username:
+        return jsonify({"error": "username is required"}), 400
+    if target_username == username:
+        return jsonify({"error": "you already have access to your own itinerary"}), 400
+    if not get_user_by_username(target_username):
+        return jsonify({"error": "no account found with this username"}), 404
+
+    updated = share_itinerary(itinerary_id, username, target_username)
+    if not updated:
+        return jsonify({"error": "itinerary not found"}), 404
+    return jsonify(updated), 200
+
+
+@itineraries_bp.route("/itineraries/<itinerary_id>/share", methods=["DELETE"])
+def remove_share(itinerary_id):
+    """Revoke another user's access to an itinerary you own.
+
+    Expected JSON body: { "username": "friend" }
+
+    Returns 200 with the updated itinerary, 404 if the itinerary doesn't
+    exist or isn't yours.
+    Requires: Authorization: ******
+    """
+    username = get_current_user(request)
+    if not username:
+        return jsonify({"error": "authentication required"}), 401
+
+    data = request.get_json(silent=True) or {}
+    target_username = data.get("username", "").strip()
+    if not target_username:
+        return jsonify({"error": "username is required"}), 400
+
+    updated = unshare_itinerary(itinerary_id, username, target_username)
+    if not updated:
+        return jsonify({"error": "itinerary not found"}), 404
+    return jsonify(updated), 200

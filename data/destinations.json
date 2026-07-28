@@ -1,92 +1,102 @@
 [
   {
-    "id": "bali",
-    "name": "Bali",
-    "Town": "Yaounde",
-    "quarter": "Nkolmong",
-    "sector": "  and rice traces.",
-    "tags": ["beach", "nature", "culture"],
-    "avg_cost_per_day": 45
+    "id": "mosque-premiere-maion",
+    "name": "Mosquée Premiere_Maison",
+    "Town": "Yaoundé",
+    "quarter": "Premiere Maison",
+    "sector": "Mosque for moslems ",
+    "tags": ["prayer", "religion"],
+    "avg_cost_per_day": 0
   },
   {
-    "id": "paris",
-    "name": "Paris",
-    "Town": "France",
-    "quarter": "Nkolmong",
-    "sector": "City of Light, famous for art, cuisine, and architecture.",
-    "tags": ["culture", "food", "city"],
-    "avg_cost_per_day": 150
+    "id": "Chez-Mama",
+    "name": "Boutique_chez_mama,",
+    "Town": "Yaoundé",
+    "quarter": "San Francisco",
+    "sector": "Small shop for  all your basic needs",
+    "tags": ["basic_needs", "shop"],
+    "avg_cost_per_day":["As from 25frs"]
   },
   {
-    "id": "cape-town",
-    "name": "Cape Town",
-    "Town": "South Africa",
-    "quarter": "Nkolmong",
-    "sector": "Coastal city with mountains, wine country, and vibrant culture.",
-    "tags": ["beach", "nature", "adventure"],
-    "avg_cost_per_day": 70
+    "id": "chefferie-nkolmbong",
+    "name": "Chefferie de Nkolmbong",
+    "Town": "Yaoundé",
+    "quarter": "Derriere Chefferie",
+    "sector": "Traditional palace and seat of the local chieftaincy.",
+    "tags": ["culture"],
+    "avg_cost_per_day": 0
   },
   {
-    "id": "tokyo",
-    "name": "Tokyo",
-    "Town": "Japan",
-    "quarter": "Nkolmong",
-    "sector": "Ultra-modern capital blending technology and tradition.",
-    "tags": ["city", "food", "culture"],
-    "avg_cost_per_day": 130
+    "id": "Boulangerie-peuple",
+    "name": "Boulangerie du peuple",
+    "Town": "Yaoundé",
+    "quarter": "San Francisco",
+    "sector": "pastry shop",
+    "tags": ["pastry", "food"],
+    "avg_cost_per_day": 0
   },
   {
-    "id": "marrakech",
-    "name": "Marrakech",
-    "Town": "Morocco",
-    "quarter": "Nkolmong",
-    "sector": "Historic city famed for souks, palaces, and gardens.",
-    "tags": ["culture", "food", "city"],
-    "avg_cost_per_day": 55
+    "id": "carrefour-san-francisco",
+    "name": "Carrefour San Francisco",
+    "Town": "Yaoundé",
+    "quarter": "San Francisco",
+    "sector": "Lively junction known for nightlife and street food.",
+    "tags": ["city", "food"],
+    "avg_cost_per_day": 0
   },
   {
-    "id": "rio-de-janeiro",
-    "name": "Rio de Janeiro",
-    "Town": "Brazil",
-    "quarter": "Nkolmong",
-    "sector": "Beaches, samba, and the iconic Christ the Redeemer statue.",
-    "tags": ["beach", "adventure", "city"],
-    "avg_cost_per_day": 80
+    "id": "Call_box Zakaryaou",
+    "name": "Chez Zakaryaou",
+    "Town": "Yaoundé",
+    "quarter": "San Francisco",
+    "sector": "Orange_Money_transactions",
+    "tags": ["Money", "Transctions"],
+    "avg_cost_per_day": ["as from 100frs"]
   },
   {
-    "id": "santorini",
-    "name": "Santorini",
-    "Town": "Greece",
-    "quarter": "Nkolmong",
-    "sector": "Whitewashed cliffside villages overlooking the Aegean Sea.",
-    "tags": ["beach", "culture", "romance"],
-    "avg_cost_per_day": 120
+    "id": "Hair_Salon San Francisco",
+    "name": "San Francisco Hair_Salon",
+    "Town": "Yaoundé",
+    "quarter": "San Francisco",
+    "sector": "Hair_salon,Hammam,skincare,manicure,pedicure",
+    "tags": ["city"],
+    "avg_cost_per_day": 1000
+  },
+  
+  {
+    "id": "Paulina_Hotel",
+    "name": "Paulina_Hotel",
+    "Town": "Yaoundé",
+    "quarter": "Premiere Maison",
+    "sector": " Hotel where you can pass your nights",
+    "tags": ["city"],
+    "avg_cost_per_day": 1000
   },
   {
-    "id": "banff",
-    "name": "Banff",
-    "Town": "Canada",
-    "quarter": "Nkolmong",
-    "sector": "Rocky Mountain national park town for hiking and skiing.",
-    "tags": ["nature", "adventure"],
-    "avg_cost_per_day": 100
+    "id": "Mosquee-terminus",
+    "name": "Mosquée Terminus",
+    "Town": "Yaoundé",
+    "quarter": "Terminus",
+    "sector": "Prayer_Place",
+    "tags": ["Religion", "Prayer"],
+    "avg_cost_per_day": 0
   },
   {
-    "id": "nairobi",
-    "name": "Nairobi",
-    "Town": "Kenya",
-    "quarter": "Nkolmong",
-    "sector": "Gateway to safari adventures across East Africa.",
-    "tags": ["adventure", "nature"],
-    "avg_cost_per_day": 60
+    "id": "mosquee-chefferie-haussa",
+    "name": "Mosquée Chefferie Haussa",
+    "Town": "Yaoundé",
+    "quarter": "Chefferie Haussa",
+    "sector": "Historic mosque and important religious landmark.",
+    "tags": ["culture"],
+    "avg_cost_per_day": 0
   },
   {
-    "id": "bangkok",
-    "name": "Bangkok",
-    "Town": "Thailand",
-    "quarter": "Nkolmong",
-    "sector": "Bustling capital known for street food, temples, and nightlife.",
-    "tags": ["food", "city", "culture"],
-    "avg_cost_per_day": 40
+    "id": "Chez_Mamai_eru",
+    "name": "Chez_Mami_Eru",
+    "Town": "Yaoundé",
+    "quarter": "Terminus",
+    "sector": "Small restaurant where you can enjoy your eru",
+    "tags": ["food", "culture"],
+    "avg_cost_per_day": 500
   }
 ]
