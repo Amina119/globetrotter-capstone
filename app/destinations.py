@@ -5,7 +5,7 @@ Destination search endpoint.
 
 Routes
 ------
-GET /destinations?q=paris&tag=food&quarter=Nkolmong
+GET /destinations?q=marche&tag=food&quarter=Terminus
     Returns destinations that match any of the provided query parameters.
     All parameters are optional; omitting them returns the full catalogue.
 """
@@ -23,7 +23,7 @@ def search_destinations():
     Query parameters (all optional):
         q          – free-text search against name, Town, and sector
         tag        – filter by a single interest tag (e.g. "beach")
-        quarter    – filter by quarter name (e.g. "Nkolmong")
+        quarter    – filter by sector name (e.g. "Terminus")
         max_cost   – filter by maximum average daily cost (integer)
 
     Returns a JSON list of matching destination objects.
