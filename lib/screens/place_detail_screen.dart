@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/local_place.dart';
 import '../theme/cameroon_colors.dart';
-import '../widgets/place_image.dart';
+import '../widgets/place_media.dart';
 
 /// Full-screen detail view for a single place: photo, description and the
 /// minimum amount needed to spend time there.
@@ -35,7 +35,7 @@ class PlaceDetailScreen extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  PlaceImage(assetPath: place.imageAsset, icon: icon, color: accent),
+                  PlaceMedia(videoAsset: place.videoAsset, imageAsset: place.imageAsset, icon: icon, color: accent),
                   const DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(

@@ -17,9 +17,16 @@ class LocalPlace {
   /// a generic placeholder message.
   final String? description;
 
-  /// Asset path (e.g. `assets/places/san_francisco/carrefour.jpg`) for the
-  /// photo shown on the place detail screen. Null, or an asset that hasn't
-  /// been dropped in yet, falls back to a colored icon placeholder.
+  /// Asset path (e.g. `assets/places/san_francisco/carrefour.mp4`) for a
+  /// looping, muted video shown on the place detail screen and list tile —
+  /// the preferred media for a place. Takes priority over [imageAsset] when
+  /// both are set. Null, or an asset that hasn't been dropped in yet, falls
+  /// back to [imageAsset] or the colored icon placeholder.
+  final String? videoAsset;
+
+  /// Asset path (e.g. `assets/places/san_francisco/carrefour.jpg`) for a
+  /// still photo, used when [videoAsset] isn't set. Null, or an asset that
+  /// hasn't been dropped in yet, falls back to a colored icon placeholder.
   final String? imageAsset;
 
   const LocalPlace({
@@ -29,6 +36,7 @@ class LocalPlace {
     required this.priceTier,
     this.sector,
     this.description,
+    this.videoAsset,
     this.imageAsset,
   });
 }

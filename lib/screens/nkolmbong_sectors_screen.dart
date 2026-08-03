@@ -2,21 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../data/sample_places.dart';
 import '../theme/cameroon_colors.dart';
+import '../theme/sector_palette.dart';
 import 'sector_detail_screen.dart';
 
 /// Lets the user drill into Nkolmbong by sector, then see the hotels and
 /// points of interest in the sector they pick.
 class NkolmbongSectorsScreen extends StatelessWidget {
   const NkolmbongSectorsScreen({super.key});
-
-  static const _palette = [
-    [Color(0xFF00532A), Color(0xFF007A3D)],
-    [Color(0xFFB00020), CameroonColors.red],
-    [Color(0xFF0D47A1), Color(0xFF1976D2)],
-    [Color(0xFFE65100), Color(0xFFEF6C00)],
-    [Color(0xFF4A148C), Color(0xFF8E24AA)],
-    [Color(0xFF004D40), Color(0xFF00897B)],
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +43,7 @@ class NkolmbongSectorsScreen extends StatelessWidget {
                   final sector = nkolmbongSectors[i];
                   final hotelCount = sampleHotels.where((h) => h.sector == sector).length;
                   final attractionCount = sampleAttractions.where((a) => a.sector == sector).length;
-                  final colors = _palette[i % _palette.length];
+                  final colors = sectorColors(sector);
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 14),
                     child: Material(
