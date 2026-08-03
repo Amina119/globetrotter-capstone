@@ -71,5 +71,9 @@ dist/
 .dockerignore
 
 # Data files (populated at runtime; seed catalogue is tracked)
-data/*.json
-!data/destinations.json
+services/*/data/*.json
+!services/recommendation-service/data/destinations.json
+
+# Per-service virtualenvs created while developing/testing locally
+services/*/.venv/
+gateway/.venv/
