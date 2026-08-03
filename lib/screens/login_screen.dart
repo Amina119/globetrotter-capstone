@@ -51,6 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return AuthScaffold(
       heroIcon: Icons.flight_takeoff,
+      heroVideoAsset: 'assets/videos/login_hero.mp4',
       child: Form(
         key: _formKey,
         child: Column(
