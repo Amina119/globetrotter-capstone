@@ -1,15 +1,12 @@
-import 'package:flutter/foundation.dart';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart' as mk;
 import 'package:media_kit_video/media_kit_video.dart' as mkv;
 import 'package:video_player/video_player.dart';
 
 import '../theme/cameroon_colors.dart';
-
-// The video_player package has no Windows/Linux desktop implementation, so
-// those platforms use media_kit_video instead.
-bool get _useMediaKit =>
-    !kIsWeb && (defaultTargetPlatform == TargetPlatform.windows || defaultTargetPlatform == TargetPlatform.linux);
+import '../utils/video_platform.dart';
 
 /// Shared visual frame for the login, register and forgot/reset password
 /// screens.
@@ -43,7 +40,7 @@ class AuthScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final canPop = Navigator.of(context).canPop();
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF3F5F4),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final isWide = constraints.maxWidth >= _wideBreakpoint;
@@ -52,12 +49,21 @@ class AuthScaffold extends StatelessWidget {
               if (isWide)
                 Row(
                   children: [
-                    SizedBox(
-                      width: 440,
+                    // The video/brand side: a clean, self-contained block —
+                    // no glow or blur bleeding in from the form side.
+                    Expanded(
                       child: _BrandPanel(heroIcon: heroIcon, heroVideoAsset: heroVideoAsset),
                     ),
+                    // The form side: its own panel with the ambient glow +
+                    // glass card confined to it, so the page reads as two
+                    // clearly divided halves.
                     Expanded(
-                      child: _FormPane(maxWidth: maxWidth, child: child),
+                      child: Stack(
+                        children: [
+                          const Positioned.fill(child: _AmbientBackground()),
+                          _FormPane(maxWidth: maxWidth, child: child),
+                        ],
+                      ),
                     ),
                   ],
                 )
@@ -65,7 +71,14 @@ class AuthScaffold extends StatelessWidget {
                 Column(
                   children: [
                     _CompactBrandHeader(heroIcon: heroIcon),
-                    Expanded(child: _FormPane(maxWidth: maxWidth, child: child)),
+                    Expanded(
+                      child: Stack(
+                        children: [
+                          const Positioned.fill(child: _AmbientBackground()),
+                          _FormPane(maxWidth: maxWidth, child: child),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               if (canPop)
@@ -83,6 +96,34 @@ class AuthScaffold extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+/// Soft, glowing color washes behind the whole scaffold, so the glass form
+/// card in [_FormPane] has something to feel "frosted" against instead of
+/// sitting on flat white.
+class _AmbientBackground extends StatelessWidget {
+  const _AmbientBackground();
+
+  @override
+  Widget build(BuildContext context) {
+    Widget glow(Color color, double size) => Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: RadialGradient(
+              colors: [color.withValues(alpha: 0.28), color.withValues(alpha: 0)],
+            ),
+          ),
+        );
+
+    return Stack(
+      children: [
+        Positioned(top: -120, right: -100, child: glow(CameroonColors.gold, 380)),
+        Positioned(bottom: -160, left: -140, child: glow(CameroonColors.green, 420)),
+      ],
     );
   }
 }
@@ -199,7 +240,7 @@ class _BrandVideoBackgroundState extends State<_BrandVideoBackground> {
   @override
   void initState() {
     super.initState();
-    if (_useMediaKit) {
+    if (useMediaKitVideo) {
       final player = mk.Player();
       _player = player;
       _mediaKitController = mkv.VideoController(player);
@@ -231,7 +272,7 @@ class _BrandVideoBackgroundState extends State<_BrandVideoBackground> {
 
   @override
   Widget build(BuildContext context) {
-    if (_useMediaKit) {
+    if (useMediaKitVideo) {
       final controller = _mediaKitController;
       if (controller == null) return const SizedBox.shrink();
       return mkv.Video(controller: controller, controls: mkv.NoVideoControls, fit: BoxFit.cover);
@@ -317,7 +358,7 @@ class _VideoSoundDialogState extends State<_VideoSoundDialog> {
   @override
   void initState() {
     super.initState();
-    if (_useMediaKit) {
+    if (useMediaKitVideo) {
       final player = mk.Player();
       _player = player;
       _mediaKitController = mkv.VideoController(player);
@@ -374,7 +415,7 @@ class _VideoSoundDialogState extends State<_VideoSoundDialog> {
   }
 
   Widget _buildPlayer() {
-    if (_useMediaKit) {
+    if (useMediaKitVideo) {
       final controller = _mediaKitController;
       if (controller == null) return const Center(child: CircularProgressIndicator(color: Colors.white));
       return mkv.Video(controller: controller);
@@ -463,7 +504,8 @@ class _CompactBrandHeader extends StatelessWidget {
   }
 }
 
-/// White pane holding the actual form content, centered with a max width.
+/// Pane holding the actual form content: a frosted glass card floating
+/// over [_AmbientBackground], centered with a max width.
 class _FormPane extends StatelessWidget {
   final double maxWidth;
   final Widget child;
@@ -477,9 +519,56 @@ class _FormPane extends StatelessWidget {
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxWidth),
-          child: child,
+          child: _EntranceFade(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(28),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                child: Container(
+                  padding: const EdgeInsets.all(28),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.72),
+                    borderRadius: BorderRadius.circular(28),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.6), width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: CameroonColors.greenDark.withValues(alpha: 0.10),
+                        blurRadius: 40,
+                        offset: const Offset(0, 20),
+                      ),
+                    ],
+                  ),
+                  child: child,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
+    );
+  }
+}
+
+/// Fades and slides its child up on first appearance — a small, cheap bit
+/// of polish that makes the auth screens feel considered rather than static.
+class _EntranceFade extends StatelessWidget {
+  final Widget child;
+
+  const _EntranceFade({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 520),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Opacity(
+          opacity: value,
+          child: Transform.translate(offset: Offset(0, (1 - value) * 18), child: child),
+        );
+      },
+      child: child,
     );
   }
 }
