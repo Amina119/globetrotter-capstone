@@ -1,7 +1,11 @@
-# Deploying GlobeTrotter (Phase 1) to a Contabo VPS
+# Deploying GlobeTrotter to a Contabo VPS
 
-This covers taking the Dockerized Flask monolith from your machine to a
-running Contabo VPS reachable over the internet.
+This covers taking the Dockerized backend from your machine to a running
+Contabo VPS reachable over the internet. Written for the Phase 1 monolith;
+still applies as-is now that the backend is Phase 2's API Gateway + 3
+services (see `README.md`) — only the gateway publishes a host port, so the
+firewall rule and the `curl` steps below are unchanged. `docker compose up
+--build -d` now builds 4 images instead of 1, that's the only difference.
 
 ## 1. Order / access the VPS
 
@@ -67,30 +71,18 @@ Never run with the default `SECRET_KEY`. Generate one and pass it in:
 python3 -c "import secrets; print(secrets.token_hex(32))"
 ```
 
-Create a `.env` file on the VPS (already gitignored) and reference it from
-`docker-compose.yml`:
+Create a `.env` file in the repo root on the VPS (already gitignored) —
+`docker-compose.yml` picks up a same-directory `.env` automatically for
+variable substitution, no compose file edits needed:
 
 ```bash
 echo "SECRET_KEY=<paste the generated value>" > .env
 ```
 
-Edit `docker-compose.yml` to load it:
-
-```yaml
-services:
-  globetrotter:
-    build: .
-    container_name: globetrotter_app
-    ports:
-      - "5000:5000"
-    volumes:
-      - .:/globetrotter
-    env_file:
-      - .env
-    environment:
-      - PORT=5000
-    restart: unless-stopped
-```
+The same `SECRET_KEY` is passed to all three backend services (User,
+Itinerary, Recommendation) so tokens the User Service issues verify
+correctly everywhere. The gateway doesn't need it — it never touches
+tokens, only routes requests.
 
 ## 6. Build and run
 
