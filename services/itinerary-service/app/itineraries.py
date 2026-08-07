@@ -35,6 +35,7 @@ from app.models import (
     update_itinerary,
 )
 from app import services_client
+from app import events
 
 itineraries_bp = Blueprint("itineraries", __name__)
 
@@ -81,6 +82,7 @@ def create_itinerary():
         "created_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
     }
     save_itinerary(itinerary)
+    events.publish_itinerary_created(itinerary)
     return jsonify(itinerary), 201
 
 
@@ -155,8 +157,13 @@ def remove_itinerary(itinerary_id):
     if not email:
         return jsonify({"error": "authentication required"}), 401
 
+    existing = next((it for it in get_itineraries_for_user(email) if it.get("id") == itinerary_id), None)
+
     if not delete_itinerary(itinerary_id, email):
         return jsonify({"error": "itinerary not found"}), 404
+
+    if existing:
+        events.publish_itinerary_deleted(itinerary_id, existing.get("destinations", []))
     return jsonify({"message": "itinerary deleted"}), 200
 
 

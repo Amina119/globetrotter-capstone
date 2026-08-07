@@ -35,4 +35,12 @@ def create_app():
     app.register_blueprint(recommendations_bp)
     app.register_blueprint(user_recommendations_bp)
 
+    # Start the RabbitMQ consumer that keeps the destination-popularity
+    # cache warm from itinerary.created / itinerary.deleted events. Skipped
+    # under pytest (PYTEST_CURRENT_TEST is set automatically by pytest) so
+    # the test suite doesn't need a live broker.
+    if "PYTEST_CURRENT_TEST" not in os.environ and os.environ.get("DISABLE_EVENT_CONSUMER") != "1":
+        from app.event_consumer import start_consumer
+        start_consumer()
+
     return app
