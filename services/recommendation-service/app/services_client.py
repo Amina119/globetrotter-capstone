@@ -51,9 +51,21 @@ def get_user_itineraries(email: str) -> list:
 
 
 def get_destination_popularity() -> dict:
-    """Return the cross-user destination popularity map from the Itinerary
-    Service. Returns an empty map if it can't be reached.
+    """Return the cross-user destination popularity map.
+
+    Prefers the in-memory cache kept warm by app.event_consumer from
+    itinerary.created / itinerary.deleted RabbitMQ events (async path).
+    Falls back to a synchronous call to the Itinerary Service's
+    /internal/itineraries/popularity endpoint when the cache is empty —
+    e.g. right after startup, before any event has arrived, or if the
+    broker has never been reachable — so recommendations still work.
     """
+    from app.event_consumer import get_cached_popularity
+
+    cached = get_cached_popularity()
+    if cached:
+        return cached
+
     try:
         res = requests.get(f"{ITINERARY_SERVICE_URL}/internal/itineraries/popularity", timeout=_TIMEOUT)
         res.raise_for_status()

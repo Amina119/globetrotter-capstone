@@ -1,6 +1,17 @@
 version: "3.9"
 
 services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: globetrotter_rabbitmq
+    ports:
+      - "15672:15672"  # management UI, for local inspection only
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   user-service:
     build: ./services/user-service
     container_name: globetrotter_user_service
@@ -19,8 +30,10 @@ services:
       - PORT=5002
       - SECRET_KEY=${SECRET_KEY:-globetrotter-secret-change-in-prod}
       - USER_SERVICE_URL=http://user-service:5001
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/%2F
     depends_on:
       - user-service
+      - rabbitmq
 
   recommendation-service:
     build: ./services/recommendation-service
@@ -32,9 +45,11 @@ services:
       - SECRET_KEY=${SECRET_KEY:-globetrotter-secret-change-in-prod}
       - USER_SERVICE_URL=http://user-service:5001
       - ITINERARY_SERVICE_URL=http://itinerary-service:5002
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/%2F
     depends_on:
       - user-service
       - itinerary-service
+      - rabbitmq
 
   gateway:
     build: ./gateway
