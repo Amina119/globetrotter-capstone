@@ -9,21 +9,29 @@ POST /register          – create a new user account
 POST /login              – authenticate and return a JWT token
 POST /forgot-password    – request a password reset token
 POST /reset-password     – reset a password using a token from /forgot-password
+POST /auth/google        – log in (or auto-register) with a Google ID token
 
 Internal routes (service-to-service only, not routed through the gateway)
 ---------------------------------------------------------------------------
 GET /internal/users/<email>/exists  – used by Itinerary Service to validate a share target
 GET /internal/users/<email>          – used by Recommendation Service to read name/preferences/is_admin
 """
+import os
 import re
 import uuid
 import datetime
+import secrets
 
 import jwt
+import requests
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from app.models import get_all_users, get_user_by_email, save_user, update_user
+from app import email_client
+
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+GOOGLE_TOKENINFO_URL = "https://oauth2.googleapis.com/tokeninfo"
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -157,8 +165,9 @@ def forgot_password():
     Always returns 200, whether or not an account exists for that email, so
     the response can't be used to enumerate registered accounts. When an
     account does exist, a reset token valid for 1 hour is generated and
-    logged (there is no email-sending infrastructure yet, so this stands in
-    for "sending" it).
+    emailed via Brevo (app.email_client). If Brevo isn't configured (no
+    BREVO_API_KEY, e.g. local dev), the token is logged instead so it can
+    still be retrieved manually.
     """
     data = request.get_json(silent=True) or {}
     email = data.get("email", "").strip().lower()
@@ -171,9 +180,9 @@ def forgot_password():
         token = str(uuid.uuid4())
         expires = (datetime.datetime.now(datetime.timezone.utc) + _RESET_TOKEN_TTL).isoformat()
         update_user(email, {"reset_token": token, "reset_token_expires": expires})
-        # No email infrastructure exists yet — log the token so it can be
-        # retrieved manually during development/testing.
-        current_app.logger.info("Password reset token for %s: %s (expires %s)", email, token, expires)
+        sent = email_client.send_password_reset_email(email, token)
+        if not sent:
+            current_app.logger.info("Password reset token for %s: %s (expires %s)", email, token, expires)
 
     return jsonify({"message": "if an account exists for this email, a reset link has been sent"}), 200
 
@@ -209,6 +218,77 @@ def reset_password():
         "reset_token_expires": None,
     })
     return jsonify({"message": "password reset successfully"}), 200
+
+
+@auth_bp.route("/auth/google", methods=["POST"])
+def google_login():
+    """Log in with a Google ID token, auto-registering the account on its
+    first use.
+
+    Expected JSON body:
+        { "credential": "<ID token from Google Identity Services>" }
+
+    The token is verified with Google's tokeninfo endpoint rather than a
+    local JWKS library: it's a single extra network call per login, and
+    keeps this service from needing to fetch/cache Google's signing keys.
+    Rejects the token if its audience isn't this app's GOOGLE_CLIENT_ID.
+
+    Returns 200 with the same shape as /login on success.
+    """
+    if not GOOGLE_CLIENT_ID:
+        return jsonify({"error": "Google sign-in is not configured"}), 503
+
+    data = request.get_json(silent=True) or {}
+    credential = data.get("credential", "").strip()
+    if not credential:
+        return jsonify({"error": "credential is required"}), 400
+
+    try:
+        res = requests.get(GOOGLE_TOKENINFO_URL, params={"id_token": credential}, timeout=5)
+    except requests.RequestException:
+        current_app.logger.exception("Failed to reach Google to verify sign-in token")
+        return jsonify({"error": "could not verify Google credential"}), 502
+
+    if res.status_code != 200:
+        return jsonify({"error": "invalid Google credential"}), 401
+
+    claims = res.json()
+    if claims.get("aud") != GOOGLE_CLIENT_ID:
+        return jsonify({"error": "invalid Google credential"}), 401
+    if claims.get("email_verified") not in ("true", True):
+        return jsonify({"error": "Google account email is not verified"}), 401
+
+    email = claims.get("email", "").strip().lower()
+    name = claims.get("name") or email.split("@")[0]
+    if not email:
+        return jsonify({"error": "invalid Google credential"}), 401
+
+    user = get_user_by_email(email)
+    if not user:
+        is_admin = len(get_all_users()) == 0
+        user = {
+            "id": str(uuid.uuid4()),
+            "name": name,
+            "email": email,
+            # No password is ever set for a Google-only account; this hash
+            # doesn't correspond to any password so /login can't be used
+            # to sign in to it.
+            "password_hash": generate_password_hash(secrets.token_urlsafe(32)),
+            "preferences": [],
+            "is_admin": is_admin,
+            "auth_provider": "google",
+            "reset_token": None,
+            "reset_token_expires": None,
+        }
+        save_user(user)
+
+    token = create_token(email, current_app.config["SECRET_KEY"])
+    return jsonify({
+        "token": token,
+        "email": email,
+        "name": user.get("name", ""),
+        "is_admin": bool(user.get("is_admin")),
+    }), 200
 
 
 # ---------------------------------------------------------------------------

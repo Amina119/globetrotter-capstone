@@ -70,6 +70,21 @@ class ApiService {
     return (data['token'] as String, (data['name'] ?? '').toString());
   }
 
+  /// Exchanges a Google ID token for a GlobeTrotter session. Auto-registers
+  /// the account on first sign-in.
+  ///
+  /// Returns the JWT token and the account holder's display name, same
+  /// shape as [login].
+  Future<(String token, String name)> loginWithGoogle(String idToken) async {
+    final res = await http.post(
+      _uri('/auth/google'),
+      headers: _headers,
+      body: jsonEncode({'credential': idToken}),
+    );
+    final data = _decode(res);
+    return (data['token'] as String, (data['name'] ?? '').toString());
+  }
+
   /// Requests a password reset token for [email].
   ///
   /// Returns the reset token. The backend has no outgoing email

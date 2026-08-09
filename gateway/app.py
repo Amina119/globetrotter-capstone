@@ -8,7 +8,8 @@ streams the response straight back. Doesn't touch passwords or JWTs itself
 
 Route table
 -----------
-/register, /login, /forgot-password, /reset-password  -> User Service
+/register, /login, /auth/google,
+  /forgot-password, /reset-password                    -> User Service
 /itineraries*                                          -> Itinerary Service
 /destinations*, /recommendations*,
   /my-recommendations*, /admin/recommendations*        -> Recommendation Service
@@ -40,6 +41,7 @@ _logger = logging.getLogger(__name__)
 _ROUTES = [
     ("/register", USER_SERVICE_URL),
     ("/login", USER_SERVICE_URL),
+    ("/auth/google", USER_SERVICE_URL),
     ("/forgot-password", USER_SERVICE_URL),
     ("/reset-password", USER_SERVICE_URL),
     ("/itineraries", ITINERARY_SERVICE_URL),
