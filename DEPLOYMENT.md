@@ -57,7 +57,7 @@ Simplest path — push your local repo to GitHub, then clone it on the VPS:
 ```bash
 # on the VPS
 git clone https://github.com/<your-username>/globetrotter-capstone.git
-cd globetrotter-capstone
+cd globetrotter-capstone/backend
 ```
 
 (No GitHub yet? You can instead `scp -r` the folder from your machine:
@@ -71,7 +71,7 @@ Never run with the default `SECRET_KEY`. Generate one and pass it in:
 python3 -c "import secrets; print(secrets.token_hex(32))"
 ```
 
-Create a `.env` file in the repo root on the VPS (already gitignored) —
+Create a `.env` file in `backend/` on the VPS (already gitignored) —
 `docker-compose.yml` picks up a same-directory `.env` automatically for
 variable substitution, no compose file edits needed:
 
@@ -121,9 +121,10 @@ curl http://YOUR_VPS_IP:5000/destinations
 
 ## 7. Point the Flutter app at the VPS
 
-Run/build the frontend with the VPS IP instead of localhost:
+Run/build the frontend (from `frontend/`) with the VPS IP instead of localhost:
 
 ```bash
+cd frontend
 flutter run -d chrome --dart-define=API_BASE_URL=http://YOUR_VPS_IP:5000
 # or for a production web build:
 flutter build web --dart-define=API_BASE_URL=http://YOUR_VPS_IP:5000
@@ -147,5 +148,6 @@ about load balancing / ingress rather than the monolith itself.
 ```bash
 cd ~/globetrotter-capstone
 git pull
+cd backend
 docker compose up --build -d
 ```

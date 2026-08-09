@@ -28,7 +28,7 @@ GlobeTrotter is a **Flask backend with a Flutter frontend** that serves as a sem
 
 Each service is a self-contained Flask app with its own `requirements.txt`, `Dockerfile`, and `tests/` — genuinely independently deployable, not just organized into folders. Inter-service calls (via `requests`) are synchronous REST only for now; no message queue is wired up yet.
 
-Routes under `/internal/...` (e.g. `GET /internal/users/<email>/exists`) are service-to-service only — the gateway refuses to proxy them, and in `docker-compose.yml` only the gateway publishes a host port, so they're unreachable from outside the Docker network.
+Routes under `/internal/...` (e.g. `GET /internal/users/<email>/exists`) are service-to-service only — the gateway refuses to proxy them, and in `backend/docker-compose.yml` only the gateway publishes a host port, so they're unreachable from outside the Docker network.
 
 ---
 
@@ -36,30 +36,32 @@ Routes under `/internal/...` (e.g. `GET /internal/users/<email>/exists`) are ser
 
 ```
 .
-├── services/
-│   ├── user-service/            # Flask app, own venv, own tests, own data/
-│   ├── itinerary-service/
-│   └── recommendation-service/
-├── gateway/                     # Reverse-proxy Flask app routing to the 3 services
-├── scripts/
-│   └── migrate_legacy_data.py   # One-off: split the old monolith's data/ into per-service data/
-├── lib/                         # Flutter frontend
-│   ├── main.dart
-│   ├── screens/                  # App screens (auth, home dashboard, destinations, itineraries, ...)
-│   ├── widgets/                   # Reusable UI components
-│   ├── services/                   # API client and session management
-│   ├── models/                     # Frontend data models
-│   └── theme/                       # App color scheme
-├── android/ ios/ web/            # Flutter platform targets
-├── docker-compose.yml            # Orchestrates gateway + 3 services
-├── pubspec.yaml                  # Frontend (Flutter) dependencies
+├── backend/
+│   ├── services/
+│   │   ├── user-service/            # Flask app, own venv, own tests, own data/
+│   │   ├── itinerary-service/
+│   │   └── recommendation-service/
+│   ├── gateway/                     # Reverse-proxy Flask app routing to the 3 services
+│   ├── scripts/
+│   │   └── migrate_legacy_data.py   # One-off: split the old monolith's data/ into per-service data/
+│   └── docker-compose.yml           # Orchestrates gateway + 3 services
+├── frontend/
+│   ├── lib/                         # Flutter frontend
+│   │   ├── main.dart
+│   │   ├── screens/                  # App screens (auth, home dashboard, destinations, itineraries, ...)
+│   │   ├── widgets/                   # Reusable UI components
+│   │   ├── services/                   # API client and session management
+│   │   ├── models/                     # Frontend data models
+│   │   └── theme/                       # App color scheme
+│   ├── android/ ios/ web/ windows/ macos/ linux/  # Flutter platform targets
+│   └── pubspec.yaml                 # Frontend (Flutter) dependencies
 └── README.md
 ```
 
 Each service directory looks like:
 
 ```
-services/<name>/
+backend/services/<name>/
 ├── app/
 │   ├── __init__.py     # Flask app factory
 │   ├── models.py        # JSON file I/O for the data this service owns
@@ -153,7 +155,7 @@ Easiest path is Docker Compose (see below) — it starts all four pieces at
 once. To run a single service directly (e.g. while developing it):
 
 ```bash
-cd services/user-service        # or itinerary-service / recommendation-service, or gateway/
+cd backend/services/user-service        # or itinerary-service / recommendation-service, or gateway/
 python -m venv .venv && .venv/Scripts/activate    # .venv/bin/activate on macOS/Linux
 pip install -r requirements-dev.txt
 python app/main.py              # gateway/ instead runs: python app.py
@@ -165,7 +167,7 @@ own terminal first, then the gateway (port 5000) last, setting the service
 URLs it needs to reach them:
 
 ```bash
-cd gateway
+cd backend/gateway
 USER_SERVICE_URL=http://localhost:5001 \
 ITINERARY_SERVICE_URL=http://localhost:5002 \
 RECOMMENDATION_SERVICE_URL=http://localhost:5003 \
@@ -183,6 +185,8 @@ gateway is the single entry point.
 - Flutter SDK (stable channel)
 
 ```bash
+cd frontend
+
 # 1. Install dependencies
 flutter pub get
 
@@ -198,16 +202,16 @@ flutter run -d chrome --dart-define=API_BASE_URL=http://your-vps-ip:5000
 
 ### Enabling "Continue with Google"
 
-The `.env` file's `GOOGLE_CLIENT_ID` is only read by the backend (`user-service`), so it can
-verify Google ID tokens. The Flutter frontend has **no access to that `.env` file** and needs
-the same client ID passed separately as a `--dart-define`, or the "Continue with Google"
+The `backend/.env` file's `GOOGLE_CLIENT_ID` is only read by the backend (`user-service`), so
+it can verify Google ID tokens. The Flutter frontend has **no access to that `.env` file** and
+needs the same client ID passed separately as a `--dart-define`, or the "Continue with Google"
 button won't even render:
 
 ```bash
 flutter run -d chrome --dart-define=GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com
 ```
 
-Use the **same** client ID as the backend's `.env` — the backend checks the token's `aud`
+Use the **same** client ID as the backend's `backend/.env` — the backend checks the token's `aud`
 claim against its own `GOOGLE_CLIENT_ID`, so a mismatch is rejected as an invalid credential.
 Pass the same flag to `flutter build web` for production builds. Also make sure this origin
 (e.g. `http://localhost:<port>` for `flutter run -d chrome`, or your real domain in prod) is
@@ -218,6 +222,8 @@ listed under "Authorized JavaScript origins" for the OAuth client in Google Clou
 ## Running with Docker
 
 ```bash
+cd backend
+
 # Build and start all 4 containers (gateway + 3 services)
 docker compose up --build
 
@@ -233,10 +239,10 @@ files persist between runs.
 ### Running each service's tests
 
 ```bash
-cd services/user-service         # or itinerary-service / recommendation-service
+cd backend/services/user-service         # or itinerary-service / recommendation-service
 python -m pytest                 # uses the venv set up above
 
-cd gateway
+cd backend/gateway
 python -m pytest
 ```
 
@@ -253,12 +259,12 @@ Each service persists its own data as plain JSON files, inside its own
 
 | File                                                    | Owned by               | Purpose                              |
 |-----------------------------------------------------------|-------------------------|---------------------------------------|
-| `services/user-service/data/users.json`                 | User Service            | Registered users (created at runtime) |
-| `services/itinerary-service/data/itineraries.json`      | Itinerary Service       | User itineraries (created at runtime) |
-| `services/recommendation-service/data/destinations.json`| Recommendation Service  | Static catalogue of travel destinations (seed data) |
-| `services/recommendation-service/data/user_recommendations.json` | Recommendation Service | User-submitted recommendations (created at runtime) |
+| `backend/services/user-service/data/users.json`                 | User Service            | Registered users (created at runtime) |
+| `backend/services/itinerary-service/data/itineraries.json`      | Itinerary Service       | User itineraries (created at runtime) |
+| `backend/services/recommendation-service/data/destinations.json`| Recommendation Service  | Static catalogue of travel destinations (seed data) |
+| `backend/services/recommendation-service/data/user_recommendations.json` | Recommendation Service | User-submitted recommendations (created at runtime) |
 
-> **Note:** `services/*/data/*.json` (except `destinations.json`) are excluded from version control via `.gitignore`. If you have a copy of the old monolith's `data/` directory, `python scripts/migrate_legacy_data.py` splits it into the layout above.
+> **Note:** `backend/services/*/data/*.json` (except `destinations.json`) are excluded from version control via `.gitignore`. If you have a copy of the old monolith's `data/` directory, `python backend/scripts/migrate_legacy_data.py` splits it into the layout above.
 
 ---
 
