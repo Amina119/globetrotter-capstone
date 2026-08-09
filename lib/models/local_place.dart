@@ -29,6 +29,13 @@ class LocalPlace {
   /// hasn't been dropped in yet, falls back to a colored icon placeholder.
   final String? imageAsset;
 
+  /// Interest tags (drawn from the same vocabulary offered at registration,
+  /// e.g. `food`, `culture`, `romance`) used to personalize the "Recommended
+  /// for you" section on the home page against the preferences a user chose
+  /// when creating their account. Empty for places that don't fit any of
+  /// those categories well.
+  final List<String> tags;
+
   const LocalPlace({
     required this.name,
     required this.category,
@@ -38,5 +45,6 @@ class LocalPlace {
     this.description,
     this.videoAsset,
     this.imageAsset,
+    this.tags = const [],
   });
 }
