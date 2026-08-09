@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../services/api_service.dart';
 import '../widgets/auth_scaffold.dart';
+import '../widgets/gradient_button.dart';
 import 'login_screen.dart';
 
 /// Second step of the forgot-password flow: enter the reset token (received
@@ -107,7 +108,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
               Text(_error!, style: const TextStyle(color: Colors.red)),
             ],
             const SizedBox(height: 20),
-            FilledButton(
+            GradientButton(
               onPressed: _loading ? null : _submit,
               child: _loading
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))

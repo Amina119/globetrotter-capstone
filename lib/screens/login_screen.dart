@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 
 import '../services/api_service.dart';
 import '../services/session.dart';
+import '../theme/cameroon_colors.dart';
 import '../widgets/auth_scaffold.dart';
+import '../widgets/gradient_button.dart';
 import 'forgot_password_screen.dart';
 import 'register_screen.dart';
 import 'welcome_screen.dart';
@@ -95,13 +97,22 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return AuthScaffold(
       heroIcon: Icons.flight_takeoff,
+      heroVideoAsset: 'assets/videos/login_hero.mp4',
       child: Form(
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Welcome back', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+            ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [CameroonColors.greenDark, CameroonColors.green],
+              ).createShader(bounds),
+              child: Text(
+                'Welcome back',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800, color: Colors.white),
+              ),
+            ),
             const SizedBox(height: 4),
             Text(
               'Log in to keep exploring Cameroon and beyond',
@@ -130,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Text(_error!, style: const TextStyle(color: Colors.red)),
             ],
             const SizedBox(height: 20),
-            FilledButton(
+            GradientButton(
               onPressed: _loading ? null : _submit,
               child: _loading
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
