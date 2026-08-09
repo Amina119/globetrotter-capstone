@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:provider/provider.dart';
 
 import 'screens/home_screen.dart';
@@ -7,6 +9,11 @@ import 'services/session.dart';
 import 'theme/cameroon_colors.dart';
 
 void main() {
+  // Needed for the Windows/Linux desktop video backend used by
+  // AuthScaffold's login background video.
+  if (!kIsWeb) {
+    MediaKit.ensureInitialized();
+  }
   runApp(const GlobeTrotterApp());
 }
 
