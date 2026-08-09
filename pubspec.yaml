@@ -67,7 +67,21 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/videos/
-    - assets/places/
+    - assets/places/san_francisco/beauty_with_grace.mp4
+    - assets/places/san_francisco/bill_pressing.jpeg
+    - assets/places/san_francisco/blacka_and_brown_hair_salon.mp4
+    - assets/places/san_francisco/princesse_hadidja_shopping.mp4
+    - assets/places/terminus/auto_ecole_leclerc.mp4
+    - assets/places/terminus/brigettes_johari.jpg
+    - assets/places/terminus/carrefour_terminus.mp4
+    - assets/places/terminus/mosquee_terminus.mp4
+    - assets/places/premiere_maison/honor_bilingual_complex.mp4
+    - assets/places/premiere_maison/institut_nourha_couture.mp4
+    - assets/places/premiere_maison/paulina_hotel.mp4
+    - assets/places/premiere_maison/bsa_event.mp4
+    
+    
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
