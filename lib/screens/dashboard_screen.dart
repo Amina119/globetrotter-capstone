@@ -30,10 +30,8 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   bool _loading = true;
   List<Destination> _destinations = [];
-  List<Destination> _recommendations = [];
   List<Itinerary> _itineraries = [];
   String? _destinationsError;
-  String? _recommendationsError;
 
   @override
   void initState() {
@@ -53,14 +51,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _destinationsError = null;
     } catch (_) {
       _destinationsError = 'Could not load destinations.';
-    }
-
-    try {
-      final data = await api.getRecommendations(limit: 8);
-      _recommendations = data.map((e) => Destination.fromJson(e)).toList();
-      _recommendationsError = null;
-    } catch (_) {
-      _recommendationsError = 'Could not load recommendations.';
     }
 
     try {
@@ -99,12 +89,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
           SectionHeader(
             title: 'Recommended for you',
             icon: Icons.recommend,
-            onSeeAll: () => widget.onSeeAll(2),
+            onSeeAll: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const NkolmbongSectorsScreen()),
+            ),
           ),
-          _DestinationRail(items: _recommendations, error: _recommendationsError, emptyText: 'Set preferences at registration to get recommendations.'),
+          _PlaceRail(items: recommendedPlaces(session.preferences), icon: Icons.recommend, accent: CameroonColors.gold),
           const SizedBox(height: 20),
-          const SectionHeader(title: 'Restaurants near Nkolmbong', icon: Icons.restaurant),
-          _PlaceRail(items: sampleRestaurants, icon: Icons.restaurant, accent: CameroonColors.red),
+          SectionHeader(
+            title: 'Places to visit in Nkolmbong',
+            icon: Icons.place_outlined,
+            onSeeAll: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const NkolmbongSectorsScreen()),
+            ),
+          ),
+          _PlaceRail(items: sampleAttractions, icon: Icons.place_outlined, accent: CameroonColors.red),
           const SizedBox(height: 20),
           SectionHeader(
             title: 'Hotels in Nkolmbong',
@@ -224,14 +222,13 @@ class _DashboardSearchFieldState extends State<_DashboardSearchField> {
 class _DestinationRail extends StatelessWidget {
   final List<Destination> items;
   final String? error;
-  final String emptyText;
 
-  const _DestinationRail({required this.items, this.error, this.emptyText = 'Nothing to show yet.'});
+  const _DestinationRail({required this.items, this.error});
 
   @override
   Widget build(BuildContext context) {
     if (error != null) return _RailMessage(text: error!);
-    if (items.isEmpty) return _RailMessage(text: emptyText);
+    if (items.isEmpty) return const _RailMessage(text: 'Nothing to show yet.');
     return SizedBox(
       height: 168,
       child: ListView.builder(
@@ -254,7 +251,7 @@ class _PlaceRail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 168,
+      height: 220,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
