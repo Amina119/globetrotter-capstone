@@ -196,6 +196,23 @@ To point the app at a different backend, pass `--dart-define`:
 flutter run -d chrome --dart-define=API_BASE_URL=http://your-vps-ip:5000
 ```
 
+### Enabling "Continue with Google"
+
+The `.env` file's `GOOGLE_CLIENT_ID` is only read by the backend (`user-service`), so it can
+verify Google ID tokens. The Flutter frontend has **no access to that `.env` file** and needs
+the same client ID passed separately as a `--dart-define`, or the "Continue with Google"
+button won't even render:
+
+```bash
+flutter run -d chrome --dart-define=GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com
+```
+
+Use the **same** client ID as the backend's `.env` — the backend checks the token's `aud`
+claim against its own `GOOGLE_CLIENT_ID`, so a mismatch is rejected as an invalid credential.
+Pass the same flag to `flutter build web` for production builds. Also make sure this origin
+(e.g. `http://localhost:<port>` for `flutter run -d chrome`, or your real domain in prod) is
+listed under "Authorized JavaScript origins" for the OAuth client in Google Cloud Console.
+
 ---
 
 ## Running with Docker

@@ -20,6 +20,11 @@ services:
     environment:
       - PORT=5001
       - SECRET_KEY=${SECRET_KEY:-globetrotter-secret-change-in-prod}
+      - BREVO_API_KEY=${BREVO_API_KEY:-}
+      - BREVO_SENDER_EMAIL=${BREVO_SENDER_EMAIL:-}
+      - BREVO_SENDER_NAME=${BREVO_SENDER_NAME:-GlobeTrotter}
+      - PASSWORD_RESET_URL=${PASSWORD_RESET_URL:-http://localhost:5000/reset-password}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
 
   itinerary-service:
     build: ./services/itinerary-service

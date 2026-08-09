@@ -84,6 +84,25 @@ Itinerary, Recommendation) so tokens the User Service issues verify
 correctly everywhere. The gateway doesn't need it — it never touches
 tokens, only routes requests.
 
+### Password reset emails (Brevo)
+
+`/forgot-password` sends its reset link through
+[Brevo](https://www.brevo.com)'s transactional email API. Without these
+set, the User Service just logs the reset token instead of emailing it —
+fine for local dev, not for production:
+
+```bash
+cat >> .env <<'EOF'
+BREVO_API_KEY=<your Brevo API key>
+BREVO_SENDER_EMAIL=<a sender verified in your Brevo account>
+BREVO_SENDER_NAME=GlobeTrotter
+PASSWORD_RESET_URL=https://<your-domain>/reset-password
+EOF
+```
+
+`PASSWORD_RESET_URL` should point at whatever page in your deployed
+frontend handles the reset form — it gets `?email=...&token=...` appended.
+
 ## 6. Build and run
 
 ```bash
