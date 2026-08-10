@@ -12,7 +12,8 @@ Route table
   /forgot-password, /reset-password                    -> User Service
 /itineraries*                                          -> Itinerary Service
 /destinations*, /recommendations*,
-  /my-recommendations*, /admin/recommendations*        -> Recommendation Service
+  /my-recommendations*, /admin/recommendations*,
+  /admin/destinations*                                  -> Recommendation Service
 /health                                                -> the gateway's own liveness check
 
 Routes starting with /internal/ are service-to-service only and are
@@ -49,6 +50,7 @@ _ROUTES = [
     ("/recommendations", RECOMMENDATION_SERVICE_URL),
     ("/my-recommendations", RECOMMENDATION_SERVICE_URL),
     ("/admin/recommendations", RECOMMENDATION_SERVICE_URL),
+    ("/admin/destinations", RECOMMENDATION_SERVICE_URL),
 ]
 
 # Hop-by-hop headers that must not be forwarded verbatim between the client,
