@@ -7,6 +7,8 @@ class Destination {
   final List<String> tags;
   final int? avgCostPerDay;
   final num? matchScore;
+  final double? latitude;
+  final double? longitude;
 
   Destination({
     required this.id,
@@ -17,7 +19,11 @@ class Destination {
     required this.tags,
     this.avgCostPerDay,
     this.matchScore,
+    this.latitude,
+    this.longitude,
   });
+
+  bool get hasPosition => latitude != null && longitude != null;
 
   factory Destination.fromJson(Map<String, dynamic> json) {
     return Destination(
@@ -29,6 +35,8 @@ class Destination {
       tags: (json['tags'] as List<dynamic>? ?? []).map((e) => e.toString()).toList(),
       avgCostPerDay: json['avg_cost_per_day'] is int ? json['avg_cost_per_day'] : null,
       matchScore: json['match_score'] is num ? json['match_score'] as num : null,
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
     );
   }
 }

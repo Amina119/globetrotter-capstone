@@ -38,9 +38,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final email = _emailController.text.trim();
       final password = _passwordController.text;
       await api.register(_nameController.text.trim(), email, password, _selectedTags.toList());
-      final (token, name) = await api.login(email, password);
+      final (token, name, isAdmin) = await api.login(email, password);
       if (!mounted) return;
-      await context.read<Session>().login(email: email, token: token, name: name, preferences: _selectedTags.toList());
+      await context.read<Session>().login(
+            email: email,
+            token: token,
+            name: name,
+            isAdmin: isAdmin,
+            preferences: _selectedTags.toList(),
+          );
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (_) => WelcomeScreen(name: name)),

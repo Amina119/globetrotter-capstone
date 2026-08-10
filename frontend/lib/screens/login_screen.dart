@@ -40,9 +40,9 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final api = ApiService();
       final email = _emailController.text.trim();
-      final (token, name) = await api.login(email, _passwordController.text);
+      final (token, name, isAdmin) = await api.login(email, _passwordController.text);
       if (!mounted) return;
-      await context.read<Session>().login(email: email, token: token, name: name);
+      await context.read<Session>().login(email: email, token: token, name: name, isAdmin: isAdmin);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => WelcomeScreen(name: name)),
@@ -77,9 +77,9 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       final api = ApiService();
-      final (token, name) = await api.loginWithGoogle(idToken);
+      final (token, name, isAdmin) = await api.loginWithGoogle(idToken);
       if (!mounted) return;
-      await context.read<Session>().login(email: account.email, token: token, name: name);
+      await context.read<Session>().login(email: account.email, token: token, name: name, isAdmin: isAdmin);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => WelcomeScreen(name: name)),

@@ -28,5 +28,7 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>GlobeTrotter uses your location to show it on the map and estimate distance/time/price to destinations.</string>
 </dict>
 </plist>
