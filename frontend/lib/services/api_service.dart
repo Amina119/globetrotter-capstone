@@ -59,30 +59,30 @@ class ApiService {
     return data['email']?.toString() ?? email;
   }
 
-  /// Returns the JWT token and the account holder's display name.
-  Future<(String token, String name)> login(String email, String password) async {
+  /// Returns the JWT token, the account holder's display name, and whether
+  /// the account is an admin.
+  Future<(String token, String name, bool isAdmin)> login(String email, String password) async {
     final res = await http.post(
       _uri('/login'),
       headers: _headers,
       body: jsonEncode({'email': email, 'password': password}),
     );
     final data = _decode(res);
-    return (data['token'] as String, (data['name'] ?? '').toString());
+    return (data['token'] as String, (data['name'] ?? '').toString(), data['is_admin'] == true);
   }
 
   /// Exchanges a Google ID token for a GlobeTrotter session. Auto-registers
   /// the account on first sign-in.
   ///
-  /// Returns the JWT token and the account holder's display name, same
-  /// shape as [login].
-  Future<(String token, String name)> loginWithGoogle(String idToken) async {
+  /// Returns the same shape as [login].
+  Future<(String token, String name, bool isAdmin)> loginWithGoogle(String idToken) async {
     final res = await http.post(
       _uri('/auth/google'),
       headers: _headers,
       body: jsonEncode({'credential': idToken}),
     );
     final data = _decode(res);
-    return (data['token'] as String, (data['name'] ?? '').toString());
+    return (data['token'] as String, (data['name'] ?? '').toString(), data['is_admin'] == true);
   }
 
   /// Requests a password reset token for [email].
@@ -210,6 +210,69 @@ class ApiService {
       headers: _headers,
       body: jsonEncode({'email': email}),
     );
+    _decode(res);
+  }
+
+  /// Adds a destination to the catalogue. Admin only.
+  Future<Map<String, dynamic>> adminCreateDestination({
+    required String name,
+    required String town,
+    required String quarter,
+    required String sector,
+    required List<String> tags,
+    int? avgCostPerDay,
+    double? latitude,
+    double? longitude,
+  }) async {
+    final res = await http.post(
+      _uri('/admin/destinations'),
+      headers: _headers,
+      body: jsonEncode({
+        'name': name,
+        'Town': town,
+        'quarter': quarter,
+        'sector': sector,
+        'tags': tags,
+        'avg_cost_per_day': avgCostPerDay,
+        'latitude': latitude,
+        'longitude': longitude,
+      }),
+    );
+    return _decode(res) as Map<String, dynamic>;
+  }
+
+  /// Edits a destination in the catalogue, including its map position. Admin only.
+  Future<Map<String, dynamic>> adminUpdateDestination(
+    String id, {
+    required String name,
+    required String town,
+    required String quarter,
+    required String sector,
+    required List<String> tags,
+    int? avgCostPerDay,
+    double? latitude,
+    double? longitude,
+  }) async {
+    final res = await http.put(
+      _uri('/admin/destinations/$id'),
+      headers: _headers,
+      body: jsonEncode({
+        'name': name,
+        'Town': town,
+        'quarter': quarter,
+        'sector': sector,
+        'tags': tags,
+        'avg_cost_per_day': avgCostPerDay,
+        'latitude': latitude,
+        'longitude': longitude,
+      }),
+    );
+    return _decode(res) as Map<String, dynamic>;
+  }
+
+  /// Removes a destination from the catalogue. Admin only.
+  Future<void> adminDeleteDestination(String id) async {
+    final res = await http.delete(_uri('/admin/destinations/$id'), headers: _headers);
     _decode(res);
   }
 }
