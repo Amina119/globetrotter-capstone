@@ -54,6 +54,48 @@ def get_all_destinations() -> list:
     return _read_json(DESTINATIONS_FILE)
 
 
+def get_destination_by_id(destination_id: str) -> dict | None:
+    """Return the destination with *destination_id*, or None if not found."""
+    for dest in get_all_destinations():
+        if dest.get("id") == destination_id:
+            return dest
+    return None
+
+
+def save_destination(destination: dict) -> None:
+    """Append *destination* to the catalogue."""
+    destinations = get_all_destinations()
+    destinations.append(destination)
+    _write_json(DESTINATIONS_FILE, destinations)
+
+
+def update_destination(destination_id: str, updates: dict) -> dict | None:
+    """Apply *updates* to the destination with *destination_id*.
+
+    Returns the updated destination, or None if no destination matches.
+    """
+    destinations = get_all_destinations()
+    for dest in destinations:
+        if dest.get("id") == destination_id:
+            dest.update(updates)
+            _write_json(DESTINATIONS_FILE, destinations)
+            return dest
+    return None
+
+
+def delete_destination(destination_id: str) -> bool:
+    """Remove the destination with *destination_id*.
+
+    Returns True if a destination was removed, False if none matched.
+    """
+    destinations = get_all_destinations()
+    remaining = [d for d in destinations if d.get("id") != destination_id]
+    if len(remaining) == len(destinations):
+        return False
+    _write_json(DESTINATIONS_FILE, remaining)
+    return True
+
+
 # ---------------------------------------------------------------------------
 # User-submitted recommendation helpers
 # ---------------------------------------------------------------------------
