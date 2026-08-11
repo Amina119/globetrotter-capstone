@@ -132,7 +132,7 @@ class _GreetingBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final greeting = (name == null || name!.isEmpty) ? 'Mbolo!' : 'Mbolo, $name!';
+    final greeting = (name == null || name!.isEmpty) ? 'Sannu!' : 'Sannu, $name!';
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(20),
@@ -209,7 +209,7 @@ class _DashboardSearchFieldState extends State<_DashboardSearchField> {
         controller: _controller,
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
-          hintText: 'Search destinations, e.g. "beach" or "Bali"',
+          hintText: 'Search destinations, e.g. "sansfrancisco" or "premiere_maison"',
           prefixIcon: const Icon(Icons.search),
           suffixIcon: IconButton(icon: const Icon(Icons.arrow_forward), onPressed: _submit),
         ),

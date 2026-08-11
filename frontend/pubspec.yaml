@@ -73,10 +73,14 @@ flutter:
   assets:
     - assets/videos/
     - assets/places/san_francisco/beauty_with_grace.mp4
+    - assets/places/san_francisco/banner.mp4
+    - assets/places/san_francisco/carrefour.mp4
+    - assets/places/san_francisco/smef_cafe_boulangerie.mp4
     - assets/places/san_francisco/bill_pressing.jpeg
-    - assets/places/san_francisco/blacka_and_brown_hair_salon.mp4
-    - assets/places/san_francisco/princesse_hadidja_shopping.mp4
+    - assets/places/san_francisco/black_and_brown_hair_salon.mp4
+    - assets/places/san_francisco/princesse_hadidja_fashion.mp4
     - assets/places/terminus/auto_ecole_leclerc.mp4
+    - assets/places/terminus/banner.mp4
     - assets/places/terminus/brigettes_johari.jpg
     - assets/places/terminus/carrefour_terminus.mp4
     - assets/places/terminus/mosquee_terminus.mp4
@@ -84,6 +88,8 @@ flutter:
     - assets/places/premiere_maison/institut_nourha_couture.mp4
     - assets/places/premiere_maison/paulina_hotel.mp4
     - assets/places/premiere_maison/bsa_event.mp4
+    - assets/places/premiere_maison/banner.mp4
+    - assets/places/premiere_maison/regional_glacier.mp4
     
     
 

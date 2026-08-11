@@ -32,6 +32,7 @@ class _MapScreenState extends State<MapScreen> {
 
   LatLng? _myLocation;
   String? _locationError;
+  bool _mapReady = false;
 
   @override
   void initState() {
@@ -65,7 +66,10 @@ class _MapScreenState extends State<MapScreen> {
         _myLocation = location;
         _locationError = null;
       });
-      _mapController.move(location, 14);
+      // The map may not have laid out yet if this tab hasn't been opened
+      // yet (it's built off-screen inside the tab IndexedStack) — the
+      // controller can only be moved once flutter_map has rendered a frame.
+      if (_mapReady) _mapController.move(location, 14);
     } on LocationUnavailableException catch (e) {
       if (mounted) setState(() => _locationError = e.toString());
     }
@@ -218,7 +222,14 @@ class _MapScreenState extends State<MapScreen> {
       children: [
         FlutterMap(
           mapController: _mapController,
-          options: const MapOptions(initialCenter: _defaultCenter, initialZoom: 13),
+          options: MapOptions(
+            initialCenter: _defaultCenter,
+            initialZoom: 13,
+            onMapReady: () {
+              _mapReady = true;
+              if (_myLocation != null) _mapController.move(_myLocation!, 14);
+            },
+          ),
           children: [
             TileLayer(
               urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
