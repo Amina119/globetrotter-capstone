@@ -4,6 +4,10 @@
 /// There is no backend model for these yet, so listings are curated sample
 /// data representing establishments around Nkolmbong, Yaoundé.
 class LocalPlace {
+  /// Stable identifier (e.g. `premiere-maison-institut-nourha-couture`),
+  /// unique across the whole curated place list. Used to key reviews on the
+  /// backend so they're tied to a durable id rather than the display name.
+  final String id;
   final String name;
   final String category;
   final double rating;
@@ -37,6 +41,7 @@ class LocalPlace {
   final List<String> tags;
 
   const LocalPlace({
+    required this.id,
     required this.name,
     required this.category,
     required this.rating,

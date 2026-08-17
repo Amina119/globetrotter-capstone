@@ -3,9 +3,11 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart' as mk;
 import 'package:media_kit_video/media_kit_video.dart' as mkv;
+import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
 import '../theme/cameroon_colors.dart';
+import '../theme/locale_controller.dart';
 import '../utils/video_platform.dart';
 
 /// Shared visual frame for the login, register and forgot/reset password
@@ -92,9 +94,43 @@ class AuthScaffold extends StatelessWidget {
                     ),
                   ),
                 ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: SafeArea(
+                  child: _LanguageToggleButton(),
+                ),
+              ),
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// EN/FR switch shown top-right on every auth screen (login, register,
+/// forgot/reset password), so language can be picked before signing in.
+class _LanguageToggleButton extends StatelessWidget {
+  const _LanguageToggleButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.watch<LocaleController>();
+    final currentLang = controller.locale?.languageCode ?? Localizations.localeOf(context).languageCode;
+    return Material(
+      color: Colors.white.withValues(alpha: 0.85),
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => controller.setLocale(Locale(currentLang == 'fr' ? 'en' : 'fr')),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          child: Text(
+            currentLang == 'fr' ? 'FR' : 'EN',
+            style: const TextStyle(color: CameroonColors.greenDark, fontWeight: FontWeight.bold, fontSize: 13),
+          ),
+        ),
       ),
     );
   }

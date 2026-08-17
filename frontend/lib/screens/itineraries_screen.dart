@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../data/sample_places.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../models/itinerary.dart';
 import '../services/api_service.dart';
 import '../services/session.dart';
+import '../theme/cameroon_colors.dart';
 
 class ItinerariesScreen extends StatefulWidget {
   const ItinerariesScreen({super.key});
@@ -49,73 +52,114 @@ class _ItinerariesScreenState extends State<ItinerariesScreen> with SingleTicker
     } on ApiException catch (e) {
       setState(() => _error = e.message);
     } catch (e) {
-      setState(() => _error = 'Could not load itineraries.');
+      setState(() => _error = AppLocalizations.of(context)!.couldNotLoadItineraries);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 
   Future<void> _openItineraryDialog({Itinerary? existing}) async {
+    final l10n = AppLocalizations.of(context)!;
     final titleController = TextEditingController(text: existing?.title ?? '');
-    final destinationsController = TextEditingController(text: existing?.destinations.join(', ') ?? '');
     final startController = TextEditingController(text: existing?.startDate ?? '');
     final endController = TextEditingController(text: existing?.endDate ?? '');
     final notesController = TextEditingController(text: existing?.notes ?? '');
+    final selectedDestinations = <String>{...?existing?.destinations};
     final formKey = GlobalKey<FormState>();
+    String? destinationsError;
 
     final saved = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(existing == null ? 'New itinerary' : 'Edit itinerary'),
-        content: Form(
-          key: formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: titleController,
-                  decoration: const InputDecoration(labelText: 'Title'),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
-                ),
-                TextFormField(
-                  controller: destinationsController,
-                  decoration: const InputDecoration(labelText: 'Destinations (comma separated)'),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
-                ),
-                TextFormField(
-                  controller: startController,
-                  decoration: const InputDecoration(labelText: 'Start date (YYYY-MM-DD)'),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
-                ),
-                TextFormField(
-                  controller: endController,
-                  decoration: const InputDecoration(labelText: 'End date (YYYY-MM-DD)'),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
-                ),
-                TextFormField(
-                  controller: notesController,
-                  decoration: const InputDecoration(labelText: 'Notes (optional)'),
-                ),
-              ],
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(existing == null ? l10n.itinNew : l10n.itinEdit),
+          content: Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextFormField(
+                    controller: titleController,
+                    decoration: InputDecoration(labelText: l10n.titleField),
+                    validator: (v) => (v == null || v.trim().isEmpty) ? l10n.required : null,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(l10n.itinPlacesToVisit, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  if (destinationsError != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(destinationsError!, style: const TextStyle(color: Colors.red, fontSize: 12)),
+                    ),
+                  const SizedBox(height: 8),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 220),
+                    child: SingleChildScrollView(
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: allNkolmbongPlaces.map((place) {
+                          final selected = selectedDestinations.contains(place.name);
+                          return FilterChip(
+                            label: Text(place.name),
+                            selected: selected,
+                            showCheckmark: false,
+                            selectedColor: CameroonColors.green,
+                            labelStyle: TextStyle(color: selected ? Colors.white : Colors.black87, fontSize: 12.5),
+                            onSelected: (v) => setDialogState(() {
+                              if (v) {
+                                selectedDestinations.add(place.name);
+                              } else {
+                                selectedDestinations.remove(place.name);
+                              }
+                              destinationsError = null;
+                            }),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: startController,
+                    decoration: InputDecoration(labelText: l10n.startDateField),
+                    validator: (v) => (v == null || v.trim().isEmpty) ? l10n.required : null,
+                  ),
+                  TextFormField(
+                    controller: endController,
+                    decoration: InputDecoration(labelText: l10n.endDateField),
+                    validator: (v) => (v == null || v.trim().isEmpty) ? l10n.required : null,
+                  ),
+                  TextFormField(
+                    controller: notesController,
+                    decoration: InputDecoration(labelText: l10n.notesOptional),
+                  ),
+                ],
+              ),
             ),
           ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.cancel)),
+            FilledButton(
+              onPressed: () {
+                final formValid = formKey.currentState!.validate();
+                if (selectedDestinations.isEmpty) {
+                  setDialogState(() => destinationsError = l10n.itinSelectAtLeastOne);
+                  return;
+                }
+                if (formValid) Navigator.pop(context, true);
+              },
+              child: Text(existing == null ? l10n.create : l10n.save),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () {
-              if (formKey.currentState!.validate()) Navigator.pop(context, true);
-            },
-            child: Text(existing == null ? 'Create' : 'Save'),
-          ),
-        ],
       ),
     );
 
     if (saved != true) return;
 
-    final destinations = destinationsController.text.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
+    final destinations = selectedDestinations.toList();
 
     try {
       if (existing == null) {
@@ -144,17 +188,18 @@ class _ItinerariesScreenState extends State<ItinerariesScreen> with SingleTicker
   }
 
   Future<void> _confirmDelete(Itinerary it) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete itinerary?'),
-        content: Text('"${it.title}" will be permanently deleted.'),
+        title: Text(l10n.itinDeleteTitle),
+        content: Text(l10n.itinDeleteBody(it.title)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -171,33 +216,34 @@ class _ItinerariesScreenState extends State<ItinerariesScreen> with SingleTicker
   }
 
   Future<void> _openShareDialog(Itinerary it) async {
+    final l10n = AppLocalizations.of(context)!;
     final emailController = TextEditingController();
     final formKey = GlobalKey<FormState>();
 
     final email = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Share itinerary'),
+        title: Text(l10n.itinShareTitle),
         content: Form(
           key: formKey,
           child: TextFormField(
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(labelText: "Friend or family member's email"),
+            decoration: InputDecoration(labelText: l10n.itinShareEmailLabel),
             validator: (v) {
-              if (v == null || v.trim().isEmpty) return 'Email is required';
-              if (!v.contains('@')) return 'Enter a valid email address';
+              if (v == null || v.trim().isEmpty) return l10n.emailRequired;
+              if (!v.contains('@')) return l10n.emailInvalid;
               return null;
             },
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
           FilledButton(
             onPressed: () {
               if (formKey.currentState!.validate()) Navigator.pop(context, emailController.text.trim());
             },
-            child: const Text('Share'),
+            child: Text(l10n.itinShare),
           ),
         ],
       ),
@@ -225,14 +271,15 @@ class _ItinerariesScreenState extends State<ItinerariesScreen> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: Column(
         children: [
           TabBar(
             controller: _tabController,
-            tabs: const [
-              Tab(text: 'Mine'),
-              Tab(text: 'Shared with me'),
+            tabs: [
+              Tab(text: l10n.itinTabMine),
+              Tab(text: l10n.itinTabShared),
             ],
           ),
           Expanded(
@@ -245,7 +292,7 @@ class _ItinerariesScreenState extends State<ItinerariesScreen> with SingleTicker
                           children: [
                             Text(_error!, style: const TextStyle(color: Colors.red)),
                             const SizedBox(height: 8),
-                            OutlinedButton(onPressed: _load, child: const Text('Retry')),
+                            OutlinedButton(onPressed: _load, child: Text(l10n.retry)),
                           ],
                         ),
                       )
@@ -293,7 +340,8 @@ class _MineList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (items.isEmpty) return const Center(child: Text('No itineraries yet. Tap + to create one.'));
+    final l10n = AppLocalizations.of(context)!;
+    if (items.isEmpty) return Center(child: Text(l10n.itinNoneMine));
     return RefreshIndicator(
       onRefresh: onRefresh,
       child: ListView.builder(
@@ -332,9 +380,9 @@ class _MineList extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      IconButton(icon: const Icon(Icons.share_outlined), tooltip: 'Share', onPressed: () => onShare(it)),
-                      IconButton(icon: const Icon(Icons.edit_outlined), tooltip: 'Edit', onPressed: () => onEdit(it)),
-                      IconButton(icon: const Icon(Icons.delete_outline), tooltip: 'Delete', onPressed: () => onDelete(it)),
+                      IconButton(icon: const Icon(Icons.share_outlined), tooltip: l10n.itinShareTooltip, onPressed: () => onShare(it)),
+                      IconButton(icon: const Icon(Icons.edit_outlined), tooltip: l10n.itinEditTooltip, onPressed: () => onEdit(it)),
+                      IconButton(icon: const Icon(Icons.delete_outline), tooltip: l10n.itinDeleteTooltip, onPressed: () => onDelete(it)),
                     ],
                   ),
                 ],
@@ -355,7 +403,8 @@ class _SharedList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (items.isEmpty) return const Center(child: Text('No itineraries have been shared with you yet.'));
+    final l10n = AppLocalizations.of(context)!;
+    if (items.isEmpty) return Center(child: Text(l10n.itinNoneShared));
     return RefreshIndicator(
       onRefresh: onRefresh,
       child: ListView.builder(
@@ -367,7 +416,7 @@ class _SharedList extends StatelessWidget {
             child: ListTile(
               leading: const Icon(Icons.card_travel),
               title: Text(it.title),
-              subtitle: Text('${it.destinations.join(", ")}\n${it.startDate} → ${it.endDate}\nShared by ${it.email}'),
+              subtitle: Text('${it.destinations.join(", ")}\n${it.startDate} → ${it.endDate}\n${l10n.itinSharedBy(it.email)}'),
               isThreeLine: true,
             ),
           );

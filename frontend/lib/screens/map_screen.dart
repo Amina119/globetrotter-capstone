@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/generated/app_localizations.dart';
 import '../models/destination.dart';
 import '../models/itinerary.dart';
 import '../services/api_service.dart';
@@ -52,7 +53,7 @@ class _MapScreenState extends State<MapScreen> {
         _error = null;
       });
     } catch (_) {
-      setState(() => _error = 'Could not load destinations.');
+      setState(() => _error = AppLocalizations.of(context)!.couldNotLoadDestinations);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -95,6 +96,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _openAddToItinerary(Destination destination) async {
+    final l10n = AppLocalizations.of(context)!;
     Navigator.of(context).pop(); // close the bottom sheet first
 
     try {
@@ -105,11 +107,11 @@ class _MapScreenState extends State<MapScreen> {
       final choice = await showDialog<Itinerary?>(
         context: context,
         builder: (context) => SimpleDialog(
-          title: Text('Add ${destination.name} to...'),
+          title: Text(l10n.addToItineraryX(destination.name)),
           children: [
             SimpleDialogOption(
               onPressed: () => Navigator.pop(context, null),
-              child: const Row(children: [Icon(Icons.add), SizedBox(width: 8), Text('New itinerary')]),
+              child: Row(children: [const Icon(Icons.add), const SizedBox(width: 8), Text(l10n.newItineraryOption)]),
             ),
             if (mine.isNotEmpty) const Divider(),
             ...mine.map(
@@ -139,7 +141,7 @@ class _MapScreenState extends State<MapScreen> {
         );
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Added ${destination.name} to "${choice.title}"')),
+          SnackBar(content: Text(l10n.addedToItinerary(destination.name, choice.title))),
         );
       } else {
         await _createItineraryDialog(destination);
@@ -151,6 +153,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _createItineraryDialog(Destination destination) async {
+    final l10n = AppLocalizations.of(context)!;
     final titleController = TextEditingController();
     final startController = TextEditingController();
     final endController = TextEditingController();
@@ -159,7 +162,7 @@ class _MapScreenState extends State<MapScreen> {
     final saved = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('New itinerary with ${destination.name}'),
+        title: Text(l10n.newItineraryWithX(destination.name)),
         content: Form(
           key: formKey,
           child: Column(
@@ -167,29 +170,29 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               TextFormField(
                 controller: titleController,
-                decoration: const InputDecoration(labelText: 'Title'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                decoration: InputDecoration(labelText: l10n.titleField),
+                validator: (v) => (v == null || v.trim().isEmpty) ? l10n.required : null,
               ),
               TextFormField(
                 controller: startController,
-                decoration: const InputDecoration(labelText: 'Start date (YYYY-MM-DD)'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                decoration: InputDecoration(labelText: l10n.startDateField),
+                validator: (v) => (v == null || v.trim().isEmpty) ? l10n.required : null,
               ),
               TextFormField(
                 controller: endController,
-                decoration: const InputDecoration(labelText: 'End date (YYYY-MM-DD)'),
-                validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                decoration: InputDecoration(labelText: l10n.endDateField),
+                validator: (v) => (v == null || v.trim().isEmpty) ? l10n.required : null,
               ),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.cancel)),
           FilledButton(
             onPressed: () {
               if (formKey.currentState!.validate()) Navigator.pop(context, true);
             },
-            child: const Text('Create'),
+            child: Text(l10n.create),
           ),
         ],
       ),
@@ -206,7 +209,7 @@ class _MapScreenState extends State<MapScreen> {
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Created itinerary "${titleController.text.trim()}"')),
+        SnackBar(content: Text(l10n.createdItinerary(titleController.text.trim()))),
       );
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -327,6 +330,7 @@ class _DestinationSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
@@ -358,7 +362,7 @@ class _DestinationSheet extends StatelessWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        '${estimate!.distanceLabel} · ${estimate!.etaLabel} · ${estimate!.priceLabel} by bike',
+                        l10n.byBikeSummary(estimate!.distanceLabel, estimate!.etaLabel, estimate!.priceLabel),
                         style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
@@ -367,7 +371,7 @@ class _DestinationSheet extends StatelessWidget {
               )
             else
               Text(
-                locationError ?? 'Getting your location…',
+                locationError ?? l10n.gettingYourLocation,
                 style: const TextStyle(color: Colors.black54, fontStyle: FontStyle.italic),
               ),
             const SizedBox(height: 16),
@@ -376,7 +380,7 @@ class _DestinationSheet extends StatelessWidget {
               child: FilledButton.icon(
                 onPressed: onAddToItinerary,
                 icon: const Icon(Icons.playlist_add),
-                label: const Text('Add to itinerary'),
+                label: Text(l10n.addToItineraryButton),
               ),
             ),
           ],

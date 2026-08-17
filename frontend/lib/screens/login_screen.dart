@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/generated/app_localizations.dart';
 import '../services/api_service.dart';
 import '../services/session.dart';
 import '../theme/cameroon_colors.dart';
@@ -95,6 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AuthScaffold(
       heroIcon: Icons.flight_takeoff,
       heroVideoAsset: 'assets/videos/login_hero.mp4',
@@ -109,23 +111,23 @@ class _LoginScreenState extends State<LoginScreen> {
                 colors: [CameroonColors.greenDark, CameroonColors.green],
               ).createShader(bounds),
               child: Text(
-                'Welcome back',
+                l10n.loginWelcomeBack,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800, color: Colors.white),
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              'Log in to keep exploring Cameroon and beyond',
+              l10n.loginSubtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54),
             ),
             const SizedBox(height: 22),
             TextFormField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email_outlined)),
+              decoration: InputDecoration(labelText: l10n.email, prefixIcon: const Icon(Icons.email_outlined)),
               validator: (v) {
-                if (v == null || v.trim().isEmpty) return 'Email is required';
-                if (!v.contains('@')) return 'Enter a valid email address';
+                if (v == null || v.trim().isEmpty) return l10n.emailRequired;
+                if (!v.contains('@')) return l10n.emailInvalid;
                 return null;
               },
             ),
@@ -133,8 +135,8 @@ class _LoginScreenState extends State<LoginScreen> {
             TextFormField(
               controller: _passwordController,
               obscureText: true,
-              decoration: const InputDecoration(labelText: 'Password', prefixIcon: Icon(Icons.lock_outline)),
-              validator: (v) => (v == null || v.isEmpty) ? 'Password is required' : null,
+              decoration: InputDecoration(labelText: l10n.password, prefixIcon: const Icon(Icons.lock_outline)),
+              validator: (v) => (v == null || v.isEmpty) ? l10n.passwordRequired : null,
             ),
             if (_error != null) ...[
               const SizedBox(height: 12),
@@ -145,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
               onPressed: _loading ? null : _submit,
               child: _loading
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Log in'),
+                  : Text(l10n.logIn),
             ),
             if (googleClientId.isNotEmpty) ...[
               const SizedBox(height: 16),
@@ -154,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const Expanded(child: Divider()),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text('or', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
+                    child: Text(l10n.or, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
                   ),
                   const Expanded(child: Divider()),
                 ],
@@ -163,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
               OutlinedButton.icon(
                 onPressed: _loading ? null : _loginWithGoogle,
                 icon: const Icon(Icons.g_mobiledata, size: 28),
-                label: const Text('Continue with Google'),
+                label: Text(l10n.continueWithGoogle),
               ),
             ],
             const SizedBox(height: 8),
@@ -173,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   : () => Navigator.of(context).push(
                         MaterialPageRoute(builder: (_) => const RegisterScreen()),
                       ),
-              child: const Text("Don't have an account? Register"),
+              child: Text(l10n.noAccountRegister),
             ),
             TextButton(
               onPressed: _loading
@@ -181,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   : () => Navigator.of(context).push(
                         MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
                       ),
-              child: const Text('Forgot password?'),
+              child: Text(l10n.forgotPassword),
             ),
           ],
         ),

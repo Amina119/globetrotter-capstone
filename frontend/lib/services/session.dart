@@ -62,6 +62,23 @@ class Session extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Updates the locally-held name/preferences (and persists them) after a
+  /// successful `PUT /profile` call, so every widget watching [Session] —
+  /// anywhere in the app — reflects the change immediately, without needing
+  /// to log out and back in.
+  Future<void> updateProfile({String? name, List<String>? preferences}) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (name != null) {
+      this.name = name;
+      await prefs.setString(_nameKey, name);
+    }
+    if (preferences != null) {
+      this.preferences = preferences;
+      await prefs.setStringList(_preferencesKey, preferences);
+    }
+    notifyListeners();
+  }
+
   Future<void> logout() async {
     token = null;
     email = null;

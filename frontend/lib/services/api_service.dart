@@ -85,6 +85,45 @@ class ApiService {
     return (data['token'] as String, (data['name'] ?? '').toString(), data['is_admin'] == true);
   }
 
+  /// Returns the current user's own profile: `{email, name, preferences, is_admin}`.
+  Future<Map<String, dynamic>> getProfile() async {
+    final res = await http.get(_uri('/profile'), headers: _headers);
+    return _decode(res) as Map<String, dynamic>;
+  }
+
+  /// Updates the current user's name and/or preferences. Pass only the
+  /// fields that changed.
+  Future<Map<String, dynamic>> updateProfile({String? name, List<String>? preferences}) async {
+    final body = <String, dynamic>{};
+    if (name != null) body['name'] = name;
+    if (preferences != null) body['preferences'] = preferences;
+    final res = await http.put(_uri('/profile'), headers: _headers, body: jsonEncode(body));
+    return _decode(res) as Map<String, dynamic>;
+  }
+
+  /// Returns `{average, count, entries}` for a single place — every user's
+  /// rating/comment on it, so it's visible to everyone, not just the
+  /// submitter.
+  Future<Map<String, dynamic>> getPlaceReviews(String placeId) async {
+    final res = await http.get(_uri('/places/$placeId/reviews'), headers: _headers);
+    return _decode(res) as Map<String, dynamic>;
+  }
+
+  /// Creates or replaces the current user's rating/comment on a place.
+  Future<Map<String, dynamic>> submitPlaceReview(String placeId, {required int rating, String comment = ''}) async {
+    final res = await http.post(
+      _uri('/places/$placeId/reviews'),
+      headers: _headers,
+      body: jsonEncode({'rating': rating, 'comment': comment}),
+    );
+    return _decode(res) as Map<String, dynamic>;
+  }
+
+  Future<void> deletePlaceReview(String placeId) async {
+    final res = await http.delete(_uri('/places/$placeId/reviews'), headers: _headers);
+    _decode(res);
+  }
+
   /// Requests a password reset token for [email].
   ///
   /// Returns the reset token. The backend has no outgoing email
@@ -132,6 +171,29 @@ class ApiService {
       headers: _headers,
     );
     return _decode(res) as List<dynamic>;
+  }
+
+  /// Returns `{average, count, entries}` — every user's submitted app
+  /// rating/comment, so the average shown is genuinely computed from real
+  /// submissions rather than hardcoded.
+  Future<Map<String, dynamic>> getFeedback() async {
+    final res = await http.get(_uri('/feedback'), headers: _headers);
+    return _decode(res) as Map<String, dynamic>;
+  }
+
+  /// Creates or replaces the current user's app rating/comment.
+  Future<Map<String, dynamic>> submitFeedback({required int rating, String comment = ''}) async {
+    final res = await http.post(
+      _uri('/feedback'),
+      headers: _headers,
+      body: jsonEncode({'rating': rating, 'comment': comment}),
+    );
+    return _decode(res) as Map<String, dynamic>;
+  }
+
+  Future<void> deleteFeedback() async {
+    final res = await http.delete(_uri('/feedback'), headers: _headers);
+    _decode(res);
   }
 
   Future<List<dynamic>> getItineraries() async {

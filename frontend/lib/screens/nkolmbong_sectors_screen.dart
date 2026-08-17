@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/sample_places.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../theme/cameroon_colors.dart';
 import '../theme/sector_palette.dart';
 import 'sector_detail_screen.dart';
@@ -12,6 +13,7 @@ class NkolmbongSectorsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
       body: CustomScrollView(
@@ -21,10 +23,10 @@ class NkolmbongSectorsScreen extends StatelessWidget {
             expandedHeight: 130,
             iconTheme: const IconThemeData(color: Colors.white),
             backgroundColor: CameroonColors.green,
-            flexibleSpace: const FlexibleSpaceBar(
-              titlePadding: EdgeInsets.only(left: 56, right: 16, bottom: 14),
-              title: Text('Nkolmbong sectors', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              background: DecoratedBox(
+            flexibleSpace: FlexibleSpaceBar(
+              titlePadding: const EdgeInsets.only(left: 56, right: 16, bottom: 14),
+              title: Text(l10n.nkolmbongSectorsTitle, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              background: const DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -78,8 +80,8 @@ class NkolmbongSectorsScreen extends StatelessWidget {
                                       spacing: 8,
                                       runSpacing: 6,
                                       children: [
-                                        _CountPill(icon: Icons.hotel, label: '$hotelCount hotel${hotelCount == 1 ? '' : 's'}'),
-                                        _CountPill(icon: Icons.place_outlined, label: '$attractionCount place${attractionCount == 1 ? '' : 's'}'),
+                                        _CountPill(icon: Icons.hotel, label: l10n.hotelCount(hotelCount)),
+                                        _CountPill(icon: Icons.place_outlined, label: l10n.placeCount(attractionCount)),
                                       ],
                                     ),
                                   ],

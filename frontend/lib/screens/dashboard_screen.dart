@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../data/sample_places.dart';
-import '../models/destination.dart';
+import '../l10n/generated/app_localizations.dart';
 import '../models/itinerary.dart';
 import '../models/local_place.dart';
 import '../services/api_service.dart';
 import '../services/session.dart';
 import '../theme/cameroon_colors.dart';
-import '../widgets/compact_destination_card.dart';
 import '../widgets/place_card.dart';
 import '../widgets/section_header.dart';
 import 'nkolmbong_sectors_screen.dart';
@@ -29,9 +28,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   bool _loading = true;
-  List<Destination> _destinations = [];
   List<Itinerary> _itineraries = [];
-  String? _destinationsError;
 
   @override
   void initState() {
@@ -44,14 +41,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _load() async {
     setState(() => _loading = true);
     final api = _api();
-
-    try {
-      final data = await api.searchDestinations();
-      _destinations = data.map((e) => Destination.fromJson(e)).toList();
-      _destinationsError = null;
-    } catch (_) {
-      _destinationsError = 'Could not load destinations.';
-    }
 
     try {
       final data = await api.getItineraries();
@@ -69,6 +58,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final displayName = (session.name != null && session.name!.isNotEmpty) ? session.name : session.email;
 
     if (_loading) return const Center(child: CircularProgressIndicator());
+    final l10n = AppLocalizations.of(context)!;
 
     return RefreshIndicator(
       onRefresh: _load,
@@ -80,23 +70,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _DashboardSearchField(onSearch: widget.onSearch),
           const SizedBox(height: 20),
           SectionHeader(
-            title: 'Top destinations',
-            icon: Icons.explore,
-            onSeeAll: () => widget.onSeeAll(1),
-          ),
-          _DestinationRail(items: _destinations, error: _destinationsError),
-          const SizedBox(height: 20),
-          SectionHeader(
-            title: 'Recommended for you',
-            icon: Icons.recommend,
-            onSeeAll: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const NkolmbongSectorsScreen()),
-            ),
-          ),
-          _PlaceRail(items: recommendedPlaces(session.preferences), icon: Icons.recommend, accent: CameroonColors.gold),
-          const SizedBox(height: 20),
-          SectionHeader(
-            title: 'Places to visit in Nkolmbong',
+            title: l10n.dashboardTopDestinations,
             icon: Icons.place_outlined,
             onSeeAll: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const NkolmbongSectorsScreen()),
@@ -105,7 +79,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _PlaceRail(items: sampleAttractions, icon: Icons.place_outlined, accent: CameroonColors.red),
           const SizedBox(height: 20),
           SectionHeader(
-            title: 'Hotels in Nkolmbong',
+            title: l10n.dashboardHotels,
             icon: Icons.hotel,
             onSeeAll: () => Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const NkolmbongSectorsScreen()),
@@ -114,7 +88,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _PlaceRail(items: sampleHotels, icon: Icons.hotel, accent: CameroonColors.green),
           const SizedBox(height: 20),
           SectionHeader(
-            title: 'Your itineraries',
+            title: l10n.dashboardYourItineraries,
             icon: Icons.map,
             onSeeAll: () => widget.onSeeAll(3),
           ),
@@ -137,12 +111,11 @@ class _GreetingBanner extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [CameroonColors.greenDark, CameroonColors.green],
-        ),
-        borderRadius: BorderRadius.circular(20),
+        gradient: CameroonColors.heroGradient,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(color: CameroonColors.greenDark.withValues(alpha: 0.28), blurRadius: 20, offset: const Offset(0, 10)),
+        ],
       ),
       child: Row(
         children: [
@@ -170,10 +143,11 @@ class _GreetingBanner extends StatelessWidget {
               ],
             ),
           ),
-          const CircleAvatar(
-            radius: 26,
-            backgroundColor: CameroonColors.gold,
-            child: Icon(Icons.travel_explore, color: CameroonColors.greenDark, size: 28),
+          Container(
+            width: 52,
+            height: 52,
+            decoration: const BoxDecoration(shape: BoxShape.circle, gradient: CameroonColors.goldGradient),
+            child: const Icon(Icons.travel_explore, color: Colors.white, size: 28),
           ),
         ],
       ),
@@ -209,33 +183,11 @@ class _DashboardSearchFieldState extends State<_DashboardSearchField> {
         controller: _controller,
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
-          hintText: 'Search destinations, e.g. "sansfrancisco" or "premiere_maison"',
+          hintText: AppLocalizations.of(context)!.dashboardSearchHint,
           prefixIcon: const Icon(Icons.search),
           suffixIcon: IconButton(icon: const Icon(Icons.arrow_forward), onPressed: _submit),
         ),
         onSubmitted: (_) => _submit(),
-      ),
-    );
-  }
-}
-
-class _DestinationRail extends StatelessWidget {
-  final List<Destination> items;
-  final String? error;
-
-  const _DestinationRail({required this.items, this.error});
-
-  @override
-  Widget build(BuildContext context) {
-    if (error != null) return _RailMessage(text: error!);
-    if (items.isEmpty) return const _RailMessage(text: 'Nothing to show yet.');
-    return SizedBox(
-      height: 168,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: items.length,
-        itemBuilder: (context, i) => CompactDestinationCard(destination: items[i]),
       ),
     );
   }
@@ -274,20 +226,6 @@ class _PlaceRail extends StatelessWidget {
   }
 }
 
-class _RailMessage extends StatelessWidget {
-  final String text;
-
-  const _RailMessage({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Text(text, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54)),
-    );
-  }
-}
-
 class _ItinerariesPreview extends StatelessWidget {
   final List<Itinerary> items;
   final VoidCallback onCreate;
@@ -302,7 +240,7 @@ class _ItinerariesPreview extends StatelessWidget {
         child: OutlinedButton.icon(
           onPressed: onCreate,
           icon: const Icon(Icons.add),
-          label: const Text('Plan your first trip'),
+          label: Text(AppLocalizations.of(context)!.planFirstTrip),
         ),
       );
     }
@@ -312,10 +250,17 @@ class _ItinerariesPreview extends StatelessWidget {
         children: items.take(3).map((it) {
           return Card(
             margin: const EdgeInsets.only(bottom: 8),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: ListTile(
-              leading: const Icon(Icons.map_outlined),
-              title: Text(it.title),
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: CameroonColors.oceanGradient,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.map_outlined, color: Colors.white, size: 20),
+              ),
+              title: Text(it.title, style: const TextStyle(fontWeight: FontWeight.bold)),
               subtitle: Text('${it.destinations.join(", ")}\n${it.startDate} → ${it.endDate}'),
               isThreeLine: true,
             ),
