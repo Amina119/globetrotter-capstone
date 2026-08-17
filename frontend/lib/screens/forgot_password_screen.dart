@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/generated/app_localizations.dart';
 import '../services/api_service.dart';
 import '../widgets/auth_scaffold.dart';
 import '../widgets/gradient_button.dart';
@@ -50,6 +51,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AuthScaffold(
       heroIcon: Icons.lock_outline,
       child: Form(
@@ -58,20 +60,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Reset your password', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+            Text(l10n.forgotTitle, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Text(
-              "Enter your account email and we'll get you a reset token",
+              l10n.forgotSubtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54),
             ),
             const SizedBox(height: 22),
             TextFormField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email_outlined)),
+              decoration: InputDecoration(labelText: l10n.email, prefixIcon: const Icon(Icons.email_outlined)),
               validator: (v) {
-                if (v == null || v.trim().isEmpty) return 'Email is required';
-                if (!v.contains('@')) return 'Enter a valid email address';
+                if (v == null || v.trim().isEmpty) return l10n.emailRequired;
+                if (!v.contains('@')) return l10n.emailInvalid;
                 return null;
               },
             ),
@@ -84,12 +86,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               onPressed: _loading ? null : _submit,
               child: _loading
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Send reset token'),
+                  : Text(l10n.sendResetToken),
             ),
             const SizedBox(height: 4),
             TextButton(
               onPressed: _loading ? null : () => Navigator.of(context).pop(),
-              child: const Text('Back to login'),
+              child: Text(l10n.backToLogin),
             ),
           ],
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/generated/app_localizations.dart';
 import '../services/api_service.dart';
 import '../services/session.dart';
 import '../theme/cameroon_colors.dart';
@@ -21,7 +22,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  static const _availableTags = ['beach', 'city', 'culture', 'food', 'nature', 'adventure', 'romance'];
+  static const _availableTags = ['city', 'culture', 'food', 'nature', 'adventure'];
   final Set<String> _selectedTags = {};
 
   bool _loading = false;
@@ -63,6 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AuthScaffold(
       heroIcon: Icons.person_add_alt_1,
       maxWidth: 460,
@@ -71,26 +73,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Create your account', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+            Text(l10n.registerTitle, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Text(
-              'Join travelers from Nkolmbong, Yaoundé and beyond',
+              l10n.registerSubtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54),
             ),
             const SizedBox(height: 22),
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Full name', prefixIcon: Icon(Icons.person_outline)),
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Name is required' : null,
+              decoration: InputDecoration(labelText: l10n.fullName, prefixIcon: const Icon(Icons.person_outline)),
+              validator: (v) => (v == null || v.trim().isEmpty) ? l10n.nameRequired : null,
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email_outlined)),
+              decoration: InputDecoration(labelText: l10n.email, prefixIcon: const Icon(Icons.email_outlined)),
               validator: (v) {
-                if (v == null || v.trim().isEmpty) return 'Email is required';
-                if (!v.contains('@')) return 'Enter a valid email address';
+                if (v == null || v.trim().isEmpty) return l10n.emailRequired;
+                if (!v.contains('@')) return l10n.emailInvalid;
                 return null;
               },
             ),
@@ -98,13 +100,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
             TextFormField(
               controller: _passwordController,
               obscureText: true,
-              decoration: const InputDecoration(labelText: 'Password', prefixIcon: Icon(Icons.lock_outline)),
-              validator: (v) => (v == null || v.length < 4) ? 'Use at least 4 characters' : null,
+              decoration: InputDecoration(labelText: l10n.password, prefixIcon: const Icon(Icons.lock_outline)),
+              validator: (v) => (v == null || v.length < 4) ? l10n.passwordTooShort : null,
             ),
             const SizedBox(height: 18),
             Align(
               alignment: Alignment.centerLeft,
-              child: Text('Travel preferences', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+              child: Text(l10n.travelPreferences, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
             ),
             const SizedBox(height: 8),
             Wrap(
@@ -131,12 +133,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
               onPressed: _loading ? null : _submit,
               child: _loading
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : const Text('Create account'),
+                  : Text(l10n.createAccount),
             ),
             const SizedBox(height: 4),
             TextButton(
               onPressed: _loading ? null : () => Navigator.of(context).pop(),
-              child: const Text('Already have an account? Log in'),
+              child: Text(l10n.alreadyHaveAccount),
             ),
           ],
         ),

@@ -12,6 +12,7 @@ const nkolmbongSectors = [
 /// Prices are per night.
 const sampleHotels = [
   LocalPlace(
+    id: 'premiere-maison-paulina-hotel',
     name: 'Paulina Hotel',
     category: 'Boutique hotel',
     rating: 4.5,
@@ -31,6 +32,7 @@ const sampleHotels = [
 const sampleAttractions = [
   // --- Premiere Maison ------------------------------------------------
   LocalPlace(
+    id: 'premiere-maison-institut-nourha-couture',
     name: 'Institut Nourha Couture',
     category: 'Tailoring & couture',
     rating: 4.4,
@@ -41,6 +43,7 @@ const sampleAttractions = [
     tags: ['culture'],
   ),
   LocalPlace(
+    id: 'premiere-maison-bsa-event',
     name: 'BSA Event',
     category: 'Event planning & rentals',
     rating: 4.3,
@@ -51,6 +54,7 @@ const sampleAttractions = [
     tags: ['romance'],
   ),
   LocalPlace(
+    id: 'premiere-maison-honor-bilingual-complex',
     name: 'Honor Bilingual Complex',
     category: 'Bilingual school',
     rating: 4.5,
@@ -61,6 +65,7 @@ const sampleAttractions = [
     tags: ['culture'],
   ),
   LocalPlace(
+    id: 'premiere-maison-regional-glacier',
     name: 'Regional Glacier',
     category: 'Ice cream & desserts',
     rating: 4.4,
@@ -73,6 +78,7 @@ const sampleAttractions = [
 
   // --- San Francisco ----------------------------------------------------
   LocalPlace(
+    id: 'san-francisco-carrefour',
     name: 'Carrefour San Francisco',
     category: 'Popular junction & nightlife',
     rating: 4.3,
@@ -83,6 +89,7 @@ const sampleAttractions = [
     tags: ['city', 'food'],
   ),
   LocalPlace(
+    id: 'san-francisco-smef-cafe-boulangerie',
     name: 'Smef Café Boulangerie',
     category: 'Bakery & café',
     rating: 4.4,
@@ -93,6 +100,7 @@ const sampleAttractions = [
     tags: ['food'],
   ),
   LocalPlace(
+    id: 'san-francisco-bill-pressing',
     name: 'Bill Pressing',
     category: 'Dry cleaning & laundry',
     rating: 4.2,
@@ -102,6 +110,7 @@ const sampleAttractions = [
     videoAsset: 'assets/places/san_francisco/bill_pressing.jpeg',
   ),
   LocalPlace(
+    id: 'san-francisco-black-and-brown-hair-salon',
     name: 'Black and Brown Hair Salon',
     category: 'Hair & beauty salon',
     rating: 4.5,
@@ -112,6 +121,7 @@ const sampleAttractions = [
     tags: ['romance'],
   ),
   LocalPlace(
+    id: 'san-francisco-beauty-with-grace',
     name: 'Institut de Beauté Beauty with Grace',
     category: 'Beauty institute',
     rating: 4.5,
@@ -122,6 +132,7 @@ const sampleAttractions = [
     tags: ['romance'],
   ),
   LocalPlace(
+    id: 'san-francisco-princesse-hadidja-fashion',
     name: 'Princesse Hadidja Fashion',
     category: 'Fashion boutique',
     rating: 4.3,
@@ -134,6 +145,7 @@ const sampleAttractions = [
 
   // --- Terminus -----------------------------------------------------------
   LocalPlace(
+    id: 'terminus-carrefour',
     name: 'Carrefour Terminus Nkolmbong',
     category: 'Popular junction',
     rating: 4.2,
@@ -144,6 +156,7 @@ const sampleAttractions = [
     tags: ['city'],
   ),
   LocalPlace(
+    id: 'terminus-brigittes-johari',
     name: "Brigitte's Johari",
     category: 'Fashion & jewelry boutique',
     rating: 4.3,
@@ -154,6 +167,7 @@ const sampleAttractions = [
     tags: ['romance'],
   ),
   LocalPlace(
+    id: 'terminus-mosquee-terminus',
     name: 'Mosquée Terminus',
     category: 'Neighborhood mosque',
     rating: 4.6,
@@ -164,6 +178,7 @@ const sampleAttractions = [
     tags: ['culture'],
   ),
   LocalPlace(
+    id: 'terminus-auto-ecole-leclerc',
     name: 'Auto École Leclerc',
     category: 'Driving school',
     rating: 4.1,
@@ -174,17 +189,7 @@ const sampleAttractions = [
   ),
 ];
 
-/// All curated Nkolmbong places (hotels + areas to visit) in one list, for
-/// the home dashboard's "Recommended for you" section.
+/// All curated Nkolmbong places (hotels + areas to visit) in one list — the
+/// single source of truth for real, in-app places used by the Destinations
+/// tab, sector pages, and the itinerary destination picker.
 List<LocalPlace> get allNkolmbongPlaces => [...sampleHotels, ...sampleAttractions];
-
-/// Places matching at least one of [preferences] — the interest tags a user
-/// chose when creating their account — ranked highest-rated first. Falls
-/// back to every place (also rating-sorted) when there's no preference
-/// match, so the section never comes up empty.
-List<LocalPlace> recommendedPlaces(List<String> preferences) {
-  final wanted = preferences.map((p) => p.toLowerCase()).toSet();
-  final matches = allNkolmbongPlaces.where((p) => p.tags.any(wanted.contains)).toList();
-  final pool = matches.isNotEmpty ? matches : allNkolmbongPlaces;
-  return [...pool]..sort((a, b) => b.rating.compareTo(a.rating));
-}

@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/generated/app_localizations.dart';
 import '../models/destination.dart';
 import '../services/api_service.dart';
 import '../services/session.dart';
@@ -43,7 +44,7 @@ class _AdminDestinationsScreenState extends State<AdminDestinationsScreen> {
     } on ApiException catch (e) {
       setState(() => _error = e.message);
     } catch (_) {
-      setState(() => _error = 'Could not load destinations.');
+      setState(() => _error = AppLocalizations.of(context)!.couldNotLoadDestinations);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -60,17 +61,18 @@ class _AdminDestinationsScreenState extends State<AdminDestinationsScreen> {
   }
 
   Future<void> _confirmDelete(Destination destination) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete destination?'),
-        content: Text('"${destination.name}" will be permanently removed from the catalogue.'),
+        title: Text(l10n.adminDeleteDestTitle),
+        content: Text(l10n.adminDeleteDestBody(destination.name)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.cancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -88,6 +90,7 @@ class _AdminDestinationsScreenState extends State<AdminDestinationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -98,14 +101,14 @@ class _AdminDestinationsScreenState extends State<AdminDestinationsScreen> {
                     children: [
                       Text(_error!, style: const TextStyle(color: Colors.red)),
                       const SizedBox(height: 8),
-                      OutlinedButton(onPressed: _load, child: const Text('Retry')),
+                      OutlinedButton(onPressed: _load, child: Text(l10n.retry)),
                     ],
                   ),
                 )
               : RefreshIndicator(
                   onRefresh: _load,
                   child: _destinations.isEmpty
-                      ? const Center(child: Text('No destinations yet. Tap + to add one.'))
+                      ? Center(child: Text(l10n.adminNoneYet))
                       : ListView.builder(
                           padding: const EdgeInsets.only(bottom: 80),
                           itemCount: _destinations.length,
@@ -121,7 +124,7 @@ class _AdminDestinationsScreenState extends State<AdminDestinationsScreen> {
                                 title: Text(d.name),
                                 subtitle: Text(
                                   [d.quarter, d.town].where((s) => s.isNotEmpty).join(', ') +
-                                      (d.hasPosition ? '' : ' · no map position set'),
+                                      (d.hasPosition ? '' : l10n.noMapPositionSet),
                                 ),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -242,6 +245,7 @@ class _DestinationEditorSheetState extends State<_DestinationEditorSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
@@ -258,41 +262,41 @@ class _DestinationEditorSheetState extends State<_DestinationEditorSheet> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.existing == null ? 'New destination' : 'Edit destination',
+                  widget.existing == null ? l10n.adminNewDestination : l10n.adminEditDestination,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Name'),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                  decoration: InputDecoration(labelText: l10n.fieldName),
+                  validator: (v) => (v == null || v.trim().isEmpty) ? l10n.required : null,
                 ),
                 const SizedBox(height: 8),
-                TextFormField(controller: _townController, decoration: const InputDecoration(labelText: 'Town')),
+                TextFormField(controller: _townController, decoration: InputDecoration(labelText: l10n.fieldTown)),
                 const SizedBox(height: 8),
-                TextFormField(controller: _quarterController, decoration: const InputDecoration(labelText: 'Quarter')),
+                TextFormField(controller: _quarterController, decoration: InputDecoration(labelText: l10n.fieldQuarter)),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _sectorController,
-                  decoration: const InputDecoration(labelText: 'Description'),
+                  decoration: InputDecoration(labelText: l10n.fieldDescription),
                   maxLines: 2,
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _tagsController,
-                  decoration: const InputDecoration(labelText: 'Tags (comma separated)'),
+                  decoration: InputDecoration(labelText: l10n.fieldTags),
                 ),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _costController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Average cost per day (FCFA)'),
+                  decoration: InputDecoration(labelText: l10n.fieldAvgCost),
                 ),
                 const SizedBox(height: 16),
-                Text('Map position', style: Theme.of(context).textTheme.titleSmall),
+                Text(l10n.mapPositionLabel, style: Theme.of(context).textTheme.titleSmall),
                 const SizedBox(height: 4),
                 Text(
-                  'Tap the map to place the pin.',
+                  l10n.tapMapToPlacePin,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54),
                 ),
                 const SizedBox(height: 8),
@@ -342,7 +346,7 @@ class _DestinationEditorSheetState extends State<_DestinationEditorSheet> {
                     onPressed: _saving ? null : _save,
                     child: _saving
                         ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                        : Text(widget.existing == null ? 'Create' : 'Save'),
+                        : Text(widget.existing == null ? l10n.create : l10n.save),
                   ),
                 ),
               ],
