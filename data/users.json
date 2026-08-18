@@ -1,0 +1,43 @@
+[
+  {
+    "id": "1f71f842-1553-4659-a341-2c246fdaac51",
+    "name": "Amina",
+    "email": "amina@gmail.com",
+    "password_hash": "pbkdf2:sha256:600000$REo6bNQ9vb9b9Cff$6296edd733ccd42794d62c117911fe9e283364b3d55567003a4c04ad42d9c0ff",
+    "preferences": [
+      "city"
+    ],
+    "is_admin": true
+  },
+  {
+    "id": "fd4ead5b-1fd3-4f20-b6c7-0d98bd73649a",
+    "name": "asta amira",
+    "email": "astamira@gmail.com",
+    "password_hash": "pbkdf2:sha256:600000$tkoYNmTO2zjkehgB$5080f21630aba4d8277e1caab5386bd9cc662281f36c3fb7ef95a59585ead7c1",
+    "preferences": [
+      "food"
+    ],
+    "is_admin": false
+  },
+  {
+    "id": "2bfc2d76-bd72-4f0b-b327-b2c16c9ee963",
+    "name": "asra",
+    "email": "asta1@gmail.com",
+    "password_hash": "pbkdf2:sha256:600000$pLJkI3qzLjbybRAR$8b809789186bb70ba1593b710205a843f099881526f215808fa67aa1187c9082",
+    "preferences": [
+      "food"
+    ],
+    "is_admin": false
+  },
+  {
+    "id": "4694c5a0-bb18-46aa-8220-6fc6f2080c93",
+    "name": "Asta Amira",
+    "email": "asta@gmail.com",
+    "password_hash": "scrypt:32768:8:1$XrPHIq97FPXe9M7F$c5395a16718c6f1b4b73e38cc7e3cd3ed9da1163ef2d62abc7e6e8be09700d986bd14112f9c7b851f528b9d48b4abea91bec73cf9ccfea8c8ee943ba8479b444",
+    "preferences": [
+      "food",
+      "culture"
+    ],
+    "is_admin": false
+  }
+]

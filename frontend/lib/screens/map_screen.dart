@@ -1,0 +1,391 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
+
+import '../l10n/generated/app_localizations.dart';
+import '../models/destination.dart';
+import '../models/itinerary.dart';
+import '../services/api_service.dart';
+import '../services/location_service.dart';
+import '../services/session.dart';
+import '../theme/cameroon_colors.dart';
+import '../utils/bike_estimate.dart';
+
+/// Default map center: Nkolmbong, Yaoundé — where the app's destinations
+/// are, so the map opens somewhere useful even before the user's own
+/// location is known.
+const LatLng _defaultCenter = LatLng(3.8480, 11.5021);
+
+class MapScreen extends StatefulWidget {
+  const MapScreen({super.key});
+
+  @override
+  State<MapScreen> createState() => _MapScreenState();
+}
+
+class _MapScreenState extends State<MapScreen> {
+  final MapController _mapController = MapController();
+
+  List<Destination> _destinations = [];
+  bool _loading = true;
+  String? _error;
+
+  LatLng? _myLocation;
+  String? _locationError;
+  bool _mapReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDestinations();
+    _loadLocation();
+  }
+
+  ApiService _api() => ApiService(token: context.read<Session>().token);
+
+  Future<void> _loadDestinations() async {
+    setState(() => _loading = true);
+    try {
+      final data = await _api().searchDestinations();
+      setState(() {
+        _destinations = data.map((e) => Destination.fromJson(e)).where((d) => d.hasPosition).toList();
+        _error = null;
+      });
+    } catch (_) {
+      setState(() => _error = AppLocalizations.of(context)!.couldNotLoadDestinations);
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _loadLocation() async {
+    try {
+      final location = await LocationService.getCurrentLocation();
+      if (!mounted) return;
+      setState(() {
+        _myLocation = location;
+        _locationError = null;
+      });
+      // The map may not have laid out yet if this tab hasn't been opened
+      // yet (it's built off-screen inside the tab IndexedStack) — the
+      // controller can only be moved once flutter_map has rendered a frame.
+      if (_mapReady) _mapController.move(location, 14);
+    } on LocationUnavailableException catch (e) {
+      if (mounted) setState(() => _locationError = e.toString());
+    }
+  }
+
+  void _showDestinationSheet(Destination destination) {
+    final estimate = BikeEstimate.from(
+      _myLocation,
+      LatLng(destination.latitude!, destination.longitude!),
+    );
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) => _DestinationSheet(
+        destination: destination,
+        estimate: estimate,
+        locationError: _myLocation == null ? _locationError : null,
+        onAddToItinerary: () => _openAddToItinerary(destination),
+      ),
+    );
+  }
+
+  Future<void> _openAddToItinerary(Destination destination) async {
+    final l10n = AppLocalizations.of(context)!;
+    Navigator.of(context).pop(); // close the bottom sheet first
+
+    try {
+      final api = _api();
+      final mine = (await api.getItineraries()).map((e) => Itinerary.fromJson(e)).toList();
+      if (!mounted) return;
+
+      final choice = await showDialog<Itinerary?>(
+        context: context,
+        builder: (context) => SimpleDialog(
+          title: Text(l10n.addToItineraryX(destination.name)),
+          children: [
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(context, null),
+              child: Row(children: [const Icon(Icons.add), const SizedBox(width: 8), Text(l10n.newItineraryOption)]),
+            ),
+            if (mine.isNotEmpty) const Divider(),
+            ...mine.map(
+              (it) => SimpleDialogOption(
+                onPressed: () => Navigator.pop(context, it),
+                child: Text(it.title),
+              ),
+            ),
+          ],
+        ),
+      );
+
+      if (choice == null && mine.isEmpty) {
+        // dialog dismissed without a choice and there was nothing to pick anyway
+      }
+
+      if (!mounted) return;
+
+      if (choice != null) {
+        await api.updateItinerary(
+          choice.id,
+          title: choice.title,
+          destinations: [...choice.destinations, destination.name],
+          startDate: choice.startDate,
+          endDate: choice.endDate,
+          notes: choice.notes,
+        );
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.addedToItinerary(destination.name, choice.title))),
+        );
+      } else {
+        await _createItineraryDialog(destination);
+      }
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
+  Future<void> _createItineraryDialog(Destination destination) async {
+    final l10n = AppLocalizations.of(context)!;
+    final titleController = TextEditingController();
+    final startController = TextEditingController();
+    final endController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.newItineraryWithX(destination.name)),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: titleController,
+                decoration: InputDecoration(labelText: l10n.titleField),
+                validator: (v) => (v == null || v.trim().isEmpty) ? l10n.required : null,
+              ),
+              TextFormField(
+                controller: startController,
+                decoration: InputDecoration(labelText: l10n.startDateField),
+                validator: (v) => (v == null || v.trim().isEmpty) ? l10n.required : null,
+              ),
+              TextFormField(
+                controller: endController,
+                decoration: InputDecoration(labelText: l10n.endDateField),
+                validator: (v) => (v == null || v.trim().isEmpty) ? l10n.required : null,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.cancel)),
+          FilledButton(
+            onPressed: () {
+              if (formKey.currentState!.validate()) Navigator.pop(context, true);
+            },
+            child: Text(l10n.create),
+          ),
+        ],
+      ),
+    );
+
+    if (saved != true || !mounted) return;
+
+    try {
+      await _api().createItinerary(
+        title: titleController.text.trim(),
+        destinations: [destination.name],
+        startDate: startController.text.trim(),
+        endDate: endController.text.trim(),
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.createdItinerary(titleController.text.trim()))),
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) return const Center(child: CircularProgressIndicator());
+
+    return Stack(
+      children: [
+        FlutterMap(
+          mapController: _mapController,
+          options: MapOptions(
+            initialCenter: _defaultCenter,
+            initialZoom: 13,
+            onMapReady: () {
+              _mapReady = true;
+              if (_myLocation != null) _mapController.move(_myLocation!, 14);
+            },
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'com.globetrotter.frontend',
+            ),
+            MarkerLayer(
+              markers: [
+                for (final destination in _destinations)
+                  Marker(
+                    point: LatLng(destination.latitude!, destination.longitude!),
+                    width: 40,
+                    height: 40,
+                    child: GestureDetector(
+                      onTap: () => _showDestinationSheet(destination),
+                      child: const Icon(Icons.location_on, color: CameroonColors.red, size: 40),
+                    ),
+                  ),
+                if (_myLocation != null)
+                  Marker(
+                    point: _myLocation!,
+                    width: 24,
+                    height: 24,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
+        if (_error != null)
+          Positioned(
+            top: 12,
+            left: 12,
+            right: 12,
+            child: _Banner(text: _error!, color: Colors.red),
+          )
+        else if (_locationError != null && _myLocation == null)
+          Positioned(
+            top: 12,
+            left: 12,
+            right: 12,
+            child: _Banner(text: _locationError!, color: Colors.orange),
+          ),
+        Positioned(
+          bottom: 16,
+          right: 16,
+          child: FloatingActionButton(
+            heroTag: 'my-location',
+            onPressed: _loadLocation,
+            child: const Icon(Icons.my_location),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Banner extends StatelessWidget {
+  final String text;
+  final Color color;
+
+  const _Banner({required this.text, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      elevation: 2,
+      borderRadius: BorderRadius.circular(10),
+      color: color.withValues(alpha: 0.95),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        child: Text(text, style: const TextStyle(color: Colors.white)),
+      ),
+    );
+  }
+}
+
+class _DestinationSheet extends StatelessWidget {
+  final Destination destination;
+  final BikeEstimate? estimate;
+  final String? locationError;
+  final VoidCallback onAddToItinerary;
+
+  const _DestinationSheet({
+    required this.destination,
+    required this.estimate,
+    required this.locationError,
+    required this.onAddToItinerary,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(destination.name, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 4),
+            Text(
+              [destination.quarter, destination.town].where((s) => s.isNotEmpty).join(', '),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54),
+            ),
+            if (destination.sector.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text(destination.sector, maxLines: 3, overflow: TextOverflow.ellipsis),
+            ],
+            const SizedBox(height: 16),
+            if (estimate != null)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: CameroonColors.green.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.two_wheeler, color: CameroonColors.greenDark),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        l10n.byBikeSummary(estimate!.distanceLabel, estimate!.etaLabel, estimate!.priceLabel),
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Text(
+                locationError ?? l10n.gettingYourLocation,
+                style: const TextStyle(color: Colors.black54, fontStyle: FontStyle.italic),
+              ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: onAddToItinerary,
+                icon: const Icon(Icons.playlist_add),
+                label: Text(l10n.addToItineraryButton),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

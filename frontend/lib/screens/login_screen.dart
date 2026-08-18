@@ -1,0 +1,193 @@
+import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:provider/provider.dart';
+
+import '../l10n/generated/app_localizations.dart';
+import '../services/api_service.dart';
+import '../services/session.dart';
+import '../theme/cameroon_colors.dart';
+import '../widgets/auth_scaffold.dart';
+import '../widgets/gradient_button.dart';
+import 'forgot_password_screen.dart';
+import 'register_screen.dart';
+import 'welcome_screen.dart';
+
+/// Google OAuth Web Client ID, from Google Cloud Console → Credentials.
+///
+/// Override at build/run time, e.g.:
+///   flutter run -d chrome --dart-define=GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com
+const String googleClientId = String.fromEnvironment('GOOGLE_CLIENT_ID', defaultValue: '');
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _loading = false;
+  String? _error;
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final api = ApiService();
+      final email = _emailController.text.trim();
+      final (token, name, isAdmin) = await api.login(email, _passwordController.text);
+      if (!mounted) return;
+      await context.read<Session>().login(email: email, token: token, name: name, isAdmin: isAdmin);
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => WelcomeScreen(name: name)),
+      );
+    } on ApiException catch (e) {
+      setState(() => _error = e.message);
+    } catch (e) {
+      setState(() => _error = 'Could not reach the server. Is the API running?');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _loginWithGoogle() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final googleSignIn = GoogleSignIn(clientId: googleClientId);
+      final account = await googleSignIn.signIn();
+      if (account == null) {
+        // User dismissed the Google account picker.
+        setState(() => _loading = false);
+        return;
+      }
+      final googleAuth = await account.authentication;
+      final idToken = googleAuth.idToken;
+      if (idToken == null) {
+        setState(() => _error = 'Google sign-in did not return a credential.');
+        return;
+      }
+
+      final api = ApiService();
+      final (token, name, isAdmin) = await api.loginWithGoogle(idToken);
+      if (!mounted) return;
+      await context.read<Session>().login(email: account.email, token: token, name: name, isAdmin: isAdmin);
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => WelcomeScreen(name: name)),
+      );
+    } on ApiException catch (e) {
+      setState(() => _error = e.message);
+    } catch (e) {
+      setState(() => _error = 'Could not sign in with Google.');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return AuthScaffold(
+      heroIcon: Icons.flight_takeoff,
+      heroVideoAsset: 'assets/videos/login_hero.mp4',
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ShaderMask(
+              shaderCallback: (bounds) => const LinearGradient(
+                colors: [CameroonColors.greenDark, CameroonColors.green],
+              ).createShader(bounds),
+              child: Text(
+                l10n.loginWelcomeBack,
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w800, color: Colors.white),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              l10n.loginSubtitle,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black54),
+            ),
+            const SizedBox(height: 22),
+            TextFormField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(labelText: l10n.email, prefixIcon: const Icon(Icons.email_outlined)),
+              validator: (v) {
+                if (v == null || v.trim().isEmpty) return l10n.emailRequired;
+                if (!v.contains('@')) return l10n.emailInvalid;
+                return null;
+              },
+            ),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(labelText: l10n.password, prefixIcon: const Icon(Icons.lock_outline)),
+              validator: (v) => (v == null || v.isEmpty) ? l10n.passwordRequired : null,
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: 12),
+              Text(_error!, style: const TextStyle(color: Colors.red)),
+            ],
+            const SizedBox(height: 20),
+            GradientButton(
+              onPressed: _loading ? null : _submit,
+              child: _loading
+                  ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : Text(l10n.logIn),
+            ),
+            if (googleClientId.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const Expanded(child: Divider()),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(l10n.or, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
+                  ),
+                  const Expanded(child: Divider()),
+                ],
+              ),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: _loading ? null : _loginWithGoogle,
+                icon: const Icon(Icons.g_mobiledata, size: 28),
+                label: Text(l10n.continueWithGoogle),
+              ),
+            ],
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: _loading
+                  ? null
+                  : () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                      ),
+              child: Text(l10n.noAccountRegister),
+            ),
+            TextButton(
+              onPressed: _loading
+                  ? null
+                  : () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+                      ),
+              child: Text(l10n.forgotPassword),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

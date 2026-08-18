@@ -4,12 +4,21 @@ app/__init__.py
 Flask application factory.
 """
 import os
-from flask import Flask
+from flask import Flask, jsonify
+from flask_cors import CORS
 
 
 def create_app():
     """Create and configure the Flask application."""
     app = Flask(__name__)
+
+    # Allow the Flutter frontend (served from a different origin) to call the API.
+    CORS(app)
+
+    @app.route("/health", methods=["GET"])
+    def health():
+        """Liveness/readiness probe for uptime monitoring and load balancers."""
+        return jsonify({"status": "ok"}), 200
 
     # Secret key used for JWT signing.  Set the SECRET_KEY environment variable
     # in production.  The fallback is intentionally weak and must never be used
@@ -23,10 +32,12 @@ def create_app():
     from app.destinations import destinations_bp
     from app.recommendations import recommendations_bp
     from app.itineraries import itineraries_bp
+    from app.user_recommendations import user_recommendations_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(destinations_bp)
     app.register_blueprint(recommendations_bp)
     app.register_blueprint(itineraries_bp)
+    app.register_blueprint(user_recommendations_bp)
 
     return app

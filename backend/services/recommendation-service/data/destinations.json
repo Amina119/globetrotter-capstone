@@ -1,0 +1,141 @@
+[
+  {
+    "id": "marche-premiere-maison",
+    "name": "March\u00e9 Premiere Maison",
+    "Town": "Yaound\u00e9",
+    "quarter": "Premiere Maison",
+    "sector": "Bustling local market for fresh produce, groceries and daily goods.",
+    "tags": [
+      "food",
+      "culture"
+    ],
+    "avg_cost_per_day": 2000
+  },
+  {
+    "id": "place-independance",
+    "name": "Place de l'Ind\u00e9pendance",
+    "Town": "Yaound\u00e9",
+    "quarter": "Premiere Maison",
+    "sector": "Public square popular for gatherings, relaxation and evening strolls.",
+    "tags": [
+      "culture",
+      "nature"
+    ],
+    "avg_cost_per_day": 0
+  },
+  {
+    "id": "chefferie-nkolmbong",
+    "name": "Chefferie de Nkolmbong",
+    "Town": "Yaound\u00e9",
+    "quarter": "Derriere Chefferie",
+    "sector": "Traditional palace and seat of the local chieftaincy.",
+    "tags": [
+      "culture"
+    ],
+    "avg_cost_per_day": 0
+  },
+  {
+    "id": "terrain-derriere-chefferie",
+    "name": "Terrain Derriere Chefferie",
+    "Town": "Yaound\u00e9",
+    "quarter": "Derriere Chefferie",
+    "sector": "Neighbourhood football field and popular hangout spot.",
+    "tags": [
+      "adventure",
+      "city"
+    ],
+    "avg_cost_per_day": 0
+  },
+  {
+    "id": "carrefour-san-francisco",
+    "name": "Carrefour San Francisco",
+    "Town": "Yaound\u00e9",
+    "quarter": "San Francisco",
+    "sector": "Lively junction known for nightlife and street food.",
+    "tags": [
+      "city",
+      "food"
+    ],
+    "avg_cost_per_day": 5000
+  },
+  {
+    "id": "bar-terrasse-san-francisco",
+    "name": "Bar Terrasse San Francisco",
+    "Town": "Yaound\u00e9",
+    "quarter": "San Francisco",
+    "sector": "Rooftop bar with live music and a view over the quarter.",
+    "tags": [
+      "city",
+      "food"
+    ],
+    "avg_cost_per_day": 6000
+  },
+  {
+    "id": "dubai-city-shopping-center",
+    "name": "Dubai City Shopping Center",
+    "Town": "Yaound\u00e9",
+    "quarter": "Dubai City",
+    "sector": "Shopping center with boutiques and local designers.",
+    "tags": [
+      "city"
+    ],
+    "avg_cost_per_day": 8000
+  },
+  {
+    "id": "espace-vert-dubai-city",
+    "name": "Espace Vert Dubai City",
+    "Town": "Yaound\u00e9",
+    "quarter": "Dubai City",
+    "sector": "Green park space for walks and picnics.",
+    "tags": [
+      "nature"
+    ],
+    "avg_cost_per_day": 0
+  },
+  {
+    "id": "gare-routiere-terminus",
+    "name": "Gare Routi\u00e8re Terminus",
+    "Town": "Yaound\u00e9",
+    "quarter": "Terminus",
+    "sector": "Transit hub connecting Nkolmbong to the rest of Yaound\u00e9.",
+    "tags": [
+      "city"
+    ],
+    "avg_cost_per_day": 1000
+  },
+  {
+    "id": "marche-terminus",
+    "name": "March\u00e9 Terminus",
+    "Town": "Yaound\u00e9",
+    "quarter": "Terminus",
+    "sector": "Food and produce market next to the bus station.",
+    "tags": [
+      "food",
+      "culture"
+    ],
+    "avg_cost_per_day": 2000
+  },
+  {
+    "id": "mosquee-chefferie-haussa",
+    "name": "Mosqu\u00e9e Chefferie Haussa",
+    "Town": "Yaound\u00e9",
+    "quarter": "Chefferie Haussa",
+    "sector": "Historic mosque and important religious landmark.",
+    "tags": [
+      "culture"
+    ],
+    "avg_cost_per_day": 0
+  },
+  {
+    "id": "marche-haussa",
+    "name": "March\u00e9 Haussa",
+    "Town": "Yaound\u00e9",
+    "quarter": "Chefferie Haussa",
+    "sector": "Vibrant market for textiles, spices and crafts.",
+    "tags": [
+      "food",
+      "culture"
+    ],
+    "avg_cost_per_day": 2000
+  }
+]

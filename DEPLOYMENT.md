@@ -1,0 +1,153 @@
+# Deploying GlobeTrotter to a Contabo VPS
+
+This covers taking the Dockerized backend from your machine to a running
+Contabo VPS reachable over the internet. Written for the Phase 1 monolith;
+still applies as-is now that the backend is Phase 2's API Gateway + 3
+services (see `README.md`) — only the gateway publishes a host port, so the
+firewall rule and the `curl` steps below are unchanged. `docker compose up
+--build -d` now builds 4 images instead of 1, that's the only difference.
+
+## 1. Order / access the VPS
+
+- If you don't have one yet: at contabo.com, order a **Cloud VPS** (the
+  cheapest "VPS S" tier is enough for Phase 1). Choose **Ubuntu 22.04 LTS**
+  as the image. Contabo emails you the root password and the server's public IP.
+- If you already have one: you just need its public IP and root/SSH access.
+
+## 2. First login and basic hardening
+
+From your machine:
+
+```bash
+ssh root@YOUR_VPS_IP
+```
+
+Once in, create a non-root sudo user (don't operate as root day-to-day) and enable the firewall:
+
+```bash
+adduser deploy
+usermod -aG sudo deploy
+
+# Basic firewall: allow SSH, HTTP, HTTPS, and the API port
+apt update && apt install -y ufw
+ufw allow OpenSSH
+ufw allow 5000/tcp    # GlobeTrotter API (Phase 1)
+ufw allow 80/tcp      # reserved for later (nginx/HTTPS)
+ufw allow 443/tcp
+ufw enable
+```
+
+Log out and back in as `deploy` from now on: `ssh deploy@YOUR_VPS_IP`.
+
+## 3. Install Docker & Docker Compose on the VPS
+
+```bash
+curl -fsSL https://get.docker.com | sudo sh
+sudo usermod -aG docker $USER
+newgrp docker          # refresh group membership without re-login
+
+docker --version
+docker compose version
+```
+
+## 4. Get the project onto the VPS
+
+Simplest path — push your local repo to GitHub, then clone it on the VPS:
+
+```bash
+# on the VPS
+git clone https://github.com/<your-username>/globetrotter-capstone.git
+cd globetrotter-capstone/backend
+```
+
+(No GitHub yet? You can instead `scp -r` the folder from your machine:
+`scp -r globetrotter-capstone deploy@YOUR_VPS_IP:~/`.)
+
+## 5. Configure production secrets
+
+Never run with the default `SECRET_KEY`. Generate one and pass it in:
+
+```bash
+python3 -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Create a `.env` file in `backend/` on the VPS (already gitignored) —
+`docker-compose.yml` picks up a same-directory `.env` automatically for
+variable substitution, no compose file edits needed:
+
+```bash
+echo "SECRET_KEY=<paste the generated value>" > .env
+```
+
+The same `SECRET_KEY` is passed to all three backend services (User,
+Itinerary, Recommendation) so tokens the User Service issues verify
+correctly everywhere. The gateway doesn't need it — it never touches
+tokens, only routes requests.
+
+### Password reset emails (Brevo)
+
+`/forgot-password` sends its reset link through
+[Brevo](https://www.brevo.com)'s transactional email API. Without these
+set, the User Service just logs the reset token instead of emailing it —
+fine for local dev, not for production:
+
+```bash
+cat >> .env <<'EOF'
+BREVO_API_KEY=<your Brevo API key>
+BREVO_SENDER_EMAIL=<a sender verified in your Brevo account>
+BREVO_SENDER_NAME=GlobeTrotter
+PASSWORD_RESET_URL=https://<your-domain>/reset-password
+EOF
+```
+
+`PASSWORD_RESET_URL` should point at whatever page in your deployed
+frontend handles the reset form — it gets `?email=...&token=...` appended.
+
+## 6. Build and run
+
+```bash
+docker compose up --build -d
+docker compose ps
+docker compose logs -f          # Ctrl+C to stop tailing (container keeps running)
+```
+
+Test from your own machine:
+
+```bash
+curl http://YOUR_VPS_IP:5000/destinations
+```
+
+`restart: unless-stopped` makes the container survive VPS reboots.
+
+## 7. Point the Flutter app at the VPS
+
+Run/build the frontend (from `frontend/`) with the VPS IP instead of localhost:
+
+```bash
+cd frontend
+flutter run -d chrome --dart-define=API_BASE_URL=http://YOUR_VPS_IP:5000
+# or for a production web build:
+flutter build web --dart-define=API_BASE_URL=http://YOUR_VPS_IP:5000
+```
+
+## 8. (Optional, recommended before Phase 3) Domain + HTTPS
+
+Phase 1 only requires "deployed on a single server," so plain HTTP on the
+VPS IP is enough. When you're ready for a real domain:
+
+1. Point an A record for e.g. `api.yourdomain.com` at `YOUR_VPS_IP`.
+2. Put `nginx` + `certbot` in front of the container as a reverse proxy, or
+   add `nginx-proxy` + `acme-companion` containers to `docker-compose.yml`.
+3. Update `API_BASE_URL` to `https://api.yourdomain.com`.
+
+This is a good task to fold into Phase 3 ("Cloud Deployment") since it's
+about load balancing / ingress rather than the monolith itself.
+
+## Redeploying after code changes
+
+```bash
+cd ~/globetrotter-capstone
+git pull
+cd backend
+docker compose up --build -d
+```

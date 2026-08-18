@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: globetrotter_rabbitmq
+    ports:
+      - "15672:15672"  # management UI, for local inspection only
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  user-service:
+    build: ./services/user-service
+    container_name: globetrotter_user_service
+    volumes:
+      - ./services/user-service/data:/app/data
+    environment:
+      - PORT=5001
+      - SECRET_KEY=${SECRET_KEY:-globetrotter-secret-change-in-prod}
+      - BREVO_API_KEY=${BREVO_API_KEY:-}
+      - BREVO_SENDER_EMAIL=${BREVO_SENDER_EMAIL:-}
+      - BREVO_SENDER_NAME=${BREVO_SENDER_NAME:-GlobeTrotter}
+      - PASSWORD_RESET_URL=${PASSWORD_RESET_URL:-http://localhost:5000/reset-password}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+
+  itinerary-service:
+    build: ./services/itinerary-service
+    container_name: globetrotter_itinerary_service
+    volumes:
+      - ./services/itinerary-service/data:/app/data
+    environment:
+      - PORT=5002
+      - SECRET_KEY=${SECRET_KEY:-globetrotter-secret-change-in-prod}
+      - USER_SERVICE_URL=http://user-service:5001
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/%2F
+    depends_on:
+      - user-service
+      - rabbitmq
+
+  recommendation-service:
+    build: ./services/recommendation-service
+    container_name: globetrotter_recommendation_service
+    volumes:
+      - ./services/recommendation-service/data:/app/data
+    environment:
+      - PORT=5003
+      - SECRET_KEY=${SECRET_KEY:-globetrotter-secret-change-in-prod}
+      - USER_SERVICE_URL=http://user-service:5001
+      - ITINERARY_SERVICE_URL=http://itinerary-service:5002
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/%2F
+    depends_on:
+      - user-service
+      - itinerary-service
+      - rabbitmq
+
+  gateway:
+    build: ./gateway
+    container_name: globetrotter_gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - USER_SERVICE_URL=http://user-service:5001
+      - ITINERARY_SERVICE_URL=http://itinerary-service:5002
+      - RECOMMENDATION_SERVICE_URL=http://recommendation-service:5003
+    depends_on:
+      - user-service
+      - itinerary-service
+      - recommendation-service
