@@ -1,0 +1,28 @@
+[
+  {
+    "id": "fcc57f9e-6774-48fe-ae24-779ff67e5bb3",
+    "email": "alice@example.com",
+    "title": "Test",
+    "destinations": [
+      "Bali"
+    ],
+    "start_date": "2026-08-01",
+    "end_date": "2026-08-10",
+    "notes": "",
+    "created_at": "2026-07-23T04:00:06.124518+00:00",
+    "shared_with": []
+  },
+  {
+    "id": "04ca491b-de38-48b0-8724-99a127e32d2f",
+    "email": "amina@gmail.com",
+    "title": "home",
+    "destinations": [
+      "22"
+    ],
+    "start_date": "22222",
+    "end_date": "222",
+    "notes": "",
+    "created_at": "2026-07-24T09:03:17.652864+00:00",
+    "shared_with": []
+  }
+]
