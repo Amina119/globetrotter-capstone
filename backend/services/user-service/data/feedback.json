@@ -1,0 +1,16 @@
+[
+  {
+    "email": "fbtest@example.com",
+    "name": "Feedback Tester",
+    "rating": 4,
+    "comment": "Great app, love the sector videos!",
+    "updated_at": "2026-08-13T05:04:16.874783+00:00"
+  },
+  {
+    "email": "fru@gmail.com",
+    "name": "fru",
+    "rating": 5,
+    "comment": "",
+    "updated_at": "2026-08-13T05:10:11.700695+00:00"
+  }
+]

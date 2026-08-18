@@ -1,0 +1,1 @@
+ C:\\Users\\AISSATOU\\Desktop\\globetrotter-project\\globetrotter-capstone\\frontend\\.dart_tool\\flutter_build\\64cbd4d9286343ec4f489b4a4e188f9c\\native_assets.json: 
