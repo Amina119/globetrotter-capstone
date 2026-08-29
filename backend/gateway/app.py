@@ -8,12 +8,12 @@ streams the response straight back. Doesn't touch passwords or JWTs itself
 
 Route table
 -----------
-/register, /login, /auth/google,
-  /forgot-password, /reset-password                    -> User Service
+/register, /login, /auth/google, /profile,
+  /forgot-password, /reset-password, /feedback         -> User Service
 /itineraries*                                          -> Itinerary Service
 /destinations*, /recommendations*,
   /my-recommendations*, /admin/recommendations*,
-  /admin/destinations*                                  -> Recommendation Service
+  /admin/destinations*, /places*                        -> Recommendation Service
 /health                                                -> the gateway's own liveness check
 
 Routes starting with /internal/ are service-to-service only and are
@@ -45,12 +45,15 @@ _ROUTES = [
     ("/auth/google", USER_SERVICE_URL),
     ("/forgot-password", USER_SERVICE_URL),
     ("/reset-password", USER_SERVICE_URL),
+    ("/feedback", USER_SERVICE_URL),
+    ("/profile", USER_SERVICE_URL),
     ("/itineraries", ITINERARY_SERVICE_URL),
     ("/destinations", RECOMMENDATION_SERVICE_URL),
     ("/recommendations", RECOMMENDATION_SERVICE_URL),
     ("/my-recommendations", RECOMMENDATION_SERVICE_URL),
     ("/admin/recommendations", RECOMMENDATION_SERVICE_URL),
     ("/admin/destinations", RECOMMENDATION_SERVICE_URL),
+    ("/places", RECOMMENDATION_SERVICE_URL),
 ]
 
 # Hop-by-hop headers that must not be forwarded verbatim between the client,

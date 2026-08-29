@@ -18,6 +18,7 @@ DATA_DIR = os.path.join(_BASE_DIR, "data")
 
 DESTINATIONS_FILE = os.path.join(DATA_DIR, "destinations.json")
 USER_RECOMMENDATIONS_FILE = os.path.join(DATA_DIR, "user_recommendations.json")
+PLACE_REVIEWS_FILE = os.path.join(DATA_DIR, "place_reviews.json")
 
 
 # ---------------------------------------------------------------------------
@@ -115,3 +116,31 @@ def save_user_recommendation(recommendation: dict) -> None:
     recommendations = get_all_user_recommendations()
     recommendations.append(recommendation)
     _write_json(USER_RECOMMENDATIONS_FILE, recommendations)
+
+
+# ---------------------------------------------------------------------------
+# Per-place review helpers
+# ---------------------------------------------------------------------------
+
+def get_reviews_for_place(place_id: str) -> list:
+    """Return every review for *place_id*, newest first."""
+    entries = [e for e in _read_json(PLACE_REVIEWS_FILE) if e.get("place_id") == place_id]
+    return sorted(entries, key=lambda e: e.get("updated_at", ""), reverse=True)
+
+
+def upsert_place_review(place_id: str, email: str, entry: dict) -> None:
+    """Create or replace *email*'s review of *place_id*."""
+    entries = _read_json(PLACE_REVIEWS_FILE)
+    entries = [e for e in entries if not (e.get("place_id") == place_id and e.get("email") == email)]
+    entries.append(entry)
+    _write_json(PLACE_REVIEWS_FILE, entries)
+
+
+def delete_place_review(place_id: str, email: str) -> bool:
+    """Remove *email*'s review of *place_id*. Returns False if none existed."""
+    entries = _read_json(PLACE_REVIEWS_FILE)
+    remaining = [e for e in entries if not (e.get("place_id") == place_id and e.get("email") == email)]
+    if len(remaining) == len(entries):
+        return False
+    _write_json(PLACE_REVIEWS_FILE, remaining)
+    return True

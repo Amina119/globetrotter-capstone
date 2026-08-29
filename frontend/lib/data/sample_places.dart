@@ -107,7 +107,7 @@ const sampleAttractions = [
     priceTier: '1 000 FCFA',
     sector: 'San Francisco',
     description: 'A reliable neighborhood pressing shop for laundry and dry cleaning, priced per item.',
-    videoAsset: 'assets/places/san_francisco/bill_pressing.jpeg',
+    imageAsset: 'assets/places/san_francisco/bill_pressing.jpeg',
   ),
   LocalPlace(
     id: 'san-francisco-black-and-brown-hair-salon',
@@ -163,7 +163,7 @@ const sampleAttractions = [
     priceTier: '3 500 FCFA',
     sector: 'Terminus',
     description: 'A boutique known for jewelry and fashion pieces, a favorite stop for gifts and accessories.',
-    videoAsset: 'assets/places/terminus/brigittes_johari.mp4',
+    imageAsset: 'assets/places/terminus/brigettes_johari.png',
     tags: ['romance'],
   ),
   LocalPlace(

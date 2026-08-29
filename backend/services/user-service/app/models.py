@@ -15,6 +15,7 @@ _BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(_BASE_DIR, "data")
 
 USERS_FILE = os.path.join(DATA_DIR, "users.json")
+FEEDBACK_FILE = os.path.join(DATA_DIR, "feedback.json")
 
 
 # ---------------------------------------------------------------------------
@@ -78,3 +79,31 @@ def update_user(email: str, updates: dict) -> dict | None:
             _write_json(USERS_FILE, users)
             return user
     return None
+
+
+# ---------------------------------------------------------------------------
+# App-wide feedback helpers
+# ---------------------------------------------------------------------------
+
+def get_all_feedback() -> list:
+    """Return every feedback entry, newest first."""
+    entries = _read_json(FEEDBACK_FILE)
+    return sorted(entries, key=lambda e: e.get("updated_at", ""), reverse=True)
+
+
+def upsert_feedback(email: str, entry: dict) -> None:
+    """Create or replace *email*'s feedback entry."""
+    entries = _read_json(FEEDBACK_FILE)
+    entries = [e for e in entries if e.get("email") != email]
+    entries.append(entry)
+    _write_json(FEEDBACK_FILE, entries)
+
+
+def delete_feedback(email: str) -> bool:
+    """Remove *email*'s feedback entry. Returns False if none existed."""
+    entries = _read_json(FEEDBACK_FILE)
+    remaining = [e for e in entries if e.get("email") != email]
+    if len(remaining) == len(entries):
+        return False
+    _write_json(FEEDBACK_FILE, remaining)
+    return True

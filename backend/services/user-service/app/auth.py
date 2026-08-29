@@ -10,6 +10,8 @@ POST /login              – authenticate and return a JWT token
 POST /forgot-password    – request a password reset token
 POST /reset-password     – reset a password using a token from /forgot-password
 POST /auth/google        – log in (or auto-register) with a Google ID token
+GET  /profile            – the logged-in user's name/preferences (requires a valid JWT)
+PUT  /profile            – update the logged-in user's name/preferences
 
 Internal routes (service-to-service only, not routed through the gateway)
 ---------------------------------------------------------------------------
@@ -287,6 +289,59 @@ def google_login():
         "token": token,
         "email": email,
         "name": user.get("name", ""),
+        "is_admin": bool(user.get("is_admin")),
+    }), 200
+
+
+# ---------------------------------------------------------------------------
+# Profile routes
+# ---------------------------------------------------------------------------
+
+@auth_bp.route("/profile", methods=["GET"])
+def get_profile():
+    email = get_current_user(request)
+    if not email:
+        return jsonify({"error": "authentication required"}), 401
+
+    user = get_user_by_email(email)
+    if not user:
+        return jsonify({"error": "user not found"}), 404
+
+    return jsonify({
+        "email": user.get("email"),
+        "name": user.get("name", ""),
+        "preferences": user.get("preferences", []),
+        "is_admin": bool(user.get("is_admin")),
+    }), 200
+
+
+@auth_bp.route("/profile", methods=["PUT"])
+def update_profile():
+    email = get_current_user(request)
+    if not email:
+        return jsonify({"error": "authentication required"}), 401
+
+    data = request.get_json(silent=True) or {}
+    updates = {}
+    if "name" in data:
+        name = (data.get("name") or "").strip()
+        if not name:
+            return jsonify({"error": "name cannot be empty"}), 400
+        updates["name"] = name
+    if "preferences" in data:
+        preferences = data.get("preferences")
+        if not isinstance(preferences, list):
+            return jsonify({"error": "preferences must be a list"}), 400
+        updates["preferences"] = preferences
+
+    user = update_user(email, updates)
+    if not user:
+        return jsonify({"error": "user not found"}), 404
+
+    return jsonify({
+        "email": user.get("email"),
+        "name": user.get("name", ""),
+        "preferences": user.get("preferences", []),
         "is_admin": bool(user.get("is_admin")),
     }), 200
 
