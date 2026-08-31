@@ -458,7 +458,17 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mapPositionLabel => 'Position sur la carte';
 
   @override
-  String get tapMapToPlacePin => 'Touchez la carte pour placer l\'épingle.';
+  String get tapMapToPlacePin =>
+      'Touchez la carte pour placer l\'épingle, ou saisissez les coordonnées directement.';
+
+  @override
+  String get fieldLatitude => 'Latitude';
+
+  @override
+  String get fieldLongitude => 'Longitude';
+
+  @override
+  String get invalidCoordinate => 'Entrez un nombre valide';
 
   @override
   String get noMapPositionSet => ' · aucune position définie';
@@ -504,4 +514,40 @@ class AppLocalizationsFr extends AppLocalizations {
   String byBikeSummary(String distance, String eta, String price) {
     return '$distance · $eta · $price à vélo';
   }
+
+  @override
+  String get showOnMap => 'Voir sur la carte';
+
+  @override
+  String placeMapTitle(String name) {
+    return '$name sur la carte';
+  }
+
+  @override
+  String get noLocationSetForPlace =>
+      'L\'emplacement de ce lieu n\'a pas encore été ajouté à la carte.';
+
+  @override
+  String get itineraryFromYou => 'Itinéraire depuis votre position';
+
+  @override
+  String get travelModeWalking => 'À pied';
+
+  @override
+  String get travelModeBike => 'À vélo';
+
+  @override
+  String get travelModeCar => 'En voiture';
+
+  @override
+  String get travelFree => 'Gratuit';
+
+  @override
+  String get bestRoute => 'Meilleur itinéraire';
+
+  @override
+  String get dateAlreadyPassed => 'Désolé, cette date est déjà passée.';
+
+  @override
+  String get selectDate => 'Choisir une date';
 }

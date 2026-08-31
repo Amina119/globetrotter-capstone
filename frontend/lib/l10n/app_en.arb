@@ -161,7 +161,10 @@
   "fieldTags": "Tags (comma separated)",
   "fieldAvgCost": "Average cost per day (FCFA)",
   "mapPositionLabel": "Map position",
-  "tapMapToPlacePin": "Tap the map to place the pin.",
+  "tapMapToPlacePin": "Tap the map to place the pin, or type the coordinates directly.",
+  "fieldLatitude": "Latitude",
+  "fieldLongitude": "Longitude",
+  "invalidCoordinate": "Enter a valid number",
   "noMapPositionSet": " · no map position set",
 
   "loadingProfileError": "Could not load your profile.",
@@ -176,5 +179,18 @@
   "aTraveler": "A traveler",
   "planFirstTrip": "Plan your first trip",
   "byBikeSummary": "{distance} · {eta} · {price} by bike",
-  "@byBikeSummary": {"placeholders": {"distance": {"type": "String"}, "eta": {"type": "String"}, "price": {"type": "String"}}}
+  "@byBikeSummary": {"placeholders": {"distance": {"type": "String"}, "eta": {"type": "String"}, "price": {"type": "String"}}},
+
+  "showOnMap": "Show on map",
+  "placeMapTitle": "{name} on the map",
+  "@placeMapTitle": {"placeholders": {"name": {"type": "String"}}},
+  "noLocationSetForPlace": "This place's location hasn't been added to the map yet.",
+  "itineraryFromYou": "Itinerary from your location",
+  "travelModeWalking": "Walking",
+  "travelModeBike": "Bike",
+  "travelModeCar": "Car",
+  "travelFree": "Free",
+  "bestRoute": "Best route",
+  "dateAlreadyPassed": "Sorry, this date has passed.",
+  "selectDate": "Select a date"
 }

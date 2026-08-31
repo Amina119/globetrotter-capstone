@@ -152,7 +152,10 @@
   "fieldTags": "Tags (séparés par des virgules)",
   "fieldAvgCost": "Coût moyen par jour (FCFA)",
   "mapPositionLabel": "Position sur la carte",
-  "tapMapToPlacePin": "Touchez la carte pour placer l'épingle.",
+  "tapMapToPlacePin": "Touchez la carte pour placer l'épingle, ou saisissez les coordonnées directement.",
+  "fieldLatitude": "Latitude",
+  "fieldLongitude": "Longitude",
+  "invalidCoordinate": "Entrez un nombre valide",
   "noMapPositionSet": " · aucune position définie",
 
   "loadingProfileError": "Impossible de charger votre profil.",
@@ -164,5 +167,17 @@
 
   "aTraveler": "Un voyageur",
   "planFirstTrip": "Planifiez votre premier voyage",
-  "byBikeSummary": "{distance} · {eta} · {price} à vélo"
+  "byBikeSummary": "{distance} · {eta} · {price} à vélo",
+
+  "showOnMap": "Voir sur la carte",
+  "placeMapTitle": "{name} sur la carte",
+  "noLocationSetForPlace": "L'emplacement de ce lieu n'a pas encore été ajouté à la carte.",
+  "itineraryFromYou": "Itinéraire depuis votre position",
+  "travelModeWalking": "À pied",
+  "travelModeBike": "À vélo",
+  "travelModeCar": "En voiture",
+  "travelFree": "Gratuit",
+  "bestRoute": "Meilleur itinéraire",
+  "dateAlreadyPassed": "Désolé, cette date est déjà passée.",
+  "selectDate": "Choisir une date"
 }

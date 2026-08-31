@@ -923,8 +923,26 @@ abstract class AppLocalizations {
   /// No description provided for @tapMapToPlacePin.
   ///
   /// In en, this message translates to:
-  /// **'Tap the map to place the pin.'**
+  /// **'Tap the map to place the pin, or type the coordinates directly.'**
   String get tapMapToPlacePin;
+
+  /// No description provided for @fieldLatitude.
+  ///
+  /// In en, this message translates to:
+  /// **'Latitude'**
+  String get fieldLatitude;
+
+  /// No description provided for @fieldLongitude.
+  ///
+  /// In en, this message translates to:
+  /// **'Longitude'**
+  String get fieldLongitude;
+
+  /// No description provided for @invalidCoordinate.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid number'**
+  String get invalidCoordinate;
 
   /// No description provided for @noMapPositionSet.
   ///
@@ -979,6 +997,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{distance} · {eta} · {price} by bike'**
   String byBikeSummary(String distance, String eta, String price);
+
+  /// No description provided for @showOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Show on map'**
+  String get showOnMap;
+
+  /// No description provided for @placeMapTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} on the map'**
+  String placeMapTitle(String name);
+
+  /// No description provided for @noLocationSetForPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'This place\'s location hasn\'t been added to the map yet.'**
+  String get noLocationSetForPlace;
+
+  /// No description provided for @itineraryFromYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Itinerary from your location'**
+  String get itineraryFromYou;
+
+  /// No description provided for @travelModeWalking.
+  ///
+  /// In en, this message translates to:
+  /// **'Walking'**
+  String get travelModeWalking;
+
+  /// No description provided for @travelModeBike.
+  ///
+  /// In en, this message translates to:
+  /// **'Bike'**
+  String get travelModeBike;
+
+  /// No description provided for @travelModeCar.
+  ///
+  /// In en, this message translates to:
+  /// **'Car'**
+  String get travelModeCar;
+
+  /// No description provided for @travelFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get travelFree;
+
+  /// No description provided for @bestRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Best route'**
+  String get bestRoute;
+
+  /// No description provided for @dateAlreadyPassed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorry, this date has passed.'**
+  String get dateAlreadyPassed;
+
+  /// No description provided for @selectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a date'**
+  String get selectDate;
 }
 
 class _AppLocalizationsDelegate

@@ -447,7 +447,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapPositionLabel => 'Map position';
 
   @override
-  String get tapMapToPlacePin => 'Tap the map to place the pin.';
+  String get tapMapToPlacePin =>
+      'Tap the map to place the pin, or type the coordinates directly.';
+
+  @override
+  String get fieldLatitude => 'Latitude';
+
+  @override
+  String get fieldLongitude => 'Longitude';
+
+  @override
+  String get invalidCoordinate => 'Enter a valid number';
 
   @override
   String get noMapPositionSet => ' · no map position set';
@@ -493,4 +503,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String byBikeSummary(String distance, String eta, String price) {
     return '$distance · $eta · $price by bike';
   }
+
+  @override
+  String get showOnMap => 'Show on map';
+
+  @override
+  String placeMapTitle(String name) {
+    return '$name on the map';
+  }
+
+  @override
+  String get noLocationSetForPlace =>
+      'This place\'s location hasn\'t been added to the map yet.';
+
+  @override
+  String get itineraryFromYou => 'Itinerary from your location';
+
+  @override
+  String get travelModeWalking => 'Walking';
+
+  @override
+  String get travelModeBike => 'Bike';
+
+  @override
+  String get travelModeCar => 'Car';
+
+  @override
+  String get travelFree => 'Free';
+
+  @override
+  String get bestRoute => 'Best route';
+
+  @override
+  String get dateAlreadyPassed => 'Sorry, this date has passed.';
+
+  @override
+  String get selectDate => 'Select a date';
 }
