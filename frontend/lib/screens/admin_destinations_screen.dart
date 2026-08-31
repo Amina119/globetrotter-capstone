@@ -170,6 +170,8 @@ class _DestinationEditorSheetState extends State<_DestinationEditorSheet> {
   late final TextEditingController _sectorController;
   late final TextEditingController _tagsController;
   late final TextEditingController _costController;
+  late final TextEditingController _latController;
+  late final TextEditingController _lngController;
 
   LatLng? _position;
   bool _saving = false;
@@ -186,6 +188,8 @@ class _DestinationEditorSheetState extends State<_DestinationEditorSheet> {
     _tagsController = TextEditingController(text: d?.tags.join(', ') ?? '');
     _costController = TextEditingController(text: d?.avgCostPerDay?.toString() ?? '');
     if (d != null && d.hasPosition) _position = LatLng(d.latitude!, d.longitude!);
+    _latController = TextEditingController(text: _position?.latitude.toStringAsFixed(6) ?? '');
+    _lngController = TextEditingController(text: _position?.longitude.toStringAsFixed(6) ?? '');
   }
 
   @override
@@ -196,7 +200,29 @@ class _DestinationEditorSheetState extends State<_DestinationEditorSheet> {
     _sectorController.dispose();
     _tagsController.dispose();
     _costController.dispose();
+    _latController.dispose();
+    _lngController.dispose();
     super.dispose();
+  }
+
+  /// Parses the lat/lng text fields into [_position]. Leaves [_position]
+  /// unchanged if either field is empty or not a valid number yet (e.g.
+  /// while the user is still typing a negative sign or a decimal point).
+  void _applyTypedCoordinates() {
+    final lat = double.tryParse(_latController.text.trim());
+    final lng = double.tryParse(_lngController.text.trim());
+    if (lat == null || lng == null) return;
+    setState(() => _position = LatLng(lat, lng));
+  }
+
+  /// Keeps the two text fields in sync when the position changes via a
+  /// map tap, so typing and tapping never disagree with each other.
+  void _setPositionFromMap(LatLng point) {
+    setState(() {
+      _position = point;
+      _latController.text = point.latitude.toStringAsFixed(6);
+      _lngController.text = point.longitude.toStringAsFixed(6);
+    });
   }
 
   Future<void> _save() async {
@@ -300,6 +326,34 @@ class _DestinationEditorSheetState extends State<_DestinationEditorSheet> {
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54),
                 ),
                 const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        controller: _latController,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                        decoration: InputDecoration(labelText: l10n.fieldLatitude),
+                        validator: (v) => (v != null && v.trim().isNotEmpty && double.tryParse(v.trim()) == null)
+                            ? l10n.invalidCoordinate
+                            : null,
+                        onChanged: (_) => _applyTypedCoordinates(),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _lngController,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+                        decoration: InputDecoration(labelText: l10n.fieldLongitude),
+                        validator: (v) => (v != null && v.trim().isNotEmpty && double.tryParse(v.trim()) == null)
+                            ? l10n.invalidCoordinate
+                            : null,
+                        onChanged: (_) => _applyTypedCoordinates(),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: SizedBox(
@@ -308,7 +362,7 @@ class _DestinationEditorSheetState extends State<_DestinationEditorSheet> {
                       options: MapOptions(
                         initialCenter: _position ?? _defaultCenter,
                         initialZoom: 14,
-                        onTap: (_, point) => setState(() => _position = point),
+                        onTap: (_, point) => _setPositionFromMap(point),
                       ),
                       children: [
                         TileLayer(
