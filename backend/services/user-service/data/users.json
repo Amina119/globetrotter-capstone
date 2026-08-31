@@ -107,5 +107,29 @@
     "is_admin": false,
     "reset_token": null,
     "reset_token_expires": null
+  },
+  {
+    "id": "333c98b3-d841-423c-80ec-ff43dc3a576f",
+    "name": "ABBA",
+    "email": "abba@gmail.com",
+    "password_hash": "pbkdf2:sha256:600000$EQuKasU71AAcRh3U$269d387d52e4695b9987bce462db02c881b7e4b35c87aadd0f304bd83bb3a72d",
+    "preferences": [
+      "food"
+    ],
+    "is_admin": true,
+    "reset_token": null,
+    "reset_token_expires": null
+  },
+  {
+    "id": "c54973eb-4e36-4c3c-ab48-263a96d61aa6",
+    "name": "baba",
+    "email": "baba@gmail.com",
+    "password_hash": "pbkdf2:sha256:600000$kmeNf6NadWWydzoR$47d13ed77ac357dbdb8ebe53df6d37a711bce3eedaa0318b3fedcc9df3692567",
+    "preferences": [
+      "food"
+    ],
+    "is_admin": false,
+    "reset_token": null,
+    "reset_token_expires": null
   }
 ]

@@ -24,5 +24,58 @@
     "notes": "",
     "created_at": "2026-07-24T09:03:17.652864+00:00",
     "shared_with": []
+  },
+  {
+    "id": "bd169abc-1457-4dfb-99de-db15fd1a667d",
+    "email": "baba@gmail.com",
+    "title": "hair",
+    "destinations": [
+      "Carrefour San Francisco",
+      "Paulina Hotel"
+    ],
+    "start_date": "10/10/2026",
+    "end_date": "10/10/2026",
+    "notes": "",
+    "shared_with": [],
+    "created_at": "2026-08-31T10:32:11.073586+00:00"
+  },
+  {
+    "id": "0d6653f9-32e8-458c-870d-e171f17ccbd6",
+    "email": "baba@gmail.com",
+    "title": "hair",
+    "destinations": [
+      "Paulina Hotel"
+    ],
+    "start_date": "2026/07/09",
+    "end_date": "2026/07/26",
+    "notes": "",
+    "shared_with": [],
+    "created_at": "2026-08-31T10:33:07.732118+00:00"
+  },
+  {
+    "id": "6155de5a-8eb2-4274-b3bc-2a411ac76fa3",
+    "email": "baba@gmail.com",
+    "title": "sortie",
+    "destinations": [
+      "Honor Bilingual Complex"
+    ],
+    "start_date": "2026-10-09",
+    "end_date": "2026-09-20",
+    "notes": "",
+    "shared_with": [],
+    "created_at": "2026-08-31T22:52:55.212813+00:00"
+  },
+  {
+    "id": "3150e2cd-71d4-44d3-9545-9cd328711297",
+    "email": "baba@gmail.com",
+    "title": "hi",
+    "destinations": [
+      "Paulina Hotel"
+    ],
+    "start_date": "2026-09-18",
+    "end_date": "2026-09-26",
+    "notes": "",
+    "shared_with": [],
+    "created_at": "2026-08-31T23:04:49.606698+00:00"
   }
 ]

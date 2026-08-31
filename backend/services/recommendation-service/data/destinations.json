@@ -1,141 +1,186 @@
 [
   {
-    "id": "marche-premiere-maison",
-    "name": "March\u00e9 Premiere Maison",
+    "id": "premiere-maison-paulina-hotel",
+    "name": "Paulina Hotel",
     "Town": "Yaound\u00e9",
     "quarter": "Premiere Maison",
-    "sector": "Bustling local market for fresh produce, groceries and daily goods.",
+    "sector": "A comfortable boutique hotel in the heart of Premiere Maison, with warm service and easy access to the quarter's shops and market.",
     "tags": [
-      "food",
-      "culture"
+      "city"
     ],
-    "avg_cost_per_day": 2000
+    "avg_cost_per_day": null,
+    "latitude": 3.925155251118392,
+    "longitude": 11.540705936308242
   },
   {
-    "id": "place-independance",
-    "name": "Place de l'Ind\u00e9pendance",
+    "id": "premiere-maison-institut-nourha-couture",
+    "name": "Institut Nourha Couture",
     "Town": "Yaound\u00e9",
     "quarter": "Premiere Maison",
-    "sector": "Public square popular for gatherings, relaxation and evening strolls.",
-    "tags": [
-      "culture",
-      "nature"
-    ],
-    "avg_cost_per_day": 0
-  },
-  {
-    "id": "chefferie-nkolmbong",
-    "name": "Chefferie de Nkolmbong",
-    "Town": "Yaound\u00e9",
-    "quarter": "Derriere Chefferie",
-    "sector": "Traditional palace and seat of the local chieftaincy.",
+    "sector": "A couture and tailoring institute making custom outfits and teaching dressmaking to local apprentices.",
     "tags": [
       "culture"
     ],
-    "avg_cost_per_day": 0
+    "avg_cost_per_day": 5000,
+    "latitude": 3.9278154301516337,
+    "longitude": 11.542028563184864
   },
   {
-    "id": "terrain-derriere-chefferie",
-    "name": "Terrain Derriere Chefferie",
+    "id": "premiere-maison-bsa-event",
+    "name": "BSA Event",
     "Town": "Yaound\u00e9",
-    "quarter": "Derriere Chefferie",
-    "sector": "Neighbourhood football field and popular hangout spot.",
+    "quarter": "Premiere Maison",
+    "sector": "An event planning and rental service for weddings, ceremonies and celebrations in the quarter.",
     "tags": [
-      "adventure",
-      "city"
+      "romance"
     ],
-    "avg_cost_per_day": 0
+    "avg_cost_per_day": 10000,
+    "latitude": 3.9278154301516337,
+    "longitude": 11.542028563184864
   },
   {
-    "id": "carrefour-san-francisco",
-    "name": "Carrefour San Francisco",
+    "id": "premiere-maison-honor-bilingual-complex",
+    "name": "Honor Bilingual Complex",
     "Town": "Yaound\u00e9",
-    "quarter": "San Francisco",
-    "sector": "Lively junction known for nightlife and street food.",
+    "quarter": "Premiere Maison",
+    "sector": "A well-regarded bilingual (French/English) school complex serving families in Premiere Maison.",
     "tags": [
-      "city",
+      "culture"
+    ],
+    "avg_cost_per_day": 0,
+    "latitude": 3.9276979237862304,
+    "longitude": 11.542259293979871
+  },
+  {
+    "id": "premiere-maison-regional-glacier",
+    "name": "Regional Glacier",
+    "Town": "Yaound\u00e9",
+    "quarter": "Premiere Maison",
+    "sector": "A cheerful ice cream and dessert spot, popular with families and a favorite stop on a hot afternoon.",
+    "tags": [
       "food"
-    ],
-    "avg_cost_per_day": 5000
-  },
-  {
-    "id": "bar-terrasse-san-francisco",
-    "name": "Bar Terrasse San Francisco",
-    "Town": "Yaound\u00e9",
-    "quarter": "San Francisco",
-    "sector": "Rooftop bar with live music and a view over the quarter.",
-    "tags": [
-      "city",
-      "food"
-    ],
-    "avg_cost_per_day": 6000
-  },
-  {
-    "id": "dubai-city-shopping-center",
-    "name": "Dubai City Shopping Center",
-    "Town": "Yaound\u00e9",
-    "quarter": "Dubai City",
-    "sector": "Shopping center with boutiques and local designers.",
-    "tags": [
-      "city"
-    ],
-    "avg_cost_per_day": 8000
-  },
-  {
-    "id": "espace-vert-dubai-city",
-    "name": "Espace Vert Dubai City",
-    "Town": "Yaound\u00e9",
-    "quarter": "Dubai City",
-    "sector": "Green park space for walks and picnics.",
-    "tags": [
-      "nature"
-    ],
-    "avg_cost_per_day": 0
-  },
-  {
-    "id": "gare-routiere-terminus",
-    "name": "Gare Routi\u00e8re Terminus",
-    "Town": "Yaound\u00e9",
-    "quarter": "Terminus",
-    "sector": "Transit hub connecting Nkolmbong to the rest of Yaound\u00e9.",
-    "tags": [
-      "city"
     ],
     "avg_cost_per_day": 1000
   },
   {
-    "id": "marche-terminus",
-    "name": "March\u00e9 Terminus",
+    "id": "san-francisco-carrefour",
+    "name": "Carrefour San Francisco",
+    "Town": "Yaound\u00e9",
+    "quarter": "San Francisco",
+    "sector": "The lively crossroads at the heart of San Francisco \u2014 street food stalls, drink spots and the buzz of the quarter after dark.",
+    "tags": [
+      "city",
+      "food"
+    ],
+    "avg_cost_per_day": 500,
+    "latitude": 3.940072754119338,
+    "longitude": 11.54754061973501
+  },
+  {
+    "id": "san-francisco-smef-cafe-boulangerie",
+    "name": "Smef Caf\u00e9 Boulangerie",
+    "Town": "Yaound\u00e9",
+    "quarter": "San Francisco",
+    "sector": "Fresh bread, pastries and coffee \u2014 a favorite morning stop for locals grabbing breakfast on the way out.",
+    "tags": [
+      "food"
+    ],
+    "avg_cost_per_day": 100,
+    "latitude": 3.93856824836245,
+    "longitude": 11.547545410639112
+  },
+  {
+    "id": "san-francisco-bill-pressing",
+    "name": "Bill Pressing",
+    "Town": "Yaound\u00e9",
+    "quarter": "San Francisco",
+    "sector": "A reliable neighborhood pressing shop for laundry and dry cleaning, priced per item.",
+    "tags": [],
+    "avg_cost_per_day": 1000
+  },
+  {
+    "id": "san-francisco-black-and-brown-hair-salon",
+    "name": "Black and Brown Hair Salon",
+    "Town": "Yaound\u00e9",
+    "quarter": "San Francisco",
+    "sector": "A popular salon for braids, cuts and styling, known for friendly service and steady queues on weekends.",
+    "tags": [
+      "romance"
+    ],
+    "avg_cost_per_day": 500,
+    "latitude": 3.9383706629991306,
+    "longitude": 11.547525932748865
+  },
+  {
+    "id": "san-francisco-beauty-with-grace",
+    "name": "Institut de Beaut\u00e9 Beauty with Grace",
+    "Town": "Yaound\u00e9",
+    "quarter": "San Francisco",
+    "sector": "A beauty institute offering skincare, manicures and grooming treatments in a relaxed setting.",
+    "tags": [
+      "romance"
+    ],
+    "avg_cost_per_day": 1000
+  },
+  {
+    "id": "san-francisco-princesse-hadidja-fashion",
+    "name": "Princesse Hadidja Fashion",
+    "Town": "Yaound\u00e9",
+    "quarter": "San Francisco",
+    "sector": "A fashion boutique with ready-to-wear and made-to-order outfits for every occasion.",
+    "tags": [
+      "romance"
+    ],
+    "avg_cost_per_day": 3000
+  },
+  {
+    "id": "terminus-carrefour",
+    "name": "Carrefour Terminus Nkolmbong",
     "Town": "Yaound\u00e9",
     "quarter": "Terminus",
-    "sector": "Food and produce market next to the bus station.",
+    "sector": "The busy crossroads at Terminus, lined with vendors and a steady flow of cars and bike men.",
     "tags": [
-      "food",
-      "culture"
+      "city"
     ],
-    "avg_cost_per_day": 2000
+    "avg_cost_per_day": 500,
+    "latitude": 3.931626962693766,
+    "longitude": 11.544116285158902
   },
   {
-    "id": "mosquee-chefferie-haussa",
-    "name": "Mosqu\u00e9e Chefferie Haussa",
+    "id": "terminus-brigittes-johari",
+    "name": "Brigitte's Johari",
     "Town": "Yaound\u00e9",
-    "quarter": "Chefferie Haussa",
-    "sector": "Historic mosque and important religious landmark.",
+    "quarter": "Terminus",
+    "sector": "restaurant bar where you can chop life with family and friends",
     "tags": [
-      "culture"
+      "romance"
     ],
-    "avg_cost_per_day": 0
+    "avg_cost_per_day": 3500,
+    "latitude": 3.932419853291469,
+    "longitude": 11.544137738158991
   },
   {
-    "id": "marche-haussa",
-    "name": "March\u00e9 Haussa",
+    "id": "terminus-mosquee-terminus",
+    "name": "Mosqu\u00e9e Terminus",
     "Town": "Yaound\u00e9",
-    "quarter": "Chefferie Haussa",
-    "sector": "Vibrant market for textiles, spices and crafts.",
+    "quarter": "Terminus",
+    "sector": "The neighborhood mosque serving the Terminus community, open for daily prayers \u2014 visitors are welcome to admire the architecture respectfully.",
     "tags": [
-      "food",
       "culture"
     ],
-    "avg_cost_per_day": 2000
+    "avg_cost_per_day": 0,
+    "latitude": 3.9336767356705327,
+    "longitude": 11.544951714539879
+  },
+  {
+    "id": "terminus-auto-ecole-leclerc",
+    "name": "Auto \u00c9cole Leclerc",
+    "Town": "Yaound\u00e9",
+    "quarter": "Terminus",
+    "sector": "A driving school offering lessons and licensing preparation for new drivers.",
+    "tags": [],
+    "avg_cost_per_day": 15000,
+    "latitude": 3.929537716297133,
+    "longitude": 11.542289385662668
   }
 ]
