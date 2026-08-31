@@ -76,6 +76,7 @@ class PlaceTile extends StatelessWidget {
                   icon: resolvedIcon,
                   color: resolvedAccent,
                   borderRadius: BorderRadius.circular(12),
+                  placeName: place.name,
                 ),
               ),
               const SizedBox(width: 14),

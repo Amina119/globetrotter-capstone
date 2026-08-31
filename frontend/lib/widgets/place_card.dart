@@ -34,6 +34,7 @@ class PlaceCard extends StatelessWidget {
                   imageAsset: place.imageAsset,
                   icon: icon,
                   color: accent,
+                  placeName: place.name,
                 ),
               ),
               Padding(

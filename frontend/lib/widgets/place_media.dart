@@ -4,6 +4,7 @@ import 'package:media_kit_video/media_kit_video.dart' as mkv;
 import 'package:video_player/video_player.dart';
 
 import '../utils/video_platform.dart';
+import 'full_screen_video_player.dart';
 
 /// Shows a place's video (preferred) or still photo when set and the asset
 /// has been dropped into the project; otherwise shows a colorful icon
@@ -15,6 +16,10 @@ class PlaceMedia extends StatelessWidget {
   final Color color;
   final BorderRadius? borderRadius;
 
+  /// Shown as the title of the full-screen, sound-on video player opened
+  /// from the "watch video" button. Only needed when [videoAsset] is set.
+  final String? placeName;
+
   const PlaceMedia({
     super.key,
     this.videoAsset,
@@ -22,15 +27,26 @@ class PlaceMedia extends StatelessWidget {
     required this.icon,
     required this.color,
     this.borderRadius,
+    this.placeName,
   });
 
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.zero,
-      child: videoAsset != null
-          ? _PlaceVideo(assetPath: videoAsset!, fallback: _imageOrPlaceholder())
-          : _imageOrPlaceholder(),
+      child: videoAsset == null
+          ? _imageOrPlaceholder()
+          : Stack(
+              fit: StackFit.expand,
+              children: [
+                _PlaceVideo(assetPath: videoAsset!, fallback: _imageOrPlaceholder()),
+                Positioned(
+                  right: 6,
+                  bottom: 6,
+                  child: _WatchVideoButton(assetPath: videoAsset!, title: placeName ?? ''),
+                ),
+              ],
+            ),
     );
   }
 
@@ -130,6 +146,33 @@ class _PlaceVideoState extends State<_PlaceVideo> {
         width: controller.value.size.width,
         height: controller.value.size.height,
         child: VideoPlayer(controller),
+      ),
+    );
+  }
+}
+
+/// Small overlay button on a place's (muted, looping) video thumbnail that
+/// opens the same video full-screen, with sound, via [FullScreenVideoPlayer].
+class _WatchVideoButton extends StatelessWidget {
+  final String assetPath;
+  final String title;
+
+  const _WatchVideoButton({required this.assetPath, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.black.withValues(alpha: 0.45),
+      shape: const CircleBorder(),
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => FullScreenVideoPlayer(assetPath: assetPath, title: title)),
+        ),
+        child: const Padding(
+          padding: EdgeInsets.all(6),
+          child: Icon(Icons.volume_up_rounded, color: Colors.white, size: 18),
+        ),
       ),
     );
   }
