@@ -33,7 +33,7 @@ USER_SERVICE_URL = os.environ.get("USER_SERVICE_URL", "http://user-service:5001"
 ITINERARY_SERVICE_URL = os.environ.get("ITINERARY_SERVICE_URL", "http://itinerary-service:5002")
 RECOMMENDATION_SERVICE_URL = os.environ.get("RECOMMENDATION_SERVICE_URL", "http://recommendation-service:5003")
 
-_TIMEOUT = 10  # seconds
+_TIMEOUT = 25  # seconds — generous headroom for password hashing under CPU load
 _logger = logging.getLogger(__name__)
 
 # Ordered so more specific prefixes (e.g. /itineraries/shared) still match
@@ -119,4 +119,4 @@ app = create_app()
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     debug = os.environ.get("FLASK_DEBUG", "0") == "1"
-    app.run(host="0.0.0.0", port=port, debug=debug)
+    app.run(host="0.0.0.0", port=port, debug=debug, threaded=True)

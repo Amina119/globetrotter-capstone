@@ -17,7 +17,7 @@ import requests
 USER_SERVICE_URL = os.environ.get("USER_SERVICE_URL", "http://user-service:5001")
 ITINERARY_SERVICE_URL = os.environ.get("ITINERARY_SERVICE_URL", "http://itinerary-service:5002")
 
-_TIMEOUT = 5  # seconds
+_TIMEOUT = 15  # seconds — generous headroom for host CPU contention
 _logger = logging.getLogger(__name__)
 
 

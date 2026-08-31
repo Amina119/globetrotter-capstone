@@ -24,4 +24,4 @@ if __name__ == "__main__":
     # Enable debug mode only when explicitly requested (e.g. FLASK_DEBUG=1).
     # Never enable debug in production – it exposes an interactive debugger.
     debug = os.environ.get("FLASK_DEBUG", "0") == "1"
-    app.run(host="0.0.0.0", port=port, debug=debug)
+    app.run(host="0.0.0.0", port=port, debug=debug, threaded=True)
