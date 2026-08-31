@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../data/sample_places.dart';
 import '../l10n/generated/app_localizations.dart';
+import '../models/destination.dart';
 import '../models/itinerary.dart';
 import '../services/api_service.dart';
 import '../services/session.dart';
 import '../theme/cameroon_colors.dart';
+import 'place_map_screen.dart';
 
 class ItinerariesScreen extends StatefulWidget {
   const ItinerariesScreen({super.key});
@@ -20,6 +23,7 @@ class _ItinerariesScreenState extends State<ItinerariesScreen> with SingleTicker
 
   List<Itinerary> _mine = [];
   List<Itinerary> _shared = [];
+  List<Destination> _destinations = [];
   bool _loading = true;
   String? _error;
 
@@ -45,9 +49,11 @@ class _ItinerariesScreenState extends State<ItinerariesScreen> with SingleTicker
     try {
       final mine = await _api().getItineraries();
       final shared = await _api().getSharedItineraries();
+      final destinations = await _api().searchDestinations();
       setState(() {
         _mine = mine.map((e) => Itinerary.fromJson(e)).toList();
         _shared = shared.map((e) => Itinerary.fromJson(e)).toList();
+        _destinations = destinations.map((e) => Destination.fromJson(e as Map<String, dynamic>)).toList();
       });
     } on ApiException catch (e) {
       setState(() => _error = e.message);
@@ -56,6 +62,58 @@ class _ItinerariesScreenState extends State<ItinerariesScreen> with SingleTicker
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  /// Opens the map + walking/bike/car itinerary view for a destination
+  /// named inside one of the user's itineraries. Itineraries only store
+  /// destination names (not ids or coordinates), so this matches against
+  /// the admin-managed destinations catalogue by name — the same catalogue
+  /// the "Show on map" button on a place's detail page uses.
+  void _openPlaceOnMap(String placeName) {
+    final l10n = AppLocalizations.of(context)!;
+    final match = _destinations.where((d) => d.name.trim().toLowerCase() == placeName.trim().toLowerCase()).firstOrNull;
+
+    if (match == null || !match.hasPosition) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.noLocationSetForPlace)));
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PlaceMapScreen(
+          placeName: match.name,
+          latitude: match.latitude!,
+          longitude: match.longitude!,
+        ),
+      ),
+    );
+  }
+
+  /// Opens a date picker and writes the chosen date (formatted yyyy-MM-dd)
+  /// into [controller]. The picker allows past dates to be highlighted
+  /// (rather than simply greying them out) so a user who taps one gets the
+  /// explicit "date has passed" message instead of a silently disabled day.
+  Future<void> _pickDate(TextEditingController controller) async {
+    final l10n = AppLocalizations.of(context)!;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    final initial = DateTime.tryParse(controller.text) ?? today;
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial.isBefore(DateTime(2000)) ? today : initial,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(today.year + 5),
+      helpText: l10n.selectDate,
+    );
+    if (picked == null || !mounted) return;
+
+    if (picked.isBefore(today)) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.dateAlreadyPassed)));
+      return;
+    }
+
+    controller.text = DateFormat('yyyy-MM-dd').format(picked);
   }
 
   Future<void> _openItineraryDialog({Itinerary? existing}) async {
@@ -123,13 +181,17 @@ class _ItinerariesScreenState extends State<ItinerariesScreen> with SingleTicker
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: startController,
-                    decoration: InputDecoration(labelText: l10n.startDateField),
+                    readOnly: true,
+                    decoration: InputDecoration(labelText: l10n.startDateField, suffixIcon: const Icon(Icons.calendar_today)),
                     validator: (v) => (v == null || v.trim().isEmpty) ? l10n.required : null,
+                    onTap: () => _pickDate(startController),
                   ),
                   TextFormField(
                     controller: endController,
-                    decoration: InputDecoration(labelText: l10n.endDateField),
+                    readOnly: true,
+                    decoration: InputDecoration(labelText: l10n.endDateField, suffixIcon: const Icon(Icons.calendar_today)),
                     validator: (v) => (v == null || v.trim().isEmpty) ? l10n.required : null,
+                    onTap: () => _pickDate(endController),
                   ),
                   TextFormField(
                     controller: notesController,
@@ -181,6 +243,23 @@ class _ItinerariesScreenState extends State<ItinerariesScreen> with SingleTicker
         );
       }
       await _load();
+
+      // Right after creating a new itinerary, immediately show the best
+      // route to one of its places (whichever selected place has a pinned
+      // map position — itineraries can list several, so this picks the
+      // first one that's actually mappable).
+      if (existing == null && mounted) {
+        final match = _destinations
+            .where((d) => d.hasPosition && destinations.any((name) => name.trim().toLowerCase() == d.name.trim().toLowerCase()))
+            .firstOrNull;
+        if (match != null) {
+          await Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => PlaceMapScreen(placeName: match.name, latitude: match.latitude!, longitude: match.longitude!),
+            ),
+          );
+        }
+      }
     } on ApiException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
@@ -306,8 +385,9 @@ class _ItinerariesScreenState extends State<ItinerariesScreen> with SingleTicker
                             onDelete: _confirmDelete,
                             onShare: _openShareDialog,
                             onUnshare: _unshare,
+                            onPlaceTap: _openPlaceOnMap,
                           ),
-                          _SharedList(items: _shared, onRefresh: _load),
+                          _SharedList(items: _shared, onRefresh: _load, onPlaceTap: _openPlaceOnMap),
                         ],
                       ),
           ),
@@ -328,6 +408,7 @@ class _MineList extends StatelessWidget {
   final void Function(Itinerary) onDelete;
   final void Function(Itinerary) onShare;
   final void Function(Itinerary, String) onUnshare;
+  final void Function(String) onPlaceTap;
 
   const _MineList({
     required this.items,
@@ -336,6 +417,7 @@ class _MineList extends StatelessWidget {
     required this.onDelete,
     required this.onShare,
     required this.onUnshare,
+    required this.onPlaceTap,
   });
 
   @override
@@ -357,8 +439,21 @@ class _MineList extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(it.title, style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: it.destinations
+                        .map((name) => ActionChip(
+                              avatar: const Icon(Icons.map_outlined, size: 16),
+                              label: Text(name, style: const TextStyle(fontSize: 12.5)),
+                              visualDensity: VisualDensity.compact,
+                              onPressed: () => onPlaceTap(name),
+                            ))
+                        .toList(),
+                  ),
                   const SizedBox(height: 4),
-                  Text('${it.destinations.join(", ")}\n${it.startDate} → ${it.endDate}'),
+                  Text('${it.startDate} → ${it.endDate}', style: Theme.of(context).textTheme.bodySmall),
                   if (it.notes.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(it.notes, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
@@ -398,8 +493,9 @@ class _MineList extends StatelessWidget {
 class _SharedList extends StatelessWidget {
   final List<Itinerary> items;
   final Future<void> Function() onRefresh;
+  final void Function(String) onPlaceTap;
 
-  const _SharedList({required this.items, required this.onRefresh});
+  const _SharedList({required this.items, required this.onRefresh, required this.onPlaceTap});
 
   @override
   Widget build(BuildContext context) {
@@ -413,15 +509,46 @@ class _SharedList extends StatelessWidget {
           final it = items[i];
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: ListTile(
-              leading: const Icon(Icons.card_travel),
-              title: Text(it.title),
-              subtitle: Text('${it.destinations.join(", ")}\n${it.startDate} → ${it.endDate}\n${l10n.itinSharedBy(it.email)}'),
-              isThreeLine: true,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.card_travel),
+                      const SizedBox(width: 10),
+                      Expanded(child: Text(it.title, style: Theme.of(context).textTheme.titleMedium)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: it.destinations
+                        .map((name) => ActionChip(
+                              avatar: const Icon(Icons.map_outlined, size: 16),
+                              label: Text(name, style: const TextStyle(fontSize: 12.5)),
+                              visualDensity: VisualDensity.compact,
+                              onPressed: () => onPlaceTap(name),
+                            ))
+                        .toList(),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${it.startDate} → ${it.endDate}\n${l10n.itinSharedBy(it.email)}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
             ),
           );
         },
       ),
     );
   }
+}
+
+extension _FirstOrNull<T> on Iterable<T> {
+  T? get firstOrNull => isEmpty ? null : first;
 }

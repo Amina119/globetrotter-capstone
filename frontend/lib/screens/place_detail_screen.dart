@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/generated/app_localizations.dart';
+import '../models/destination.dart';
 import '../models/local_place.dart';
 import '../services/api_service.dart';
 import '../services/session.dart';
 import '../theme/cameroon_colors.dart';
 import '../widgets/place_media.dart';
+import 'place_map_screen.dart';
 
 /// Full-screen detail view for a single place: photo, description, the
 /// minimum amount needed to spend time there, and everyone's ratings/
@@ -28,13 +30,51 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
   List<Map<String, dynamic>> _entries = [];
   bool _loadingReviews = true;
 
+  /// Places (the curated list with photos/videos) don't carry coordinates
+  /// themselves — those live in the backend's admin-managed destination
+  /// catalogue, keyed by the same id. Null until checked, or if the place
+  /// isn't in the catalogue at all.
+  Destination? _matchedDestination;
+
   @override
   void initState() {
     super.initState();
     _loadReviews();
+    _loadPlacePosition();
   }
 
   ApiService _api() => ApiService(token: context.read<Session>().token);
+
+  bool get _hasMapPosition => _matchedDestination?.hasPosition ?? false;
+
+  Future<void> _loadPlacePosition() async {
+    try {
+      final data = await _api().searchDestinations();
+      final match = data
+          .map((e) => Destination.fromJson(e as Map<String, dynamic>))
+          .where((d) => d.id == widget.place.id)
+          .firstOrNull;
+      if (mounted) setState(() => _matchedDestination = match);
+    } catch (_) {
+      // The "show on map" button just won't appear — not worth surfacing
+      // an error for a bonus feature on top of the place's own details.
+    }
+  }
+
+  void _showOnMap() {
+    final match = _matchedDestination;
+    if (match == null || !match.hasPosition) return;
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PlaceMapScreen(
+          placeName: widget.place.name,
+          latitude: match.latitude!,
+          longitude: match.longitude!,
+        ),
+      ),
+    );
+  }
 
   Future<void> _loadReviews() async {
     setState(() => _loadingReviews = true);
@@ -146,7 +186,7 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  PlaceMedia(videoAsset: place.videoAsset, imageAsset: place.imageAsset, icon: icon, color: accent),
+                  PlaceMedia(videoAsset: place.videoAsset, imageAsset: place.imageAsset, icon: icon, color: accent, placeName: place.name),
                   const DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -179,6 +219,17 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                       ),
                     ],
                   ),
+                  if (_hasMapPosition) ...[
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: _showOnMap,
+                        icon: const Icon(Icons.map_outlined),
+                        label: Text(l10n.showOnMap),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 24),
                   Text(
                     l10n.aboutThisPlace,
