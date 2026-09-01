@@ -1063,6 +1063,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Select a date'**
   String get selectDate;
+
+  /// No description provided for @commentsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get commentsLabel;
+
+  /// No description provided for @noCommentsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet — be the first to say something.'**
+  String get noCommentsYet;
+
+  /// No description provided for @writeACommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a comment…'**
+  String get writeACommentHint;
+
+  /// No description provided for @writeAReplyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a reply…'**
+  String get writeAReplyHint;
+
+  /// No description provided for @postComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get postComment;
+
+  /// No description provided for @replyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get replyAction;
+
+  /// No description provided for @deleteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteAction;
+
+  /// No description provided for @commentDeletedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment deleted'**
+  String get commentDeletedMessage;
+
+  /// No description provided for @deletedCommentPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'[deleted]'**
+  String get deletedCommentPlaceholder;
 }
 
 class _AppLocalizationsDelegate

@@ -179,5 +179,14 @@
   "travelFree": "Gratuit",
   "bestRoute": "Meilleur itinéraire",
   "dateAlreadyPassed": "Désolé, cette date est déjà passée.",
-  "selectDate": "Choisir une date"
+  "selectDate": "Choisir une date",
+  "commentsLabel": "Commentaires",
+  "noCommentsYet": "Aucun commentaire pour l'instant — soyez le premier à réagir.",
+  "writeACommentHint": "Écrire un commentaire…",
+  "writeAReplyHint": "Écrire une réponse…",
+  "postComment": "Publier",
+  "replyAction": "Répondre",
+  "deleteAction": "Supprimer",
+  "commentDeletedMessage": "Commentaire supprimé",
+  "deletedCommentPlaceholder": "[supprimé]"
 }

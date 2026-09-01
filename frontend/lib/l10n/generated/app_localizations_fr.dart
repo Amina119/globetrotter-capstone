@@ -550,4 +550,32 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get selectDate => 'Choisir une date';
+
+  @override
+  String get commentsLabel => 'Commentaires';
+
+  @override
+  String get noCommentsYet =>
+      'Aucun commentaire pour l\'instant — soyez le premier à réagir.';
+
+  @override
+  String get writeACommentHint => 'Écrire un commentaire…';
+
+  @override
+  String get writeAReplyHint => 'Écrire une réponse…';
+
+  @override
+  String get postComment => 'Publier';
+
+  @override
+  String get replyAction => 'Répondre';
+
+  @override
+  String get deleteAction => 'Supprimer';
+
+  @override
+  String get commentDeletedMessage => 'Commentaire supprimé';
+
+  @override
+  String get deletedCommentPlaceholder => '[supprimé]';
 }

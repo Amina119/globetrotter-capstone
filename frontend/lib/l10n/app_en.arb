@@ -192,5 +192,14 @@
   "travelFree": "Free",
   "bestRoute": "Best route",
   "dateAlreadyPassed": "Sorry, this date has passed.",
-  "selectDate": "Select a date"
+  "selectDate": "Select a date",
+  "commentsLabel": "Comments",
+  "noCommentsYet": "No comments yet — be the first to say something.",
+  "writeACommentHint": "Write a comment…",
+  "writeAReplyHint": "Write a reply…",
+  "postComment": "Post",
+  "replyAction": "Reply",
+  "deleteAction": "Delete",
+  "commentDeletedMessage": "Comment deleted",
+  "deletedCommentPlaceholder": "[deleted]"
 }

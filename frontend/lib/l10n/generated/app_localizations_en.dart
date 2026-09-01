@@ -539,4 +539,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get selectDate => 'Select a date';
+
+  @override
+  String get commentsLabel => 'Comments';
+
+  @override
+  String get noCommentsYet =>
+      'No comments yet — be the first to say something.';
+
+  @override
+  String get writeACommentHint => 'Write a comment…';
+
+  @override
+  String get writeAReplyHint => 'Write a reply…';
+
+  @override
+  String get postComment => 'Post';
+
+  @override
+  String get replyAction => 'Reply';
+
+  @override
+  String get deleteAction => 'Delete';
+
+  @override
+  String get commentDeletedMessage => 'Comment deleted';
+
+  @override
+  String get deletedCommentPlaceholder => '[deleted]';
 }
