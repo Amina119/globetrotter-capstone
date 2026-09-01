@@ -36,7 +36,9 @@
     "start_date": "10/10/2026",
     "end_date": "10/10/2026",
     "notes": "",
-    "shared_with": [],
+    "shared_with": [
+      "abba@gmail.com"
+    ],
     "created_at": "2026-08-31T10:32:11.073586+00:00"
   },
   {
@@ -44,7 +46,8 @@
     "email": "baba@gmail.com",
     "title": "hair",
     "destinations": [
-      "Paulina Hotel"
+      "Paulina Hotel",
+      "Auto \u00c9cole Leclerc"
     ],
     "start_date": "2026/07/09",
     "end_date": "2026/07/26",
@@ -77,5 +80,31 @@
     "notes": "",
     "shared_with": [],
     "created_at": "2026-08-31T23:04:49.606698+00:00"
+  },
+  {
+    "id": "69f8619e-0689-4f07-87d8-108901d561a7",
+    "email": "baba@gmail.com",
+    "title": ",,",
+    "destinations": [
+      "Institut de Beaut\u00e9 Beauty with Grace"
+    ],
+    "start_date": "2026-09-13",
+    "end_date": "2026-09-18",
+    "notes": "",
+    "shared_with": [],
+    "created_at": "2026-09-01T08:48:01.447485+00:00"
+  },
+  {
+    "id": "1177773a-5ab7-4a19-906b-0930bff208e6",
+    "email": "abba@gmail.com",
+    "title": "33",
+    "destinations": [
+      "Paulina Hotel"
+    ],
+    "start_date": "2026-09-02",
+    "end_date": "2026-09-18",
+    "notes": "",
+    "shared_with": [],
+    "created_at": "2026-09-01T09:46:27.308771+00:00"
   }
 ]

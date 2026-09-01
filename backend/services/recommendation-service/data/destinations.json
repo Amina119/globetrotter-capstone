@@ -60,7 +60,9 @@
     "tags": [
       "food"
     ],
-    "avg_cost_per_day": 1000
+    "avg_cost_per_day": 1000,
+    "latitude": 3.9268211746776758,
+    "longitude": 11.541709623124332
   },
   {
     "id": "san-francisco-carrefour",
@@ -96,7 +98,9 @@
     "quarter": "San Francisco",
     "sector": "A reliable neighborhood pressing shop for laundry and dry cleaning, priced per item.",
     "tags": [],
-    "avg_cost_per_day": 1000
+    "avg_cost_per_day": 1000,
+    "latitude": 3.9385058868942266,
+    "longitude": 11.547495225960615
   },
   {
     "id": "san-francisco-black-and-brown-hair-salon",
@@ -120,7 +124,9 @@
     "tags": [
       "romance"
     ],
-    "avg_cost_per_day": 1000
+    "avg_cost_per_day": 1000,
+    "latitude": 3.937375070640093,
+    "longitude": 11.547199511028431
   },
   {
     "id": "san-francisco-princesse-hadidja-fashion",
@@ -131,7 +137,9 @@
     "tags": [
       "romance"
     ],
-    "avg_cost_per_day": 3000
+    "avg_cost_per_day": 3000,
+    "latitude": 3.938065208777835,
+    "longitude": 11.547653166957849
   },
   {
     "id": "terminus-carrefour",
