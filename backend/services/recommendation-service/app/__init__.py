@@ -31,11 +31,14 @@ def create_app():
     from app.recommendations import recommendations_bp
     from app.user_recommendations import user_recommendations_bp
     from app.place_reviews import place_reviews_bp
+    from app.place_comments import place_comments_bp
+
 
     app.register_blueprint(destinations_bp)
     app.register_blueprint(recommendations_bp)
     app.register_blueprint(user_recommendations_bp)
     app.register_blueprint(place_reviews_bp)
+    app.register_blueprint(place_comments_bp)
 
     # Start the RabbitMQ consumer that keeps the destination-popularity
     # cache warm from itinerary.created / itinerary.deleted events. Skipped

@@ -16,9 +16,11 @@ import os
 _BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(_BASE_DIR, "data")
 
+
 DESTINATIONS_FILE = os.path.join(DATA_DIR, "destinations.json")
 USER_RECOMMENDATIONS_FILE = os.path.join(DATA_DIR, "user_recommendations.json")
 PLACE_REVIEWS_FILE = os.path.join(DATA_DIR, "place_reviews.json")
+PLACE_COMMENTS_FILE = os.path.join(DATA_DIR, "place_comments.json")
 
 
 # ---------------------------------------------------------------------------
@@ -144,3 +146,42 @@ def delete_place_review(place_id: str, email: str) -> bool:
         return False
     _write_json(PLACE_REVIEWS_FILE, remaining)
     return True
+
+# ---------------------------------------------------------------------------
+# Per-place comment helpers
+# ---------------------------------------------------------------------------
+def get_comments_for_place(place_id: str) -> list:
+    """Return every comment for *place_id*, oldest first."""
+    
+    entries = [e for e in _read_json(PLACE_COMMENTS_FILE) if e.get("place_id") == place_id]
+    return sorted(entries, key=lambda e: e.get("created_at", ""))
+
+def add_comment(entry: dict) -> None:
+    """Append *entry* to the comments store."""
+    entries = _read_json(PLACE_COMMENTS_FILE)
+    entries.append(entry)
+    _write_json(PLACE_COMMENTS_FILE, entries)
+
+
+def delete_comment(comment_id: str, email: str) -> bool:
+    """Replace *email*'s comment with a "[deleted]" placeholder.
+
+    Returns False if no comment with that id belongs to *email*.
+    """
+    entries = _read_json(PLACE_COMMENTS_FILE)
+    match = next((e for e in entries if e.get("id") == comment_id and e.get("email") == email), None)
+    if match is None:
+        return False
+    match["text"] = "[deleted]"
+    _write_json(PLACE_COMMENTS_FILE, entries)
+    return True
+
+
+
+
+
+
+
+
+
+
