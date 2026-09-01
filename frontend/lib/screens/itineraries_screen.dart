@@ -394,6 +394,7 @@ class _ItinerariesScreenState extends State<ItinerariesScreen> with SingleTicker
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'itineraries-add',
         onPressed: () => _openItineraryDialog(),
         child: const Icon(Icons.add),
       ),

@@ -145,6 +145,7 @@ class _AdminDestinationsScreenState extends State<AdminDestinationsScreen> {
                         ),
                 ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'admin-add-destination',
         onPressed: () => _openEditor(),
         child: const Icon(Icons.add),
       ),
@@ -361,7 +362,7 @@ class _DestinationEditorSheetState extends State<_DestinationEditorSheet> {
                     child: FlutterMap(
                       options: MapOptions(
                         initialCenter: _position ?? _defaultCenter,
-                        initialZoom: 14,
+                        initialZoom: 14,          
                         onTap: (_, point) => _setPositionFromMap(point),
                       ),
                       children: [
