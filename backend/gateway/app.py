@@ -46,6 +46,7 @@ _ROUTES = [
     ("/forgot-password", USER_SERVICE_URL),
     ("/reset-password", USER_SERVICE_URL),
     ("/feedback", USER_SERVICE_URL),
+    ("/chat", USER_SERVICE_URL),
     ("/profile", USER_SERVICE_URL),
     ("/itineraries", ITINERARY_SERVICE_URL),
     ("/destinations", RECOMMENDATION_SERVICE_URL),

@@ -15,6 +15,8 @@ _BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(_BASE_DIR, "data")
 
 USERS_FILE = os.path.join(DATA_DIR, "users.json")
+CHAT_MESSAGES_FILE = os.path.join(DATA_DIR, "chat_messages.json")
+
 FEEDBACK_FILE = os.path.join(DATA_DIR, "feedback.json")
 
 
@@ -106,4 +108,34 @@ def delete_feedback(email: str) -> bool:
     if len(remaining) == len(entries):
         return False
     _write_json(FEEDBACK_FILE, remaining)
+    return True
+
+# ---------------------------------------------------------------------------
+# Chat helpers
+# ---------------------------------------------------------------------------
+
+def get_all_messages() -> list:
+    """Return every chat message, oldest first."""
+    entries = _read_json(CHAT_MESSAGES_FILE)
+    return sorted(entries, key=lambda e: e.get("created_at", ""))
+
+
+def add_message(entry: dict) -> None:
+    """Append *entry* to the chat messages store."""
+    entries = _read_json(CHAT_MESSAGES_FILE)
+    entries.append(entry)
+    _write_json(CHAT_MESSAGES_FILE, entries)
+
+
+def delete_message(message_id: str, email: str) -> bool:
+    """Replace *email*'s message with a "[deleted]" placeholder.
+
+    Returns False if no message with that id belongs to *email*.
+    """
+    entries = _read_json(CHAT_MESSAGES_FILE)
+    match = next((e for e in entries if e.get("id") == message_id and e.get("email") == email), None)
+    if match is None:
+        return False
+    match["text"] = "[deleted]"
+    _write_json(CHAT_MESSAGES_FILE, entries)
     return True

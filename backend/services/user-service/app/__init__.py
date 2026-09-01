@@ -30,7 +30,10 @@ def create_app():
 
     from app.auth import auth_bp
     from app.feedback import feedback_bp
+    from app.chat import chat_bp
     app.register_blueprint(auth_bp)
     app.register_blueprint(feedback_bp)
+    app.register_blueprint(chat_bp)
+
 
     return app
