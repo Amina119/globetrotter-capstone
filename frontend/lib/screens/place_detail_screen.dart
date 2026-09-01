@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../models/destination.dart';
 import '../models/local_place.dart';
+import '../models/place_comment.dart';
 import '../services/api_service.dart';
 import '../services/session.dart';
 import '../theme/cameroon_colors.dart';
@@ -36,14 +37,70 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
   /// isn't in the catalogue at all.
   Destination? _matchedDestination;
 
+  List<PlaceComment> _comments = [];
+  bool _loadingComments = true;
+  final _newCommentController = TextEditingController();
+  final _replyController = TextEditingController();
+  String? _replyingToId;
+
   @override
   void initState() {
     super.initState();
     _loadReviews();
     _loadPlacePosition();
+    _loadComments();
+  }
+
+  @override
+  void dispose() {
+    _newCommentController.dispose();
+    _replyController.dispose();
+    super.dispose();
   }
 
   ApiService _api() => ApiService(token: context.read<Session>().token);
+
+  List<PlaceComment> get _topLevelComments => _comments.where((c) => c.parentId == null).toList();
+
+  List<PlaceComment> _repliesTo(String commentId) => _comments.where((c) => c.parentId == commentId).toList();
+
+  Future<void> _loadComments() async {
+    setState(() => _loadingComments = true);
+    try {
+      final data = await _api().getPlaceComments(widget.place.id);
+      setState(() => _comments = data.map((e) => PlaceComment.fromJson(e as Map<String, dynamic>)).toList());
+    } catch (_) {
+      // Comments are a bonus on top of the place's own details — a failure
+      // here shouldn't block the rest of the page from showing.
+    } finally {
+      if (mounted) setState(() => _loadingComments = false);
+    }
+  }
+
+  Future<void> _postComment({String? parentId, required String text}) async {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return;
+    try {
+      await _api().postPlaceComment(widget.place.id, text: trimmed, parentId: parentId);
+      await _loadComments();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
+  Future<void> _deleteComment(String commentId) async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      await _api().deletePlaceComment(widget.place.id, commentId);
+      await _loadComments();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.commentDeletedMessage)));
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
 
   bool get _hasMapPosition => _matchedDestination?.hasPosition ?? false;
 
@@ -312,6 +369,61 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                     )
                   else
                     ..._entries.map((e) => _ReviewTile(entry: e, isMine: e['email'] == email)),
+                  const SizedBox(height: 32),
+                  Text(
+                    l10n.commentsLabel,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _newCommentController,
+                          minLines: 1,
+                          maxLines: 3,
+                          decoration: InputDecoration(hintText: l10n.writeACommentHint),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: const Icon(Icons.send_rounded),
+                        onPressed: () {
+                          _postComment(text: _newCommentController.text);
+                          _newCommentController.clear();
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  if (_loadingComments)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (_topLevelComments.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: Text(l10n.noCommentsYet),
+                    )
+                  else
+                    ..._topLevelComments.map(
+                      (c) => _CommentThread(
+                        comment: c,
+                        replies: _repliesTo(c.id),
+                        currentEmail: email,
+                        replyingToId: _replyingToId,
+                        replyController: _replyController,
+                        onReplyTap: (id) => setState(() => _replyingToId = _replyingToId == id ? null : id),
+                        onSubmitReply: (parentId, text) {
+                          _postComment(parentId: parentId, text: text);
+                          _replyController.clear();
+                          setState(() => _replyingToId = null);
+                        },
+                        onDelete: _deleteComment,
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -362,6 +474,132 @@ class _ReviewTile extends StatelessWidget {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// One top-level comment plus its direct replies (rendered indented, one
+/// level deep — a reply to a reply still attaches to the same top-level
+/// thread rather than nesting further, to keep the thread readable).
+class _CommentThread extends StatelessWidget {
+  final PlaceComment comment;
+  final List<PlaceComment> replies;
+  final String? currentEmail;
+  final String? replyingToId;
+  final TextEditingController replyController;
+  final void Function(String commentId) onReplyTap;
+  final void Function(String parentId, String text) onSubmitReply;
+  final void Function(String commentId) onDelete;
+
+  const _CommentThread({
+    required this.comment,
+    required this.replies,
+    required this.currentEmail,
+    required this.replyingToId,
+    required this.replyController,
+    required this.onReplyTap,
+    required this.onSubmitReply,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _CommentTile(
+            comment: comment,
+            isMine: comment.email == currentEmail,
+            onReply: () => onReplyTap(comment.id),
+            onDelete: () => onDelete(comment.id),
+          ),
+          for (final reply in replies)
+            Padding(
+              padding: const EdgeInsets.only(left: 32, top: 8),
+              child: _CommentTile(
+                comment: reply,
+                isMine: reply.email == currentEmail,
+                onReply: () => onReplyTap(comment.id),
+                onDelete: () => onDelete(reply.id),
+              ),
+            ),
+          if (replyingToId == comment.id)
+            Padding(
+              padding: const EdgeInsets.only(left: 32, top: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: replyController,
+                      autofocus: true,
+                      decoration: InputDecoration(hintText: l10n.writeAReplyHint),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.send_rounded, size: 20),
+                    onPressed: () => onSubmitReply(comment.id, replyController.text),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CommentTile extends StatelessWidget {
+  final PlaceComment comment;
+  final bool isMine;
+  final VoidCallback onReply;
+  final VoidCallback onDelete;
+
+  const _CommentTile({required this.comment, required this.isMine, required this.onReply, required this.onDelete});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final isDeleted = comment.text == '[deleted]';
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            isMine ? '${comment.name} (you)' : comment.name,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            isDeleted ? l10n.deletedCommentPlaceholder : comment.text,
+            style: TextStyle(
+              fontStyle: isDeleted ? FontStyle.italic : FontStyle.normal,
+              color: isDeleted ? Colors.black45 : null,
+            ),
+          ),
+          if (!isDeleted)
+            Row(
+              children: [
+                TextButton(onPressed: onReply, child: Text(l10n.replyAction, style: const TextStyle(fontSize: 12))),
+                if (isMine)
+                  TextButton(
+                    onPressed: onDelete,
+                    child: Text(l10n.deleteAction, style: const TextStyle(fontSize: 12, color: Colors.red)),
+                  ),
+              ],
+            ),
+        ],
       ),
     );
   }

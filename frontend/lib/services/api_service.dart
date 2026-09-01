@@ -124,6 +124,52 @@ class ApiService {
     _decode(res);
   }
 
+  Future<List<dynamic>> getPlaceComments(String placeId) async {
+    final res = await http.get(_uri('/places/$placeId/comments'), headers: _headers);
+    final data = _decode(res) as Map<String, dynamic>;
+
+
+    return data['entries'] as List<dynamic>;
+  }
+
+    Future<Map<String, dynamic>> postPlaceComment(String placeId, {required String text, String? parentId}) async {
+    final res = await http.post(
+      _uri('/places/$placeId/comments'),
+      headers: _headers,
+      body: jsonEncode({'text': text, 'parent_id': parentId}),
+    );
+    return _decode(res) as Map<String, dynamic>;
+  }
+
+  Future<void> deletePlaceComment(String placeId, String commentId) async {
+    final res = await http.delete(_uri('/places/$placeId/comments/$commentId'), headers: _headers);
+    _decode(res);
+  }
+
+  Future<List<dynamic>> getChatMessages() async {
+    final res = await http.get(_uri('/chat'), headers: _headers);
+    final data = _decode(res) as Map<String, dynamic>;
+    return data['entries'] as List<dynamic>;
+  }
+
+  Future<Map<String, dynamic>> postChatMessage({required String text, String? parentId}) async {
+    final res = await http.post(
+      _uri('/chat'),
+      headers: _headers,
+      body: jsonEncode({'text': text, 'parent_id': parentId}),
+    );
+    return _decode(res) as Map<String, dynamic>;
+  }
+
+  Future<void> deleteChatMessage(String messageId) async {
+    final res = await http.delete(_uri('/chat/$messageId'), headers: _headers);
+    _decode(res);
+  }
+
+
+
+
+
   /// Requests a password reset token for [email].
   ///
   /// Returns the reset token. The backend has no outgoing email
