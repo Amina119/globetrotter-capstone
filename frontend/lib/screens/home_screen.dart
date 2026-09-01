@@ -8,6 +8,7 @@ import '../theme/locale_controller.dart';
 import 'admin_destinations_screen.dart';
 import 'dashboard_screen.dart';
 import 'destinations_screen.dart';
+import 'chat_screen.dart';
 import 'feedback_screen.dart';
 import 'itineraries_screen.dart';
 import 'login_screen.dart';
@@ -55,6 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
       const FeedbackScreen(),
       const ItinerariesScreen(),
       const MapScreen(),
+      const ChatScreen(),
       if (session.isAdmin) const AdminDestinationsScreen(),
     ];
     final titles = [
@@ -63,6 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
       l10n.navFeedback,
       l10n.titleMyItineraries,
       l10n.navMap,
+      'Chat',
       if (session.isAdmin) l10n.titleManageDestinations,
     ];
     final navDestinations = [
@@ -71,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
       NavigationDestination(icon: const Icon(Icons.star_outline_rounded), selectedIcon: const Icon(Icons.star_rounded), label: l10n.navFeedback),
       NavigationDestination(icon: const Icon(Icons.card_travel), label: l10n.navItineraries),
       NavigationDestination(icon: const Icon(Icons.map), label: l10n.navMap),
+      NavigationDestination(icon: const Icon(Icons.chat_bubble_outline_rounded), label: 'Chat'),
       if (session.isAdmin) NavigationDestination(icon: const Icon(Icons.admin_panel_settings), label: l10n.navAdmin),
     ];
 
