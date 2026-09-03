@@ -175,14 +175,19 @@ class ApiService {
   /// Returns the reset token. The backend has no outgoing email
   /// integration, so the token is returned directly instead of being
   /// emailed to the user.
-  Future<String> forgotPassword(String email) async {
+  /// Requests a password reset token for [email].
+  ///
+  /// The backend never returns the token here — it's emailed to the user
+  /// (or logged server-side if email isn't configured) so this endpoint
+  /// can't be used to check whether an email is registered. The caller
+  /// must have the user enter the token manually on the next screen.
+  Future<void> forgotPassword(String email) async {
     final res = await http.post(
       _uri('/forgot-password'),
       headers: _headers,
       body: jsonEncode({'email': email}),
     );
-    final data = _decode(res);
-    return data['reset_token'] as String;
+    _decode(res);
   }
 
   /// Consumes a reset [token] and sets [newPassword] as the account's password.

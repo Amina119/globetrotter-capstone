@@ -29,14 +29,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     });
     try {
       final api = ApiService();
-      final resetToken = await api.forgotPassword(_emailController.text.trim());
+      await api.forgotPassword(_emailController.text.trim());
       if (!mounted) return;
       Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => ResetPasswordScreen(resetToken: resetToken)),
+        MaterialPageRoute(builder: (_) => const ResetPasswordScreen(resetToken: '')),
       );
     } on ApiException catch (e) {
       setState(() => _error = e.message);
     } catch (e) {
+      debugPrint('forgot-password request failed: $e');
       setState(() => _error = 'Could not reach the server. Is the API running?');
     } finally {
       if (mounted) setState(() => _loading = false);
