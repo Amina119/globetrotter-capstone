@@ -3,6 +3,7 @@ app/__init__.py
 
 Flask application factory for the User Service.
 """
+import logging
 import os
 from flask import Flask, jsonify
 from flask_cors import CORS
@@ -11,6 +12,11 @@ from flask_cors import CORS
 def create_app():
     """Create and configure the Flask application."""
     app = Flask(__name__)
+
+    # Flask's default logger sits at WARNING when debug=False, which would
+    # silently swallow the logger.info(...) fallback in forgot_password()
+    # that prints the reset token when no email provider is configured.
+    app.logger.setLevel(logging.INFO)
 
     # CORS is kept here too (not just at the gateway) so the service can
     # still be exercised directly during local development.

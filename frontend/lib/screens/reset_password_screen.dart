@@ -9,9 +9,10 @@ import 'login_screen.dart';
 /// Second step of the forgot-password flow: enter the reset token (received
 /// via [ForgotPasswordScreen]) together with a new password.
 class ResetPasswordScreen extends StatefulWidget {
+  final String email;
   final String resetToken;
 
-  const ResetPasswordScreen({super.key, required this.resetToken});
+  const ResetPasswordScreen({super.key, required this.email, required this.resetToken});
 
   @override
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
@@ -33,7 +34,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     });
     try {
       final api = ApiService();
-      await api.resetPassword(_tokenController.text.trim(), _passwordController.text);
+      await api.resetPassword(widget.email, _tokenController.text.trim(), _passwordController.text);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.passwordUpdatedSnack)),

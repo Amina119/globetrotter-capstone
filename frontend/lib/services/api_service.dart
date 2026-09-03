@@ -190,12 +190,12 @@ class ApiService {
     _decode(res);
   }
 
-  /// Consumes a reset [token] and sets [newPassword] as the account's password.
-  Future<void> resetPassword(String token, String newPassword) async {
+  /// Consumes a reset [token] for [email] and sets [newPassword] as the account's password.
+  Future<void> resetPassword(String email, String token, String newPassword) async {
     final res = await http.post(
       _uri('/reset-password'),
       headers: _headers,
-      body: jsonEncode({'token': token, 'new_password': newPassword}),
+      body: jsonEncode({'email': email, 'token': token, 'password': newPassword}),
     );
     _decode(res);
   }

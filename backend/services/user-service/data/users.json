@@ -129,6 +129,17 @@
       "food"
     ],
     "is_admin": false,
+    "reset_token": "c5092b05-022c-4e93-8f22-b32f59d81652",
+    "reset_token_expires": "2026-09-03T02:18:22.972237+00:00"
+  },
+  {
+    "id": "21fe2c4e-040b-4849-a410-ee68b719d00a",
+    "name": "bubakary amina",
+    "email": "boubakaryamina119@gmail.com",
+    "password_hash": "pbkdf2:sha256:600000$MIWqwtQM0yiV9H1M$b5826e7ffc16cd31ccdb6e7508cf2335a79f11b2d4e33236a81d229d9a160ffd",
+    "preferences": [],
+    "is_admin": false,
+    "auth_provider": "google",
     "reset_token": null,
     "reset_token_expires": null
   }
