@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 
 import '../l10n/generated/app_localizations.dart';
@@ -6,7 +9,9 @@ import '../services/api_service.dart';
 import '../services/session.dart';
 import '../theme/cameroon_colors.dart';
 import '../widgets/auth_scaffold.dart';
+import '../widgets/google_sign_in_button.dart';
 import '../widgets/gradient_button.dart';
+import 'login_screen.dart' show googleClientId;
 import 'welcome_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -27,6 +32,64 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool _loading = false;
   String? _error;
+
+  // See login_screen.dart's identical setup for why a single shared
+  // GoogleSignIn instance + onCurrentUserChanged listener is required
+  // (rather than awaiting signIn() directly) to get a real ID token on web.
+  late final GoogleSignIn _googleSignIn = GoogleSignIn(clientId: googleClientId);
+  StreamSubscription<GoogleSignInAccount?>? _googleSub;
+  bool _handlingGoogleAccount = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (googleClientId.isNotEmpty) {
+      _googleSub = _googleSignIn.onCurrentUserChanged.listen(_onGoogleAccount);
+    }
+  }
+
+  @override
+  void dispose() {
+    _googleSub?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _onGoogleAccount(GoogleSignInAccount? account) async {
+    if (account == null || _handlingGoogleAccount) return;
+    _handlingGoogleAccount = true;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final googleAuth = await account.authentication;
+      final idToken = googleAuth.idToken;
+      if (idToken == null) {
+        setState(() => _error = 'Google sign-in did not return a credential.');
+        return;
+      }
+
+      final api = ApiService();
+      // The backend's /auth/google route auto-registers a brand-new account
+      // on first sign-in, so this is the same call used for logging in —
+      // there's no separate "register with Google" endpoint needed.
+      final (token, name, isAdmin) = await api.loginWithGoogle(idToken);
+      if (!mounted) return;
+      await context.read<Session>().login(email: account.email, token: token, name: name, isAdmin: isAdmin);
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => WelcomeScreen(name: name)),
+        (route) => false,
+      );
+    } on ApiException catch (e) {
+      setState(() => _error = e.message);
+    } catch (e) {
+      setState(() => _error = 'Could not sign in with Google.');
+    } finally {
+      _handlingGoogleAccount = false;
+      if (mounted) setState(() => _loading = false);
+    }
+  }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -135,6 +198,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                   : Text(l10n.createAccount),
             ),
+            if (googleClientId.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  const Expanded(child: Divider()),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(l10n.or, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.black54)),
+                  ),
+                  const Expanded(child: Divider()),
+                ],
+              ),
+              const SizedBox(height: 16),
+              buildGoogleSignInButton(
+                onPressed: _loading ? null : () => _googleSignIn.signIn(),
+                label: l10n.continueWithGoogle,
+              ),
+            ],
             const SizedBox(height: 4),
             TextButton(
               onPressed: _loading ? null : () => Navigator.of(context).pop(),

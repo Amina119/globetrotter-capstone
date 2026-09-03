@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +9,7 @@ import '../services/api_service.dart';
 import '../services/session.dart';
 import '../theme/cameroon_colors.dart';
 import '../widgets/auth_scaffold.dart';
+import '../widgets/google_sign_in_button.dart';
 import '../widgets/gradient_button.dart';
 import 'forgot_password_screen.dart';
 import 'register_screen.dart';
@@ -32,6 +35,67 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _loading = false;
   String? _error;
 
+  // A single shared GoogleSignIn instance: on web, the rendered "Sign in
+  // with Google" button (see google_sign_in_button.dart) reports completion
+  // through *this* instance's onCurrentUserChanged stream, not through a
+  // return value — so the button and the listener must share one instance.
+  late final GoogleSignIn _googleSignIn = GoogleSignIn(clientId: googleClientId);
+  StreamSubscription<GoogleSignInAccount?>? _googleSub;
+  bool _handlingGoogleAccount = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (googleClientId.isNotEmpty) {
+      _googleSub = _googleSignIn.onCurrentUserChanged.listen(_onGoogleAccount);
+    }
+  }
+
+  @override
+  void dispose() {
+    _googleSub?.cancel();
+    super.dispose();
+  }
+
+  /// Fires once sign-in actually completes, on both platforms: on mobile
+  /// this follows GoogleSignIn().signIn() being called from the button; on
+  /// web it follows the user completing Google's own rendered button flow,
+  /// which is the only web path that returns a real ID token (see
+  /// google_sign_in_button/web.dart for why the imperative signIn() call
+  /// can't be used for this on web).
+  Future<void> _onGoogleAccount(GoogleSignInAccount? account) async {
+    if (account == null || _handlingGoogleAccount) return;
+    _handlingGoogleAccount = true;
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final googleAuth = await account.authentication;
+      final idToken = googleAuth.idToken;
+      if (idToken == null) {
+        setState(() => _error = 'Google sign-in did not return a credential.');
+        return;
+      }
+
+      final api = ApiService();
+      final (token, name, isAdmin) = await api.loginWithGoogle(idToken);
+      if (!mounted) return;
+      await context.read<Session>().login(email: account.email, token: token, name: name, isAdmin: isAdmin);
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => WelcomeScreen(name: name)),
+      );
+    } on ApiException catch (e) {
+      setState(() => _error = e.message);
+    } catch (e) {
+      setState(() => _error = 'Could not sign in with Google.');
+    } finally {
+      _handlingGoogleAccount = false;
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() {
@@ -52,43 +116,6 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _error = e.message);
     } catch (e) {
       setState(() => _error = 'Could not reach the server. Is the API running?');
-    } finally {
-      if (mounted) setState(() => _loading = false);
-    }
-  }
-
-  Future<void> _loginWithGoogle() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final googleSignIn = GoogleSignIn(clientId: googleClientId);
-      final account = await googleSignIn.signIn();
-      if (account == null) {
-        // User dismissed the Google account picker.
-        setState(() => _loading = false);
-        return;
-      }
-      final googleAuth = await account.authentication;
-      final idToken = googleAuth.idToken;
-      if (idToken == null) {
-        setState(() => _error = 'Google sign-in did not return a credential.');
-        return;
-      }
-
-      final api = ApiService();
-      final (token, name, isAdmin) = await api.loginWithGoogle(idToken);
-      if (!mounted) return;
-      await context.read<Session>().login(email: account.email, token: token, name: name, isAdmin: isAdmin);
-      if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => WelcomeScreen(name: name)),
-      );
-    } on ApiException catch (e) {
-      setState(() => _error = e.message);
-    } catch (e) {
-      setState(() => _error = 'Could not sign in with Google.');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -162,10 +189,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              OutlinedButton.icon(
-                onPressed: _loading ? null : _loginWithGoogle,
-                icon: const Icon(Icons.g_mobiledata, size: 28),
-                label: Text(l10n.continueWithGoogle),
+              buildGoogleSignInButton(
+                onPressed: _loading ? null : () => _googleSignIn.signIn(),
+                label: l10n.continueWithGoogle,
               ),
             ],
             const SizedBox(height: 8),

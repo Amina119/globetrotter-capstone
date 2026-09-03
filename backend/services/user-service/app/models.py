@@ -8,6 +8,7 @@ All persistent data is stored in a JSON file under the /data directory:
 """
 import json
 import os
+import threading
 
 # Resolve the /data directory relative to this file's location so the app
 # works regardless of the current working directory.
@@ -68,6 +69,32 @@ def save_user(user: dict) -> None:
     users = get_all_users()
     users.append(user)
     _write_json(USERS_FILE, users)
+
+
+# Guards the check-then-create sequence in get_or_create_user_by_email so two
+# concurrent requests for the same brand-new email (e.g. a user clicking
+# "Sign in with Google" twice, or on two tabs) can't both see "no existing
+# user" and each create a duplicate account. The Flask dev server runs
+# threaded (see main.py), so without this lock that race is real, not
+# theoretical — it's what actually created duplicate accounts in practice.
+_users_write_lock = threading.Lock()
+
+
+def get_or_create_user_by_email(email: str, build_user) -> dict:
+    """Return the existing user for *email*, or atomically create one.
+
+    *build_user* is a zero-argument callable returning the new user dict to
+    save if none exists yet — it's only invoked if a create is actually
+    needed, and the whole check-and-create happens under one lock so two
+    simultaneous callers can't both create an account for the same email.
+    """
+    with _users_write_lock:
+        user = get_user_by_email(email)
+        if user is not None:
+            return user
+        user = build_user()
+        save_user(user)
+        return user
 
 
 def update_user(email: str, updates: dict) -> dict | None:

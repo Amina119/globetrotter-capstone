@@ -29,7 +29,7 @@ import requests
 from flask import Blueprint, request, jsonify, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from app.models import get_all_users, get_user_by_email, save_user, update_user
+from app.models import get_all_users, get_user_by_email, get_or_create_user_by_email, save_user, update_user
 from app import email_client
 
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
@@ -265,10 +265,8 @@ def google_login():
     if not email:
         return jsonify({"error": "invalid Google credential"}), 401
 
-    user = get_user_by_email(email)
-    if not user:
-        is_admin = len(get_all_users()) == 0
-        user = {
+    def _build_google_user() -> dict:
+        return {
             "id": str(uuid.uuid4()),
             "name": name,
             "email": email,
@@ -277,12 +275,17 @@ def google_login():
             # to sign in to it.
             "password_hash": generate_password_hash(secrets.token_urlsafe(32)),
             "preferences": [],
-            "is_admin": is_admin,
+            "is_admin": len(get_all_users()) == 0,
             "auth_provider": "google",
             "reset_token": None,
             "reset_token_expires": None,
         }
-        save_user(user)
+
+    # Checking for an existing account and creating a new one must happen
+    # as one atomic step — see get_or_create_user_by_email's docstring for
+    # why a plain "if not get_user_by_email(...): save_user(...)" here can
+    # (and did) create duplicate accounts for the same email.
+    user = get_or_create_user_by_email(email, _build_google_user)
 
     token = create_token(email, current_app.config["SECRET_KEY"])
     return jsonify({

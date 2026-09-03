@@ -41,6 +41,7 @@ dependencies:
   shared_preferences: ^2.5.5
   provider: ^6.1.5+1
   google_sign_in: ^6.3.0
+  google_sign_in_web: ^0.12.4+4
   video_player: ^2.9.2
   media_kit: ^1.2.6
   media_kit_video: ^2.0.1
