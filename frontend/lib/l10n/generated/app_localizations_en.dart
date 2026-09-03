@@ -523,7 +523,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get travelModeWalking => 'Walking';
 
   @override
-  String get travelModeBike => 'Bike';
+  String get travelModeMotoSansBachement => 'Moto (private)';
+
+  @override
+  String get travelModeMotoAvecBachement => 'Moto (shared)';
 
   @override
   String get travelModeCar => 'Car';

@@ -35,7 +35,8 @@ class RoutingService {
     switch (mode) {
       case TravelMode.walking:
         return 'routed-foot';
-      case TravelMode.bike:
+      case TravelMode.motoSansBachement:
+      case TravelMode.motoAvecBachement:
         return 'routed-bike';
       case TravelMode.car:
         return 'routed-car';
@@ -46,7 +47,8 @@ class RoutingService {
     switch (mode) {
       case TravelMode.walking:
         return 'foot';
-      case TravelMode.bike:
+      case TravelMode.motoSansBachement:
+      case TravelMode.motoAvecBachement:
         return 'bike';
       case TravelMode.car:
         return 'car';

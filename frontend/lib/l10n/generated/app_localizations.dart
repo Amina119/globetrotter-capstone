@@ -1028,11 +1028,17 @@ abstract class AppLocalizations {
   /// **'Walking'**
   String get travelModeWalking;
 
-  /// No description provided for @travelModeBike.
+  /// No description provided for @travelModeMotoSansBachement.
   ///
   /// In en, this message translates to:
-  /// **'Bike'**
-  String get travelModeBike;
+  /// **'Moto (private)'**
+  String get travelModeMotoSansBachement;
+
+  /// No description provided for @travelModeMotoAvecBachement.
+  ///
+  /// In en, this message translates to:
+  /// **'Moto (shared)'**
+  String get travelModeMotoAvecBachement;
 
   /// No description provided for @travelModeCar.
   ///

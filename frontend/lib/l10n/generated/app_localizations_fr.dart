@@ -534,7 +534,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get travelModeWalking => 'À pied';
 
   @override
-  String get travelModeBike => 'À vélo';
+  String get travelModeMotoSansBachement => 'Moto sans bâchement';
+
+  @override
+  String get travelModeMotoAvecBachement => 'Moto avec bâchement';
 
   @override
   String get travelModeCar => 'En voiture';

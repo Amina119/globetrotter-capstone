@@ -242,8 +242,10 @@ class _ItineraryPanel extends StatelessWidget {
     switch (mode) {
       case TravelMode.walking:
         return l10n.travelModeWalking;
-      case TravelMode.bike:
-        return l10n.travelModeBike;
+      case TravelMode.motoSansBachement:
+        return l10n.travelModeMotoSansBachement;
+      case TravelMode.motoAvecBachement:
+        return l10n.travelModeMotoAvecBachement;
       case TravelMode.car:
         return l10n.travelModeCar;
     }
@@ -253,7 +255,8 @@ class _ItineraryPanel extends StatelessWidget {
     switch (mode) {
       case TravelMode.walking:
         return Icons.directions_walk_rounded;
-      case TravelMode.bike:
+      case TravelMode.motoSansBachement:
+      case TravelMode.motoAvecBachement:
         return Icons.two_wheeler_rounded;
       case TravelMode.car:
         return Icons.directions_car_filled_rounded;
