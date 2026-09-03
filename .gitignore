@@ -44,6 +44,7 @@ app.*.map.json
 /frontend/android/app/debug
 /frontend/android/app/profile
 /frontend/android/app/release
+/frontend/android/.gradle/
 
 # Python
 __pycache__/
