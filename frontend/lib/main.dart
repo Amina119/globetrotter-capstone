@@ -6,7 +6,6 @@ import 'package:media_kit/media_kit.dart';
 import 'package:provider/provider.dart';
 
 import 'l10n/generated/app_localizations.dart';
-import 'screens/home_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/session.dart';
 import 'theme/cameroon_colors.dart';
@@ -165,7 +164,8 @@ class _StartupGateState extends State<_StartupGate> {
   @override
   Widget build(BuildContext context) {
     if (!_ready) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    final session = context.watch<Session>();
-    return session.isLoggedIn ? const HomeScreen() : const LoginScreen();
+    // Always start at the login screen, even if a previous session was
+    // saved — the app never auto-signs the user back in on launch.
+    return const LoginScreen();
   }
 }
