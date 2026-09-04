@@ -33,6 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _loading = false;
+  bool _obscurePassword = true;
   String? _error;
 
   // A single shared GoogleSignIn instance: on web, the rendered "Sign in
@@ -161,8 +162,15 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 12),
             TextFormField(
               controller: _passwordController,
-              obscureText: true,
-              decoration: InputDecoration(labelText: l10n.password, prefixIcon: const Icon(Icons.lock_outline)),
+              obscureText: _obscurePassword,
+              decoration: InputDecoration(
+                labelText: l10n.password,
+                prefixIcon: const Icon(Icons.lock_outline),
+                suffixIcon: IconButton(
+                  icon: Icon(_obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                ),
+              ),
               validator: (v) => (v == null || v.isEmpty) ? l10n.passwordRequired : null,
             ),
             if (_error != null) ...[
