@@ -142,5 +142,17 @@
     "auth_provider": "google",
     "reset_token": null,
     "reset_token_expires": null
+  },
+  {
+    "id": "b97deb9c-fed4-4cc5-ab5c-7fa6b224bc35",
+    "name": "Amina",
+    "email": "boubakaryamina111@gmail.com",
+    "password_hash": "scrypt:32768:8:1$YeLhK4En5klabx6G$24dea232c343a76a792e536a1f4568eeeb263ba60fec6698897bbaaf3290075a9e059cc6bdc944341c385cb249423c9a6a6525c985261abcefcef72de6ebc93a",
+    "preferences": [
+      "food"
+    ],
+    "is_admin": false,
+    "reset_token": null,
+    "reset_token_expires": null
   }
 ]

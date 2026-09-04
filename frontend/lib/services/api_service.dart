@@ -152,11 +152,21 @@ class ApiService {
     return data['entries'] as List<dynamic>;
   }
 
-  Future<Map<String, dynamic>> postChatMessage({required String text, String? parentId}) async {
+  Future<Map<String, dynamic>> postChatMessage({
+    required String text,
+    String? parentId,
+    String? mediaUrl,
+    String? mediaType,
+  }) async {
     final res = await http.post(
       _uri('/chat'),
       headers: _headers,
-      body: jsonEncode({'text': text, 'parent_id': parentId}),
+      body: jsonEncode({
+        'text': text,
+        'parent_id': parentId,
+        'media_url': mediaUrl,
+        'media_type': mediaType,
+      }),
     );
     return _decode(res) as Map<String, dynamic>;
   }
@@ -164,6 +174,25 @@ class ApiService {
   Future<void> deleteChatMessage(String messageId) async {
     final res = await http.delete(_uri('/chat/$messageId'), headers: _headers);
     _decode(res);
+  }
+
+  /// Uploads a chat attachment (image, voice note, or video) and returns
+  /// `{url, media_type}` for use with [postChatMessage].
+  Future<Map<String, dynamic>> uploadChatMedia({
+    required List<int> bytes,
+    required String filename,
+  }) async {
+    final request = http.MultipartRequest('POST', _uri('/chat/upload'));
+    if (token != null) request.headers['Authorization'] = 'Bearer $token';
+    request.files.add(http.MultipartFile.fromBytes('file', bytes, filename: filename));
+    final streamed = await request.send();
+    final res = await http.Response.fromStream(streamed);
+    return _decode(res) as Map<String, dynamic>;
+  }
+
+  /// Absolute URL for a `media_url` returned by the chat API (e.g. "/uploads/x.png").
+  String resolveMediaUrl(String mediaUrl) {
+    return mediaUrl.startsWith('http') ? mediaUrl : '$apiBaseUrl$mediaUrl';
   }
 
 

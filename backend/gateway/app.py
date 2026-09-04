@@ -9,7 +9,8 @@ streams the response straight back. Doesn't touch passwords or JWTs itself
 Route table
 -----------
 /register, /login, /auth/google, /profile,
-  /forgot-password, /reset-password, /feedback         -> User Service
+  /forgot-password, /reset-password, /feedback,
+  /chat, /uploads                                       -> User Service
 /itineraries*                                          -> Itinerary Service
 /destinations*, /recommendations*,
   /my-recommendations*, /admin/recommendations*,
@@ -47,6 +48,7 @@ _ROUTES = [
     ("/reset-password", USER_SERVICE_URL),
     ("/feedback", USER_SERVICE_URL),
     ("/chat", USER_SERVICE_URL),
+    ("/uploads", USER_SERVICE_URL),
     ("/profile", USER_SERVICE_URL),
     ("/itineraries", ITINERARY_SERVICE_URL),
     ("/destinations", RECOMMENDATION_SERVICE_URL),

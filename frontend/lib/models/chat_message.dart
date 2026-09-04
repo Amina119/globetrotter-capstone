@@ -5,6 +5,8 @@ class ChatMessage {
   final String name;
   final String text;
   final String createdAt;
+  final String? mediaUrl;
+  final String? mediaType; // "image" | "audio" | "video" | null
 
   ChatMessage({
     required this.id,
@@ -13,6 +15,8 @@ class ChatMessage {
     required this.name,
     required this.text,
     required this.createdAt,
+    this.mediaUrl,
+    this.mediaType,
   });
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
@@ -23,6 +27,8 @@ class ChatMessage {
       name: json['name']?.toString() ?? '',
       text: json['text']?.toString() ?? '',
       createdAt: json['created_at']?.toString() ?? '',
+      mediaUrl: json['media_url']?.toString(),
+      mediaType: json['media_type']?.toString(),
     );
   }
 }

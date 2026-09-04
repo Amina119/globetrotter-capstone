@@ -20,6 +20,10 @@ CHAT_MESSAGES_FILE = os.path.join(DATA_DIR, "chat_messages.json")
 
 FEEDBACK_FILE = os.path.join(DATA_DIR, "feedback.json")
 
+# Chat attachments (images, voice notes, videos) are saved to disk here and
+# served back out via the /uploads/<filename> static route in chat.py.
+CHAT_UPLOADS_DIR = os.path.join(DATA_DIR, "uploads")
+
 
 # ---------------------------------------------------------------------------
 # Generic file I/O helpers
@@ -164,5 +168,7 @@ def delete_message(message_id: str, email: str) -> bool:
     if match is None:
         return False
     match["text"] = "[deleted]"
+    match["media_url"] = None
+    match["media_type"] = None
     _write_json(CHAT_MESSAGES_FILE, entries)
     return True

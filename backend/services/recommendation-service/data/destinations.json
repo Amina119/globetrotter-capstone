@@ -161,9 +161,10 @@
     "quarter": "Terminus",
     "sector": "restaurant bar where you can chop life with family and friends",
     "tags": [
+      "food",
       "romance"
     ],
-    "avg_cost_per_day": 3500,
+    "avg_cost_per_day": 1000,
     "latitude": 3.932419853291469,
     "longitude": 11.544137738158991
   },
