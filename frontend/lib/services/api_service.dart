@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 ///   flutter run -d chrome --dart-define=API_BASE_URL=http://your-vps-ip:5000
 const String apiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
-  defaultValue: 'http://localhost:5000',
+  defaultValue: 'https://38.242.246.126',
 );
 
 class ApiException implements Exception {
