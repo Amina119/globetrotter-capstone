@@ -39,7 +39,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       setState(() => _error = e.message);
     } catch (e) {
       debugPrint('forgot-password request failed: $e');
-      setState(() => _error = 'Could no reach the server. Is the API running?');
+      setState(() => _error = 'Could not reach the server. Is the API running?');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
