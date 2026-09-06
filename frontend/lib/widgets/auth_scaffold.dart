@@ -101,6 +101,22 @@ class AuthScaffold extends StatelessWidget {
                   child: _LanguageToggleButton(),
                 ),
               ),
+              if (!isWide && heroVideoAsset != null)
+                Positioned(
+                  bottom: 16,
+                  left: 0,
+                  right: 0,
+                  child: SafeArea(
+                    top: false,
+                    child: Center(
+                      child: _WatchWithSoundButton.labeled(
+                        label: 'See Paulina Hotel',
+                        dark: true,
+                        onTap: () => _openVideoWithSound(context, heroVideoAsset!),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           );
         },
@@ -332,13 +348,19 @@ class _BrandVideoBackgroundState extends State<_BrandVideoBackground> {
 /// full-size with its original audio.
 class _WatchWithSoundButton extends StatelessWidget {
   final VoidCallback onTap;
+  final String label;
+  final bool dark;
 
-  const _WatchWithSoundButton({required this.onTap});
+  const _WatchWithSoundButton({required this.onTap}) : label = 'Watch with sound', dark = false;
+
+  const _WatchWithSoundButton.labeled({required this.label, required this.onTap, this.dark = false});
 
   @override
   Widget build(BuildContext context) {
+    final textColor = dark ? Colors.white : Colors.white;
+    final bgColor = dark ? Colors.black.withValues(alpha: 0.55) : Colors.white.withValues(alpha: 0.16);
     return Material(
-      color: Colors.white.withValues(alpha: 0.16),
+      color: bgColor,
       borderRadius: BorderRadius.circular(24),
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
@@ -355,8 +377,8 @@ class _WatchWithSoundButton extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                'Watch with sound',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
+                label,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: textColor, fontWeight: FontWeight.w600),
               ),
             ],
           ),
