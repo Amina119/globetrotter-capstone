@@ -91,7 +91,7 @@
   "welcomeDefault": "Welcome!",
   "welcomeNamed": "Welcome, {name}!",
   "@welcomeNamed": {"placeholders": {"name": {"type": "String"}}},
-  "gettingTripReady": "Getting your trip ready...",
+  "gettingTripReady": "Ready to discover Nkolmbong",
 
   "itinNew": "New itinerary",
   "itinEdit": "Edit itinerary",

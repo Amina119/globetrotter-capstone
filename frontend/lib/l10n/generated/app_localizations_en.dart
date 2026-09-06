@@ -257,7 +257,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get gettingTripReady => 'Getting your trip ready...';
+  String get gettingTripReady => 'Ready to discover Nkolmbong';
 
   @override
   String get itinNew => 'New itinerary';

@@ -261,7 +261,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get gettingTripReady => 'Préparation de votre voyage...';
+  String get gettingTripReady => 'Prêt à découvrir Nkolmbong';
 
   @override
   String get itinNew => 'Nouvel itinéraire';

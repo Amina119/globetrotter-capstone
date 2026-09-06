@@ -581,7 +581,7 @@ abstract class AppLocalizations {
   /// No description provided for @gettingTripReady.
   ///
   /// In en, this message translates to:
-  /// **'Getting your trip ready...'**
+  /// **'Ready to discover Nkolmbong'**
   String get gettingTripReady;
 
   /// No description provided for @itinNew.
