@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart' as mk;
 import 'package:media_kit_video/media_kit_video.dart' as mkv;
 import 'package:video_player/video_player.dart';
+ 
+import 'full_screen_image_viewer.dart';
 
 import '../utils/video_platform.dart';
 import 'full_screen_video_player.dart';

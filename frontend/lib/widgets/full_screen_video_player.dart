@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart' as mk;
 import 'package:media_kit_video/media_kit_video.dart' as mkv;
 import 'package:video_player/video_player.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import '../utils/download_asset/download_asset.dart';
 
 import '../utils/video_platform.dart';
 
@@ -66,11 +68,12 @@ class _FullScreenVideoPlayerState extends State<FullScreenVideoPlayer> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
+            appBar: AppBar(
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         title: Text(widget.title),
       ),
+
       body: SafeArea(
         child: Center(
           child: _failed
