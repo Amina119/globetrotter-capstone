@@ -5,6 +5,7 @@ import '../l10n/generated/app_localizations.dart';
 import '../services/session.dart';
 import '../theme/cameroon_colors.dart';
 import '../theme/locale_controller.dart';
+import 'admin_dashboard_screen.dart';
 import 'admin_destinations_screen.dart';
 import 'dashboard_screen.dart';
 import 'destinations_screen.dart';
@@ -58,6 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
       const MapScreen(),
       const ChatScreen(),
       if (session.isAdmin) const AdminDestinationsScreen(),
+      if (session.isAdmin) const AdminDashboardScreen(),
     ];
     final titles = [
       l10n.navHome,
@@ -67,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
       l10n.navMap,
       'Chat',
       if (session.isAdmin) l10n.titleManageDestinations,
+      if (session.isAdmin) 'Dashboard',
     ];
     final navDestinations = [
       NavigationDestination(icon: const Icon(Icons.home_outlined), selectedIcon: const Icon(Icons.home), label: l10n.navHome),
@@ -76,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
       NavigationDestination(icon: const Icon(Icons.map), label: l10n.navMap),
       NavigationDestination(icon: const Icon(Icons.chat_bubble_outline_rounded), label: 'Chat'),
       if (session.isAdmin) NavigationDestination(icon: const Icon(Icons.admin_panel_settings), label: l10n.navAdmin),
+      if (session.isAdmin) const NavigationDestination(icon: Icon(Icons.bar_chart_outlined), label: 'Dashboard'),
     ];
 
     // Guard against a stale tab index if isAdmin flips and the tab count shrinks.

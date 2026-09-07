@@ -148,6 +148,8 @@ def login():
     if not user or not check_password_hash(user["password_hash"], password):
         return jsonify({"error": "invalid credentials"}), 401
 
+    update_user(email, {"last_login": datetime.datetime.now(datetime.timezone.utc).isoformat()})
+
     token = create_token(email, current_app.config["SECRET_KEY"])
     return jsonify({
         "token": token,
@@ -286,6 +288,7 @@ def google_login():
     # why a plain "if not get_user_by_email(...): save_user(...)" here can
     # (and did) create duplicate accounts for the same email.
     user = get_or_create_user_by_email(email, _build_google_user)
+    update_user(email, {"last_login": datetime.datetime.now(datetime.timezone.utc).isoformat()})
 
     token = create_token(email, current_app.config["SECRET_KEY"])
     return jsonify({
@@ -376,3 +379,19 @@ def get_user_internal(email):
         "preferences": user.get("preferences", []),
         "is_admin": bool(user.get("is_admin")),
     }), 200
+
+
+@auth_bp.route("/internal/users", methods=["GET"])
+def list_users_internal():
+    """Return every user's public profile plus last_login (never the
+    password hash). Used by Recommendation Service for /admin/stats.
+    """
+    return jsonify([
+        {
+            "email": u.get("email"),
+            "name": u.get("name", ""),
+            "is_admin": bool(u.get("is_admin")),
+            "last_login": u.get("last_login"),
+        }
+        for u in get_all_users()
+    ]), 200

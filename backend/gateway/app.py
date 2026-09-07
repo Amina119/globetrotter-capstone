@@ -14,7 +14,7 @@ Route table
 /itineraries*                                          -> Itinerary Service
 /destinations*, /recommendations*,
   /my-recommendations*, /admin/recommendations*,
-  /admin/destinations*, /places*                        -> Recommendation Service
+  /admin/destinations*, /admin/stats*, /places*          -> Recommendation Service
 /health                                                -> the gateway's own liveness check
 
 Routes starting with /internal/ are service-to-service only and are
@@ -56,6 +56,7 @@ _ROUTES = [
     ("/my-recommendations", RECOMMENDATION_SERVICE_URL),
     ("/admin/recommendations", RECOMMENDATION_SERVICE_URL),
     ("/admin/destinations", RECOMMENDATION_SERVICE_URL),
+    ("/admin/stats", RECOMMENDATION_SERVICE_URL),
     ("/places", RECOMMENDATION_SERVICE_URL),
 ]
 

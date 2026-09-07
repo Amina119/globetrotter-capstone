@@ -130,6 +130,11 @@ def get_reviews_for_place(place_id: str) -> list:
     return sorted(entries, key=lambda e: e.get("updated_at", ""), reverse=True)
 
 
+def get_all_reviews() -> list:
+    """Return every review, across all places. Used for /admin/stats."""
+    return _read_json(PLACE_REVIEWS_FILE)
+
+
 def upsert_place_review(place_id: str, email: str, entry: dict) -> None:
     """Create or replace *email*'s review of *place_id*."""
     entries = _read_json(PLACE_REVIEWS_FILE)

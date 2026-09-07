@@ -36,6 +36,20 @@ def get_user(email: str) -> dict | None:
         return None
 
 
+def get_all_users() -> list:
+    """Return every user's {email, name, is_admin, last_login}. Returns an
+    empty list (not an error) if the User Service can't be reached, so
+    /admin/stats degrades gracefully instead of failing outright.
+    """
+    try:
+        res = requests.get(f"{USER_SERVICE_URL}/internal/users", timeout=_TIMEOUT)
+        res.raise_for_status()
+        return res.json()
+    except requests.RequestException:
+        _logger.exception("Failed to reach User Service for the user list")
+        return []
+
+
 def get_user_itineraries(email: str) -> list:
     """Return the itineraries owned by *email*. Returns an empty list (not
     an error) if the Itinerary Service can't be reached, so a downstream

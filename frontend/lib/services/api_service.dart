@@ -91,6 +91,13 @@ class ApiService {
     return _decode(res) as Map<String, dynamic>;
   }
 
+  /// Admin only. Returns platform-wide numbers for the admin dashboard:
+  /// `{total_users, active_users, average_rating}`.
+  Future<Map<String, dynamic>> getAdminStats() async {
+    final res = await http.get(_uri('/admin/stats'), headers: _headers);
+    return _decode(res) as Map<String, dynamic>;
+  }
+
   /// Updates the current user's name and/or preferences. Pass only the
   /// fields that changed.
   Future<Map<String, dynamic>> updateProfile({String? name, List<String>? preferences}) async {
