@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'place_detail_screen.dart';
 
 import '../data/sample_places.dart';
 import '../l10n/generated/app_localizations.dart';
@@ -211,15 +212,13 @@ class _PlaceRail extends StatelessWidget {
         itemBuilder: (context, i) {
           final place = items[i];
           return PlaceCard(
-            place: place,
-            icon: icon,
-            accent: accent,
-            onTap: place.sector == null
-                ? null
-                : () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => SectorDetailScreen(sector: place.sector!)),
-                    ),
-          );
+  place: place,
+  icon: icon,
+  accent: accent,
+  onTap: () => Navigator.of(context).push(
+    MaterialPageRoute(builder: (_) => PlaceDetailScreen(place: place, icon: icon, accent: accent)),
+  ),
+);
         },
       ),
     );
