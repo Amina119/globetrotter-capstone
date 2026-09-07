@@ -52,17 +52,25 @@ class PlaceMedia extends StatelessWidget {
     );
   }
 
-  Widget _imageOrPlaceholder() {
+   Widget _imageOrPlaceholder() {
     final path = imageAsset;
     if (path == null) return _placeholder(icon, color);
-    return Image.asset(
-      path,
-      fit: BoxFit.cover,
-      width: double.infinity,
-      height: double.infinity,
-      errorBuilder: (context, error, stackTrace) => _placeholder(icon, color),
+    return Builder(
+      builder: (context) => GestureDetector(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => FullScreenImageViewer(assetPath: path, title: placeName ?? '')),
+        ),
+        child: Image.asset(
+          path,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (context, error, stackTrace) => _placeholder(icon, color),
+        ),
+      ),
     );
   }
+
 }
 
 Widget _placeholder(IconData icon, Color color) {
