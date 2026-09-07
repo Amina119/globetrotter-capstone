@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "GlobeTrotter (Chrome, prod backend)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "deviceId": "chrome",
+      "args": [
+        "--dart-define=API_BASE_URL=https://mineglobe.duckdns.org/api",
+        "--dart-define=GOOGLE_CLIENT_ID=982077114634-489dd9hqj7pm7773mk0kkudpabt7j29g.apps.googleusercontent.com"
+      ]
+    }
+  ]
+}
